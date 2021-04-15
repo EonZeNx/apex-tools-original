@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace A01.Utility
+namespace A01.Utils
 {
-    public static class ConsoleUtils
-    {
-        public static string GetInput(string msg)
-        {
-            Console.Write(msg);
-            return Console.ReadLine();
-        }
-    }
-    
     /// <summary>
     /// Custom ByteArray Equality Comparer.
     /// Arrays are references so two same arrays will not be the same.

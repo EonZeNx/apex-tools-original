@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="39c3e4d1-5244-4bc2-9f73-afedf76d8624" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Apex Engine Tools CSharp/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Apex Engine Tools CSharp/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/A01.Tests/FourCCProcessorUnitTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/A01.Tests/FourCCProcessorUnitTests.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/A01/FourCCProcessor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/A01/FourCCProcessor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/A01/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/A01/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/A01/Utility/Utils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/A01/Utility/Utils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Apex Engine Tools CSharp.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/Apex Engine Tools CSharp.sln.DotSettings.user" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,10 +29,10 @@
       <option value="$PROJECT_DIR$/A01.Tests/FourCCProcessorTests.cs" />
       <option value="$PROJECT_DIR$/A01.Tests/FourCcProcessorIntegrationTests.cs" />
       <option value="$PROJECT_DIR$/A01.Tests/FourCCProcessorIntegrationTests.cs" />
-      <option value="$PROJECT_DIR$/A01/Program.cs" />
-      <option value="$PROJECT_DIR$/A01/FourCCProcessor.cs" />
       <option value="$PROJECT_DIR$/A01.Tests/FourCCProcessorUnitTests.cs" />
       <option value="$PROJECT_DIR$/A01/Utility/Utils.cs" />
+      <option value="$PROJECT_DIR$/A01/FourCCProcessor.cs" />
+      <option value="$PROJECT_DIR$/A01/Program.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1rBAFtQ1CJDAfqUxAUppdZWJBO7" />
@@ -88,7 +84,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1618439011586</updated>
-      <workItem from="1618439017515" duration="18823000" />
+      <workItem from="1618439017515" duration="19246000" />
     </task>
     <servers />
   </component>

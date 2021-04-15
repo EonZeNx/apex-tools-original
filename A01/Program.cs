@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Dynamic;
 using System.Linq;
-using A01.Utility;
+using A01.Utils;
 
 namespace A01
 {
@@ -63,10 +63,10 @@ namespace A01
             ParseArguments(args);
             var filepaths = FilterForFilePaths(args);
 
-            var proc4c = new FourCCProcessor();
+            var fourCProc = new FourCCProcessor();
             foreach (var filepath in filepaths)
             {
-                
+                var fourCC = fourCProc.GetFourCC(filepath);
             }
 
             // No auto close optional argument

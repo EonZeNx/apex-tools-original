@@ -16,7 +16,6 @@
       <e p="A01" t="IncludeRecursive">
         <e p="A01.csproj" t="IncludeRecursive" />
         <e p="bin" t="ExcludeRecursive" />
-        <e p="FourCCProcessor.cs" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="net5.0" t="Include">
@@ -24,9 +23,13 @@
             </e>
           </e>
         </e>
+        <e p="Processors" t="Include">
+          <e p="FourCCProcessor.cs" t="Include" />
+        </e>
         <e p="Program.cs" t="Include" />
-        <e p="Utility" t="Include">
-          <e p="Utils.cs" t="Include" />
+        <e p="Utils" t="Include">
+          <e p="ByteArrayUtils.cs" t="Include" />
+          <e p="ConsoleUtils.cs" t="Include" />
         </e>
       </e>
       <e p="A01.Tests" t="IncludeRecursive">

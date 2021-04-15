@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using A01.Utility;
+using A01.Utils;
 
 namespace A01
 {
@@ -28,7 +28,6 @@ namespace A01
         
         public bool IsSupportedFourCC(byte[] input)
         {
-            // var result = SUPPORTED_FOUR_CC.Any(fourCC => fourCC.SequenceEqual(input));
             var result = FOURC_CCS.Any(pair => pair.Key.SequenceEqual(input));
             return result;
         }
