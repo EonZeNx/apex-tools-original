@@ -15,6 +15,12 @@ namespace A01
             {"-nac", "No Auto Close: Will prevent the console from automatically closing."}
         };
 
+        private static bool autoClose = true;
+
+        /// <summary>
+        /// Parse arguments and set the code variables for them
+        /// </summary>
+        /// <param name="args">Args launched with program.</param>
         private static void ParseArguments(string[] args)
         {
             // No args or -h passed
@@ -30,6 +36,17 @@ namespace A01
             }
             
             // To add other args, create a class variable and set it when detecting the argument.
+            if (arguments.ContainsKey("-nac")) autoClose = false;
+        }
+
+        /// <summary>
+        /// Filters out arguments passed to program. This should be an array of filepaths.
+        /// </summary>
+        /// <param name="args">Args launched with program.</param>
+        /// <returns></returns>
+        private static string[] FilterForFilePaths(string[] args)
+        {
+            return args.Where(filepath => !arguments.ContainsKey(filepath)).ToArray();
         }
         
         static void Main(string[] args)
@@ -44,14 +61,16 @@ namespace A01
             Console.WriteLine(motdBreak);
             
             ParseArguments(args);
-            
-            foreach (var arg in args)
+            var filepaths = FilterForFilePaths(args);
+
+            var proc4c = new FourCCProcessor();
+            foreach (var filepath in filepaths)
             {
-                Console.WriteLine(arg);
+                
             }
 
             // No auto close optional argument
-            if (args.Any(arg => arg == "-nac") || args.Length == 0)
+            if (!autoClose)
             {
                 ConsoleUtils.GetInput("Press any key to continue...");
             }

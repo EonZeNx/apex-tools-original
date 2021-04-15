@@ -1,32 +1,39 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using A01.Utility;
 
 namespace A01
 {
+    public enum EFoucCC
+    {
+        RTPC,
+        ADF,
+        SARC,
+        AAF,
+        TAB
+    }
+    
     public class FourCCProcessor
     {
-        public static readonly byte[][] SUPPORTED_FOUR_CC = new[]
+        public static readonly Dictionary<byte[], EFoucCC> FOURC_CCS = new(new ByteArrayEqualityComparer())
         {
-            // RTPC
-            new byte[] {0x52, 0x54, 0x50, 0x43},
-            // AAF
-            new byte[] {0x41, 0x41, 0x46, 0x00},
-            // SARC
-            new byte[] {0x53, 0x41, 0x52, 0x43},
-            // TAB
-            new byte[] {0x54, 0x41, 0x42, 0x00},
-            // ADF/ FDA
-            new byte[] {0x20, 0x46, 0x44, 0x41}
+            {new byte[] {0x52, 0x54, 0x50, 0x43}, EFoucCC.RTPC},
+            {new byte[] {0x20, 0x46, 0x44, 0x41}, EFoucCC.ADF},
+            {new byte[] {0x53, 0x41, 0x52, 0x43}, EFoucCC.SARC},
+            {new byte[] {0x41, 0x41, 0x46, 0x00}, EFoucCC.AAF},
+            {new byte[] {0x54, 0x41, 0x42, 0x00}, EFoucCC.TAB},
         };
         
         public bool IsSupportedFourCC(byte[] input)
         {
-            var result = SUPPORTED_FOUR_CC.Any(fourCC => fourCC.SequenceEqual(input));
+            // var result = SUPPORTED_FOUR_CC.Any(fourCC => fourCC.SequenceEqual(input));
+            var result = FOURC_CCS.Any(pair => pair.Key.SequenceEqual(input));
             return result;
         }
 
-        public byte[] FourCCInByteArray(byte[] input)
+        public EFoucCC FourCCInByteArray(byte[] input)
         {
             for (var i = 4; i <= input.Length; i += 4)
             {
@@ -34,7 +41,7 @@ namespace A01
                 var bytes = input[lastI..i];
                 if (IsSupportedFourCC(bytes))
                 {
-                    return input[lastI..i];
+                    return FOURC_CCS[bytes];
                 }
             }
             throw new ArgumentException("Did not find supported FourCC");
@@ -46,6 +53,12 @@ namespace A01
             {
                 return binaryStream.ReadBytes(16);
             }
+        }
+
+        public EFoucCC GetFourCC(string filepath)
+        {
+            var bytes = GetFirst16Bytes(filepath);
+            return FourCCInByteArray(bytes);
         }
     }
 }
