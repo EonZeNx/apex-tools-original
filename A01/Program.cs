@@ -9,8 +9,16 @@ namespace A01
 {
     class Program
     {
-        private static Dictionary<string, string> arguments = new ()
-        {
+        private static string[] motds = {
+            "Now featuring ∞ more C#!",
+            "Now featuring ∞ less Python!",
+            "More speed, less not-speed",
+            "Geht to da chapper!",
+            "fuck this took way too long to make",
+            "This stupid random MOTD was one of the first things I did",
+        };
+        
+        private static Dictionary<string, string> arguments = new () {
             {"-h", "Help: Display this message. All arguments are lower case."},
             {"-nac", "No Auto Close: Will prevent the console from automatically closing."}
         };
@@ -51,10 +59,13 @@ namespace A01
         
         static void Main(string[] args)
         {
-            // Message of the Day
             Console.Title = Info.Get();
             
-            var motd = $"{Info.Get()} - Now featuring ∞ more C#!";
+            // Message of the Day
+            var randomIntMOTD = new Random().Next(0, motds.Length);
+            var randomMOTD = motds[randomIntMOTD];
+            
+            var motd = $"{Info.Get()} - {randomMOTD}";
             var motdBreak = new string('=', motd.Length);
             Console.WriteLine(motdBreak);
             Console.WriteLine(motd);
