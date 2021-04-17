@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace A01.Utility
+namespace A01.Utils
 {
     public static class ConsoleUtils
     {

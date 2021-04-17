@@ -108,7 +108,7 @@ namespace A01.Tests
                 0x2A, 0x52, 0x7D, 0xAA, 
                 0x14, 0x00, 0x00, 0x00
             };
-            var expectedOutput = FourCCProcessor.SUPPORTED_FOUR_CC[0];
+            var expectedOutput = EFoucCC.RTPC;
             
             var fourCCProcessor = new FourCCProcessor();
             
@@ -126,7 +126,7 @@ namespace A01.Tests
                 0x14, 0x00, 0x00, 0x00, 
                 0x52, 0x54, 0x50, 0x43 // RTPC
             };
-            var expectedOutput = FourCCProcessor.SUPPORTED_FOUR_CC[0];
+            var expectedOutput = EFoucCC.RTPC;
             
             var fourCCProcessor = new FourCCProcessor();
             
@@ -144,7 +144,7 @@ namespace A01.Tests
                 0x41, 0x56, 0x41, 0x4C, 
                 0x41, 0x4E, 0x43, 0x48
             };
-            var expectedOutput = FourCCProcessor.SUPPORTED_FOUR_CC[1];
+            var expectedOutput = EFoucCC.AAF;
             
             var fourCCProcessor = new FourCCProcessor();
             
