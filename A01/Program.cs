@@ -9,7 +9,7 @@ namespace A01
 {
     class Program
     {
-        private static string[] motds = {
+        private static readonly string[] MOTDS = {
             "Now featuring ∞ more C#!",
             "Now featuring ∞ less Python!",
             "More speed, less not-speed",
@@ -18,7 +18,7 @@ namespace A01
             "This stupid random MOTD was one of the first things I did",
         };
         
-        private static Dictionary<string, string> arguments = new () {
+        private static readonly Dictionary<string, string> arguments = new () {
             {"-h", "Help: Display this message. All arguments are lower case."},
             {"-nac", "No Auto Close: Will prevent the console from automatically closing."}
         };
@@ -62,8 +62,8 @@ namespace A01
             Console.Title = Info.Get();
             
             // Message of the Day
-            var randomIntMOTD = new Random().Next(0, motds.Length);
-            var randomMOTD = motds[randomIntMOTD];
+            var randomIntMOTD = new Random().Next(0, MOTDS.Length);
+            var randomMOTD = MOTDS[randomIntMOTD];
             
             var motd = $"{Info.Get()} - {randomMOTD}";
             var motdBreak = new string('=', motd.Length);
