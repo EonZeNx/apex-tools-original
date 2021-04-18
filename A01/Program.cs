@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Dynamic;
 using System.Linq;
+using A01.Processors.IRTPC;
 using A01.Utils;
 
 namespace A01
@@ -32,7 +33,7 @@ namespace A01
         private static void ParseArguments(string[] args)
         {
             // No args or -h passed
-            if (args.Length == 0 || arguments.ContainsKey("-h") || arguments.ContainsKey("-help"))
+            if (args.Length == 0 || args.Contains("-h") || args.Contains("-help"))
             {
                 foreach (KeyValuePair<string, string> entry in arguments)
                 {
@@ -75,9 +76,30 @@ namespace A01
             var filepaths = FilterForFilePaths(args);
 
             var fourCProc = new FourCCProcessor();
+            for (int i = 0; i < filepaths.Length; i++)
+            {
+                var filepath = filepaths[i];
+                var path = Path.GetDirectoryName(filepath);
+                var filename = Path.GetFileNameWithoutExtension(filepath);
+                
+                if (!File.Exists(filepath)) throw new FileNotFoundException("Filepath was not a file");
+                Console.WriteLine($"[{i}/{filepaths.Length}] Processing '{filepath}'");
+                
+                var fourCC = fourCProc.GetFourCC(filepath);
+                IFileProcessor fileProcessor;
+                switch (fourCC)
+                {
+                    case EFoucCC.IRTPC:
+                        fileProcessor = new IRTPC_V01(); break;
+                    default:
+                        throw new FormatException("Hit default case for EFourCC");
+                }
+                fileProcessor.LoadBinary(filepath);
+                fileProcessor.ExportConverted(@$"{path}\{filename}_serial.yaml");
+            }
             foreach (var filepath in filepaths)
             {
-                var fourCC = fourCProc.GetFourCC(filepath);
+                
             }
 
             // No auto close optional argument
