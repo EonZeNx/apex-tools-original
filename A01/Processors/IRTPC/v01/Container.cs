@@ -27,9 +27,16 @@ namespace A01.Processors.IRTPC.v01
         public PropertyVariants[] Properties { get; private set; }
 
 
-        public void Serialize(BinaryWriter binaryWriter)
+        public void Serialize(BinaryWriter bw)
         {
-            throw new System.NotImplementedException();
+            bw.Write(NameHash);
+            bw.Write(Version01);
+            bw.Write(Version02);
+            bw.Write((ushort) Properties.Length);
+            foreach (var property in Properties)
+            {
+                property.Serialize(bw);
+            }
         }
 
         public void Deserialize(BinaryReader br)

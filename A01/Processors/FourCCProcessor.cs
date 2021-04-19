@@ -58,7 +58,6 @@ namespace A01
 
         public EFoucCC GetFourCC(string filepath)
         {
-            
             var bytes = GetFirst16Bytes(filepath);
             return FourCCInByteArray(bytes);
         }

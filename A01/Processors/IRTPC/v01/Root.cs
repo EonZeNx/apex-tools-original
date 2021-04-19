@@ -11,7 +11,7 @@ namespace A01.Processors.IRTPC.v01
         * Version 02 : u16
         * Object count : u16
         */
-
+        
         protected long Offset { get; private set; }
         protected ushort ObjectCount { get; private set; }
         public byte Version01 { get; private set; }
@@ -19,9 +19,15 @@ namespace A01.Processors.IRTPC.v01
         public Container[] Containers { get; private set; }
 
 
-        public void Serialize(BinaryWriter binaryWriter)
+        public void Serialize(BinaryWriter bw)
         {
-            throw new System.NotImplementedException();
+            bw.Write(Version01);
+            bw.Write(Version02);
+            bw.Write((ushort) Containers.Length);
+            foreach (var container in Containers)
+            {
+                container.Serialize(bw);
+            }
         }
 
         public void Deserialize(BinaryReader br)

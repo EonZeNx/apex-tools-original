@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using A01.Processors.IRTPC.v01;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace A01.Processors.IRTPC
+namespace A01.Processors.IRTPC.v01
 {
     public class IRTPC_V01 : IFileProcessor
     {
@@ -26,14 +25,14 @@ namespace A01.Processors.IRTPC
          * Value : VARIOUS (Use <T> on property and call like an Unreal array)
          */
 
-        public string Filetype = "IRTPC";
-        public int Version = 01;
-        public string Extension = "bin";
+        public static readonly string FILETYPE = "IRTPC";
+        public static readonly int VERSION = 01;
+        public static string EXTENSION = "bin";
         public Root Root;
         
         public void LoadBinary(string path)
         {
-            Extension = Path.GetExtension(path);
+            EXTENSION = Path.GetExtension(path);
             using (var br = new BinaryReader(new FileStream(path, FileMode.Open)))
             {
                 Root = new Root();
@@ -56,12 +55,30 @@ namespace A01.Processors.IRTPC
 
         public void LoadConverted(string path)
         {
-            throw new System.NotImplementedException();
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+            
+            string yaml;
+            using (var sr = new StreamReader(new FileStream(path, FileMode.Open)))
+            {
+                yaml = sr.ReadToEnd();
+            }
+
+            Root = deserializer.Deserialize<Root>(yaml);
         }
 
         public void ExportBinary(string path)
         {
-            throw new System.NotImplementedException();
+            using (var bw = new BinaryWriter(new FileStream(path, FileMode.Open)))
+            {
+                Root.Serialize(bw);
+            }
+        }
+
+        public void ProcessPath(string path)
+        {
+            throw new NotImplementedException();
         }
     }
 }

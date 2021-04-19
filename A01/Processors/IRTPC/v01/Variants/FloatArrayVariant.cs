@@ -15,7 +15,12 @@ namespace A01.Processors.IRTPC.v01.Variants
 
         public override void Serialize(BinaryWriter bw)
         {
-            //
+            bw.Write(NameHash);
+            bw.Write((byte) VariantType);
+            for (int i = 0; i < NUM; i++)
+            {
+                bw.Write(Value[i]);
+            }
         }
     
         public override void Deserialize(BinaryReader br)

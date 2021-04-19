@@ -15,10 +15,6 @@
     
     public interface IFileProcessor
     {
-        public void LoadBinary(string path);
-        public void ExportConverted(string path);
-
-        public void LoadConverted(string path);
-        public void ExportBinary(string path);
+        public void ProcessPath(string path);
     }
 }

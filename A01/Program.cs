@@ -27,6 +27,22 @@ namespace A01
         private static bool autoClose = true;
 
         /// <summary>
+        /// Push a little message to the top of the console.
+        /// </summary>
+        private static void WriteMOTD()
+        {
+            // Message of the Day
+            var randomIntMOTD = new Random().Next(0, MOTDS.Length);
+            var randomMOTD = MOTDS[randomIntMOTD];
+            
+            var motd = $"{Info.Get()} - {randomMOTD}";
+            var motdBreak = new string('=', motd.Length);
+            Console.WriteLine(motdBreak);
+            Console.WriteLine(motd);
+            Console.WriteLine(motdBreak);
+        }
+
+        /// <summary>
         /// Parse arguments and set the code variables for them
         /// </summary>
         /// <param name="args">Args launched with program.</param>
@@ -55,52 +71,19 @@ namespace A01
         /// <returns></returns>
         private static string[] FilterForFilePaths(string[] args)
         {
-            return args.Where(filepath => !arguments.ContainsKey(filepath)).ToArray();
+            return args.Where(arg => !arguments.ContainsKey(arg)).ToArray();
         }
         
         static void Main(string[] args)
         {
             Console.Title = Info.Get();
             
-            // Message of the Day
-            var randomIntMOTD = new Random().Next(0, MOTDS.Length);
-            var randomMOTD = MOTDS[randomIntMOTD];
-            
-            var motd = $"{Info.Get()} - {randomMOTD}";
-            var motdBreak = new string('=', motd.Length);
-            Console.WriteLine(motdBreak);
-            Console.WriteLine(motd);
-            Console.WriteLine(motdBreak);
-            
+            WriteMOTD();
             ParseArguments(args);
+            
             var filepaths = FilterForFilePaths(args);
-
-            var fourCProc = new FourCCProcessor();
-            for (int i = 0; i < filepaths.Length; i++)
-            {
-                var filepath = filepaths[i];
-                var path = Path.GetDirectoryName(filepath);
-                var filename = Path.GetFileNameWithoutExtension(filepath);
-                
-                if (!File.Exists(filepath)) throw new FileNotFoundException("Filepath was not a file");
-                Console.WriteLine($"[{i}/{filepaths.Length}] Processing '{filepath}'");
-                
-                var fourCC = fourCProc.GetFourCC(filepath);
-                IFileProcessor fileProcessor;
-                switch (fourCC)
-                {
-                    case EFoucCC.IRTPC:
-                        fileProcessor = new IRTPC_V01(); break;
-                    default:
-                        throw new FormatException("Hit default case for EFourCC");
-                }
-                fileProcessor.LoadBinary(filepath);
-                fileProcessor.ExportConverted(@$"{path}\{filename}_serial.yaml");
-            }
-            foreach (var filepath in filepaths)
-            {
-                
-            }
+            var manager = new FileManager(filepaths);
+            manager.ProcessPaths();
 
             // No auto close optional argument
             if (!autoClose)
