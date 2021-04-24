@@ -1,25 +1,37 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
+using System.Xml.Serialization;
+using A01.Processors;
 using A01.Utils;
 
-namespace A01.Processors.IRTPC.v01
+namespace A01.Models.IRTPC.V01
 {
-    public class Root : IClassIO
+    public class IRTPC_V01 : ClassIO
     {
-        /* Structure : Root
+        /* ROOT
         * Version 01 : u8
         * Version 02 : u16
         * Object count : u16
         */
         
+        [XmlAttribute]
+        public override string FileType { get; set; } = "IRTPC";
+        [XmlAttribute]
+        public override int Version { get; set; } = 01;
+        [XmlAttribute]
+        public override string Extension { get; set; }
+        
         protected long Offset { get; private set; }
         protected ushort ObjectCount { get; private set; }
-        public byte Version01 { get; private set; }
-        public ushort Version02 { get; private set; }
-        public Container[] Containers { get; private set; }
+        
+        [XmlAttribute]
+        public byte Version01 { get; set; }
+        
+        [XmlAttribute]
+        public ushort Version02 { get; set; }
+        public Container[] Containers { get; set; }
 
 
-        public void Serialize(BinaryWriter bw)
+        public override void Serialize(BinaryWriter bw)
         {
             bw.Write(Version01);
             bw.Write(Version02);
@@ -30,7 +42,7 @@ namespace A01.Processors.IRTPC.v01
             }
         }
 
-        public void Deserialize(BinaryReader br)
+        public override void Deserialize(BinaryReader br)
         {
             Offset = BinaryReaderUtils.Position(br);
             Version01 = br.ReadByte();

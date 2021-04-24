@@ -1,9 +1,8 @@
 ﻿using System;
-using System.IO;
-using A01.Processors.IRTPC;
-using A01.Processors.IRTPC.v01;
+using A01.Interfaces;
+using A01.Models.IRTPC;
 
-namespace A01
+namespace A01.Processors
 {
     /*
      * REFERENCE: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/integral-numeric-types
@@ -18,16 +17,32 @@ namespace A01
      * ulong : uint64
      */
     
-    public class FileManager : IFileProcessor
+    public class FileManager : IGetFileProcessor
     {
-        public IClassIO FileProcessor { get; private set; }
         public string[] Paths { get; }
-
+        
         public FileManager(string[] paths)
         {
             Paths = paths;
         }
-
+        
+        public FileProcessor GetFileProcessor(string fullPath)
+        {
+            FileProcessor manager;
+            var fourCC = new FourCCProcessor().GetFourCC(fullPath);
+            switch (fourCC)
+            {
+                case EFoucCC.IRTPC:
+                {
+                    manager = new IRTPC_Manager(); break;
+                }
+                default:
+                    manager = new IRTPC_Manager(); break;
+            }
+            
+            return manager;
+        }
+        
         public void ProcessPaths()
         {
             for (int i = 0; i < Paths.Length; i++)
@@ -35,29 +50,20 @@ namespace A01
                 var path = Paths[i];
                 
                 Console.WriteLine($"[{i}/{Paths.Length}] Processing '{path}'");
-                ProcessPath(path);
-            }
-        }
+                var manager = GetFileProcessor(path);
+                manager.GetClassIO(path);
 
-        public void ProcessPath(string fullPath)
-        {
-            var parentPath = Path.GetDirectoryName(fullPath);
-            // Also gets final directory name if path is directory
-            var pathName = Path.GetFileNameWithoutExtension(fullPath);
-            
-            IFileProcessor manager;
-            var fourCC = new FourCCProcessor().GetFourCC(fullPath);
-            switch (fourCC)
-            {
-                case EFoucCC.IRTPC:
+                if (manager.FileIsBinary())
                 {
-                    manager = new IRTPC_Manager(fullPath, parentPath, pathName); break;
+                    manager.LoadBinary();
+                    manager.ExportConverted();
                 }
-                default:
-                    manager = new IRTPC_Manager(fullPath, parentPath, pathName); break;
+                else
+                {
+                    manager.LoadConverted();
+                    manager.ExportBinary();
+                }
             }
-            
-            manager.ProcessPath(fullPath);
         }
     }
 }

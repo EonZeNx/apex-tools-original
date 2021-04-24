@@ -1,17 +1,30 @@
 ﻿using System.IO;
 using System.Text;
+using System.Xml.Serialization;
 
-namespace A01.Processors.IRTPC.v01.Variants
+namespace A01.Models.IRTPC.V01.Variants
 {
     public class String : PropertyVariants
     {
+        [XmlAttribute]
+        public override int NameHash { get; set; }
+        protected override EVariantType VariantType { get; set; } = EVariantType.String;
+        protected override long Offset { get; init; }
         public string Value;
+
+        /// <summary>
+        /// Empty constructor for XML parsing.
+        /// <see cref="String"></see>
+        /// </summary>
+        public String()
+        {
+            
+        }
         
         public String(Property prop)
         {
             Offset = prop.Offset;
             NameHash = prop.NameHash;
-            VariantType = EVariantType.String;
         }
 
         public override void Serialize(BinaryWriter bw)

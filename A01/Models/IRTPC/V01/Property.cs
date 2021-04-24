@@ -1,13 +1,11 @@
-﻿using System.Dynamic;
-using System.IO;
-using A01.Processors.IRTPC.v01;
+﻿using System.IO;
 using A01.Utils;
 
-namespace A01.Processors.IRTPC.v01
+namespace A01.Models.IRTPC.V01
 {
     public class Property
     {
-        /* Structure : Property
+        /* PROPERTY
          * Name hash : s32
          * Type : Enum
          */

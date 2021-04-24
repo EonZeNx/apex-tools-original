@@ -1,17 +1,27 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
-namespace A01.Processors.IRTPC.v01.Variants
+namespace A01.Models.IRTPC.V01.Variants
 {
     public class Event : PropertyVariants
     {
+        public override int NameHash { get; set; }
+        protected override EVariantType VariantType { get; set; } = EVariantType.Event;
+        protected override long Offset { get; init; }
         public (uint, uint)[] Value;
+        
+        /// <summary>
+        /// Empty constructor for XML parsing.
+        /// <see cref="Event"></see>
+        /// </summary>
+        public Event()
+        {
+            
+        }
         
         public Event(Property prop)
         {
             Offset = prop.Offset;
             NameHash = prop.NameHash;
-            VariantType = EVariantType.Event;
         }
 
         public override void Serialize(BinaryWriter bw)

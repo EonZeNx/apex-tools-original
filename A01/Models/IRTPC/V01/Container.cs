@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
-using A01.Processors.IRTPC.v01.Variants;
+using System.Xml.Serialization;
+using A01.Interfaces;
+using A01.Models.IRTPC.V01.Variants;
 using A01.Utils;
-using String = A01.Processors.IRTPC.v01.Variants.String;
-using UInt32 = A01.Processors.IRTPC.v01.Variants.UInt32;
 
-namespace A01.Processors.IRTPC.v01
+namespace A01.Models.IRTPC.V01
 {
-    public class Container : IClassIO
+    public class Container : ISerializable
     {
-        /* Structure : Container
+        /* CONTAINER
          * Name hash : s32
          * Version 01 : u8
          * Version 02 : u16
@@ -19,12 +17,17 @@ namespace A01.Processors.IRTPC.v01
          * NOTE: Containers only contain properties
          */
 
-        public int NameHash { get; private set; }
-        public ushort ObjectCount { get; private set; }
-        private byte Version01 { get; set; }
-        private ushort Version02 { get; set; }
+        [XmlAttribute]
+        public int NameHash { get; set; }
+        private ushort ObjectCount { get; set; }
+        
+        [XmlAttribute]
+        public byte Version01 { get; set; }
+        
+        [XmlAttribute]
+        public ushort Version02 { get; set; }
         private long Offset { get; set; }
-        public PropertyVariants[] Properties { get; private set; }
+        public PropertyVariants[] Properties { get; set; }
 
 
         public void Serialize(BinaryWriter bw)

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Dynamic;
 using System.Linq;
-using A01.Processors.IRTPC;
+using A01.Configuration;
+using A01.Processors;
 using A01.Utils;
+using Microsoft.Extensions.Configuration;
 
 namespace A01
 {
@@ -18,13 +18,12 @@ namespace A01
             "fuck this took way too long to make",
             "This stupid random MOTD was one of the first things I did",
         };
-        
         private static readonly Dictionary<string, string> arguments = new () {
             {"-h", "Help: Display this message. All arguments are lower case."},
             {"-nac", "No Auto Close: Will prevent the console from automatically closing."}
         };
 
-        private static bool autoClose = true;
+        public static IConfiguration Config;
 
         /// <summary>
         /// Push a little message to the top of the console.
@@ -43,28 +42,6 @@ namespace A01
         }
 
         /// <summary>
-        /// Parse arguments and set the code variables for them
-        /// </summary>
-        /// <param name="args">Args launched with program.</param>
-        private static void ParseArguments(string[] args)
-        {
-            // No args or -h passed
-            if (args.Length == 0 || args.Contains("-h") || args.Contains("-help"))
-            {
-                foreach (KeyValuePair<string, string> entry in arguments)
-                {
-                    Console.Write(entry.Key);
-                    Console.Write("\t");
-                    Console.Write(entry.Value);
-                    Console.WriteLine();
-                }
-            }
-            
-            // To add other args, create a class variable and set it when detecting the argument.
-            if (arguments.ContainsKey("-nac")) autoClose = false;
-        }
-
-        /// <summary>
         /// Filters out arguments passed to program. This should be an array of filepaths.
         /// </summary>
         /// <param name="args">Args launched with program.</param>
@@ -77,32 +54,21 @@ namespace A01
         static void Main(string[] args)
         {
             Console.Title = Info.Get();
+            Config = new ConfigurationBuilder()
+                .AddJsonFile(@"appsettings.json")
+                .Build();
             
             WriteMOTD();
-            ParseArguments(args);
             
             var filepaths = FilterForFilePaths(args);
             var manager = new FileManager(filepaths);
             manager.ProcessPaths();
 
             // No auto close optional argument
-            if (!autoClose)
+            if (!Config.GetAutoClose())
             {
                 ConsoleUtils.GetInput("Press any key to continue...");
             }
-        }
-    }
-
-    class Info
-    {
-        public static string ProgramName { get; }  = "Apex Engine Tools";
-        public static int MajorVersion { get; }  = 0;
-        public static int MinorVersion { get; }  = 0;
-        public static int BugfixVersion { get; }  = 0;
-
-        public static string Get()
-        {
-            return $"{ProgramName} v{MajorVersion}.{MinorVersion}.{BugfixVersion}";
         }
     }
 }

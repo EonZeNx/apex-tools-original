@@ -1,16 +1,29 @@
 ﻿using System.IO;
+using System.Xml.Serialization;
 
-namespace A01.Processors.IRTPC.v01.Variants
+namespace A01.Models.IRTPC.V01.Variants
 {
     public class UInt32 : PropertyVariants
     {
+        [XmlAttribute]
+        public override int NameHash { get; set; }
+        protected override EVariantType VariantType { get; set; } = EVariantType.UInteger32;
+        protected override long Offset { get; init; }
         public uint Value;
+
+        /// <summary>
+        /// Empty constructor for XML parsing.
+        /// <see cref="UInt32"></see>
+        /// </summary>
+        public UInt32()
+        {
+            
+        }
         
         public UInt32(Property prop)
         {
             Offset = prop.Offset;
             NameHash = prop.NameHash;
-            VariantType = EVariantType.UInteger32;
         }
 
         public override void Serialize(BinaryWriter bw)

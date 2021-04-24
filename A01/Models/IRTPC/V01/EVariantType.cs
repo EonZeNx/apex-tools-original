@@ -1,4 +1,4 @@
-﻿namespace A01.Processors.IRTPC.v01
+﻿namespace A01.Models.IRTPC.V01
 {
     public enum EVariantType
     {

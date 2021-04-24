@@ -1,5 +1,8 @@
-﻿namespace A01
+﻿using A01.Processors;
+
+namespace A01.Interfaces
 {
+    
     /*
      * REFERENCE: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/integral-numeric-types
      * REFERENCE: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/floating-point-numeric-types
@@ -13,8 +16,8 @@
      * ulong : uint64
      */
     
-    public interface IFileProcessor
+    public interface IGetFileProcessor
     {
-        public void ProcessPath(string path);
+        public FileProcessor GetFileProcessor(string path);
     }
 }

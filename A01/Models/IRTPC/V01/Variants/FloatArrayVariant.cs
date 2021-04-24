@@ -1,11 +1,24 @@
 ﻿using System.IO;
 
-namespace A01.Processors.IRTPC.v01.Variants
+namespace A01.Models.IRTPC.V01.Variants
 {
     public class FloatArrayVariant : PropertyVariants
     {
-        public static int NUM = 2;
+        public override int NameHash { get; set; }
+        protected override EVariantType VariantType { get; set; }
+        protected override long Offset { get; init; }
+        
+        protected static int NUM = 2;
         public float[] Value;
+
+        /// <summary>
+        /// Empty constructor for XML parsing.
+        /// <see cref="FloatArrayVariant"></see>
+        /// </summary>
+        public FloatArrayVariant()
+        {
+            
+        }
     
         public FloatArrayVariant(Property prop)
         {
