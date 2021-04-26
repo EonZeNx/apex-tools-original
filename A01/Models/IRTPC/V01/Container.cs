@@ -1,13 +1,15 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
-using System.Xml.Serialization;
-using A01.Interfaces;
+using System.Xml;
+using A01.Interfaces.Serializable;
 using A01.Models.IRTPC.V01.Variants;
 using A01.Utils;
+using IXmlSerializable = A01.Interfaces.Serializable.IXmlSerializable;
 
 namespace A01.Models.IRTPC.V01
 {
-    public class Container : ISerializable
+    public class Container : IBinarySerializable, IXmlSerializable
     {
         /* CONTAINER
          * Name hash : s32
@@ -17,20 +19,15 @@ namespace A01.Models.IRTPC.V01
          * NOTE: Containers only contain properties
          */
 
-        [XmlAttribute]
         public int NameHash { get; set; }
         private ushort ObjectCount { get; set; }
-        
-        [XmlAttribute]
         public byte Version01 { get; set; }
-        
-        [XmlAttribute]
         public ushort Version02 { get; set; }
         private long Offset { get; set; }
         public PropertyVariants[] Properties { get; set; }
 
 
-        public void Serialize(BinaryWriter bw)
+        public void BinarySerialize(BinaryWriter bw)
         {
             bw.Write(NameHash);
             bw.Write(Version01);
@@ -38,11 +35,11 @@ namespace A01.Models.IRTPC.V01
             bw.Write((ushort) Properties.Length);
             foreach (var property in Properties)
             {
-                property.Serialize(bw);
+                property.BinarySerialize(bw);
             }
         }
 
-        public void Deserialize(BinaryReader br)
+        public void BinaryDeserialize(BinaryReader br)
         {
             Offset = BinaryReaderUtils.Position(br);
             NameHash = br.ReadInt32();
@@ -75,8 +72,73 @@ namespace A01.Models.IRTPC.V01
                     default:
                         throw new InvalidEnumArgumentException("Property type was not a valid variant.");
                 }
-                Properties[i].Deserialize(br);
+                Properties[i].BinaryDeserialize(br);
             }
+        }
+
+        public void XmlSerialize(XmlWriter xw)
+        {
+            xw.WriteStartElement($"{GetType().Name}");
+            xw.WriteAttributeString("NameHash", $"{HexUtils.IntToHex(NameHash)}");
+            xw.WriteAttributeString("Version01", $"{Version01}");
+            xw.WriteAttributeString("Version02", $"{Version02}");
+            
+            foreach (var property in Properties)
+            {
+                property.XmlSerialize(xw);
+            }
+            xw.WriteEndElement();
+        }
+
+        public void XmlDeserialize(XmlReader xr)
+        {
+            Version01 = byte.Parse(XmlUtils.GetAttribute(xr, "Version01"));
+            Version02 = ushort.Parse(XmlUtils.GetAttribute(xr, "Version02"));
+
+            var properties = new List<PropertyVariants>();
+            xr.Read();
+            var tag = xr.Name;
+            var type = xr.NodeType;
+            
+            while (xr.Read())
+            {
+                tag = xr.Name;
+                type = xr.NodeType;
+                
+                if (xr.Name == "Container" && xr.NodeType == XmlNodeType.EndElement) break;
+                if (xr.NodeType != XmlNodeType.Element) continue;
+                
+                if (!xr.HasAttributes) throw new XmlException("Property missing attributes");
+                
+                var propertyType = xr.Name;
+                PropertyVariants property;
+                switch (propertyType)
+                {
+                    case "UInt32":
+                        property = new UInt32(); break;
+                    case "F32":
+                        property = new F32(); break;
+                    case "String":
+                        property = new String(); break;
+                    case "Vec2":
+                        property = new Vec2(); break;
+                    case "Vec3":
+                        property = new Vec3(); break;
+                    case "Vec4":
+                        property = new Vec4(); break;
+                    case "Mat3X4":
+                        property = new Mat3X4(); break;
+                    case "Event":
+                        property = new Event(); break;
+                    default:
+                        property = new UInt32(); break;
+                }
+
+                property.XmlDeserialize(xr);
+                properties.Add(property);
+            }
+
+            Properties = properties.ToArray();
         }
     }
 }

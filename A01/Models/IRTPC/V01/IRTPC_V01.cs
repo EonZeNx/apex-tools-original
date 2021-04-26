@@ -1,48 +1,47 @@
-﻿using System.IO;
-using System.Xml.Serialization;
-using A01.Processors;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+using A01.Interfaces.Serializable;
 using A01.Utils;
+using IXmlSerializable = A01.Interfaces.Serializable.IXmlSerializable;
 
 namespace A01.Models.IRTPC.V01
 {
-    public class IRTPC_V01 : ClassIO
+    public class IRTPC_V01 : IXmlClassIO
     {
         /* ROOT
         * Version 01 : u8
         * Version 02 : u16
         * Object count : u16
         */
-        
-        [XmlAttribute]
-        public override string FileType { get; set; } = "IRTPC";
-        [XmlAttribute]
-        public override int Version { get; set; } = 01;
-        [XmlAttribute]
-        public override string Extension { get; set; }
+
+        public MetaInfo Minfo { get; set; } = new (){FileType = "IRTPC", Version = 01};
         
         protected long Offset { get; private set; }
         protected ushort ObjectCount { get; private set; }
-        
-        [XmlAttribute]
         public byte Version01 { get; set; }
-        
-        [XmlAttribute]
         public ushort Version02 { get; set; }
         public Container[] Containers { get; set; }
 
 
-        public override void Serialize(BinaryWriter bw)
+        public MetaInfo GetMetaInfo()
+        {
+            return Minfo;
+        }
+
+        public void BinarySerialize(BinaryWriter bw)
         {
             bw.Write(Version01);
             bw.Write(Version02);
             bw.Write((ushort) Containers.Length);
             foreach (var container in Containers)
             {
-                container.Serialize(bw);
+                container.BinarySerialize(bw);
             }
         }
 
-        public override void Deserialize(BinaryReader br)
+        public void BinaryDeserialize(BinaryReader br)
         {
             Offset = BinaryReaderUtils.Position(br);
             Version01 = br.ReadByte();
@@ -53,8 +52,56 @@ namespace A01.Models.IRTPC.V01
             for (int i = 0; i < ObjectCount; i++)
             {
                 Containers[i] = new Container();
-                Containers[i].Deserialize(br);
+                Containers[i].BinaryDeserialize(br);
             }
+        }
+
+        public void XmlSerialize(XmlWriter xw)
+        {
+            xw.WriteStartElement($"{Minfo.GetType().Name}");
+            xw.WriteAttributeString("FileType", Minfo.FileType);
+            xw.WriteAttributeString("Version", $"{Minfo.Version}");
+            xw.WriteAttributeString("Extension", Minfo.Extension);
+            
+            xw.WriteStartElement($"{GetType().Name}");
+            xw.WriteAttributeString("Version01", $"{Version01}");
+            xw.WriteAttributeString("Version02", $"{Version02}");
+
+            foreach (var container in Containers)
+            {
+                container.XmlSerialize(xw);
+            }
+            
+            xw.WriteEndElement();
+            xw.WriteEndElement();
+            xw.WriteEndDocument();
+        }
+
+        public void XmlDeserialize(XmlReader xr)
+        {
+            Minfo.Extension = XmlUtils.GetAttribute(xr, "Extension");
+            
+            xr.ReadToDescendant("IRTPC_V01");
+            
+            Version01 = byte.Parse(XmlUtils.GetAttribute(xr, "Version01"));
+            Version02 = ushort.Parse(XmlUtils.GetAttribute(xr, "Version02"));
+
+            var containers = new List<Container>();
+            xr.ReadToDescendant("Container");
+            while (xr.NodeType == XmlNodeType.Element)
+            {
+                if (xr.NodeType != XmlNodeType.Element || xr.Name != "Container") break;
+                
+                var container = new Container();
+                container.XmlDeserialize(xr);
+                containers.Add(container);
+                
+                xr.ReadToNextSibling("Container");
+                if (xr.NodeType == XmlNodeType.EndElement) xr.ReadToNextSibling("Container");
+            }
+            xr.Close();
+
+            Containers = containers.ToArray();
         }
     }
 }

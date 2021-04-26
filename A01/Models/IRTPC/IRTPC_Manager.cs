@@ -1,13 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using A01.Configuration;
+using A01.Interfaces.Serializable;
 using A01.Models.IRTPC.V01;
 using A01.Processors;
 using A01.Utils;
-using ExtendedXmlSerializer;
-using ExtendedXmlSerializer.Configuration;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using static A01.Program;
@@ -26,7 +26,7 @@ namespace A01.Models.IRTPC
         public override string FileType { get; protected set; }
         public override int Version { get; protected set; }
         
-        private ClassIO irtpc { get; set; }
+        private IXmlClassIO irtpc { get; set; }
         
         public override void GetClassIO(string path)
         {
@@ -53,87 +53,87 @@ namespace A01.Models.IRTPC
 
         public override void LoadBinary()
         {
-            irtpc.Extension = Extension;
+            irtpc.GetMetaInfo().Extension = Extension;
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
-                irtpc.Deserialize(br);
+                irtpc.BinaryDeserialize(br);
             }
         }
 
         public override void ExportConverted()
         {
-            string data;
             string extension;
             
-            if (Config.GetPreferXmlOverYaml())
+            extension = "xml";
+            XmlWriterSettings settings = new XmlWriterSettings()
             {
-                extension = "xml";
-                var serializer = new ConfigurationContainer()
-                    .Create();
-                data = serializer.Serialize(new XmlWriterSettings {Indent = true}, irtpc);
-            }
-            else
+                Indent = true,
+                IndentChars = "\t"
+            };
+            XmlWriter xw = XmlWriter.Create(@$"{ParentPath}\{PathName}.{extension}", settings);
+            irtpc.XmlSerialize(xw);
+            xw.Close();
+        }
+
+        public void TempXmlDeserialize(XmlReader xr)
+        {
+            while (xr.Read())
             {
-                extension = "yaml";
-                var serializer = new SerializerBuilder()
-                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    .Build();
-                data = serializer.Serialize(irtpc);
-            }
-            
-            using (var sw = new StreamWriter(new FileStream(@$"{ParentPath}\{PathName}.{extension}", FileMode.Create)))
-            {
-                sw.WriteLine(data);
+                switch (xr.NodeType)
+                {
+                    case XmlNodeType.Element:
+                        Console.WriteLine("Start Element {0}", xr.Name);
+                        break;
+                    case XmlNodeType.Text:
+                        Console.WriteLine("Text Node: {0}", xr.Value);
+                        break;
+                    case XmlNodeType.EndElement:
+                        Console.WriteLine("End Element {0}", xr.Name);
+                        break;
+                    default:
+                        Console.WriteLine("Other node {0} with value {1}", xr.NodeType, xr.Value);
+                        break;
+                }
+
+                ConsoleUtils.GetInput("Waiting...");
             }
         }
 
         public override void LoadConverted()
         {
-            if (Extension == ".xml")
+            if (Extension != ".xml") throw new IOException($"'{FullPath}' was not a valid IRTPC file (XML or YAML)");
+
+            var path = @$"{ParentPath}\{PathName}{Extension}";
+            var xr = XmlReader.Create(path);
+            xr.MoveToContent();
+
+            var versionStr = XmlUtils.GetAttribute(xr, "Version");
+            int versionInt;
+            try
             {
-                var deserializer = new XmlSerializer(irtpc.GetType());
-                using (var sr = new StreamReader(new FileStream(@$"{ParentPath}\{PathName}.xml", FileMode.Open)))
-                {
-                    switch (Version)
-                    {
-                        case 1:
-                            irtpc = (IRTPC_V01) deserializer.Deserialize(sr); break;
-                        default:
-                            irtpc = (IRTPC_V01) deserializer.Deserialize(sr); break;
-                    }
-                }
+                versionInt = int.Parse(versionStr);
             }
-            else if (Extension == ".yaml")
+            catch (Exception e)
             {
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    .Build();
+                Console.WriteLine(e); throw;
+            }
+
+            switch (versionInt)
+            {
+                case 1:
+                    irtpc = new IRTPC_V01(); break;
+                default:
+                    irtpc = new IRTPC_V01(); break;
+            }
             
-                string yaml;
-                using (var sr = new StreamReader(new FileStream(FullPath, FileMode.Open)))
-                {
-                    yaml = sr.ReadToEnd();
-                }
-            
-                switch (Version)
-                {
-                    case 1:
-                        irtpc = deserializer.Deserialize<IRTPC_V01>(yaml); break;
-                    default:
-                        irtpc = deserializer.Deserialize<IRTPC_V01>(yaml); break;
-                }
-            }
-            else
-            {
-                throw new IOException($"'{FullPath}' was not a valid IRTPC file (XML or YAML)");
-            }
+            irtpc.XmlDeserialize(xr);
         }
 
         public override void ExportBinary()
         {
-            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}.{Extension}", FileMode.Create)))
+            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{irtpc.GetMetaInfo().Extension}", FileMode.Create)))
             {
-                irtpc.Serialize(bw);
+                irtpc.BinarySerialize(bw);
             }
         }
     }
