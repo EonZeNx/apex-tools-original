@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using A01.Utils;
+using EonZeNx.ApexTools.Core.Utils;
 
-namespace A01.Models.IRTPC.V01.Variants
+namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 {
     public class Event : PropertyVariants
     {

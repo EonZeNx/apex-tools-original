@@ -2,15 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Xml;
-using System.Xml.Serialization;
-using A01.Configuration;
-using A01.Interfaces.Serializable;
-using A01.Models.IRTPC.V01;
-using A01.Processors;
-using A01.Utils;
+using EonZeNx.ApexTools.Core.Interfaces.Serializable;
+using EonZeNx.ApexTools.Core.Processors;
+using EonZeNx.ApexTools.Core.Utils;
+using EonZeNx.ApexTools.IRTPC.V01.Models;
 
-
-namespace A01.Models.IRTPC
+namespace EonZeNx.ApexTools.IRTPC.V01
 {
     public class IRTPC_Manager : FileProcessor
     {

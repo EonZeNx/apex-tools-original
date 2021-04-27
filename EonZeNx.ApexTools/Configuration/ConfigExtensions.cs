@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 
-namespace A01.Configuration
+namespace EonZeNx.ApexTools.Configuration
 {
     public static class ConfigExtensions
     {
