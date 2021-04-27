@@ -1,7 +1,7 @@
 ﻿using System;
 using EonZeNx.ApexTools.Core.Interfaces;
 using EonZeNx.ApexTools.Core.Processors;
-using EonZeNx.ApexTools.IRTPC.V01;
+using EonZeNx.ApexTools.Models.Managers;
 
 namespace EonZeNx.ApexTools
 {

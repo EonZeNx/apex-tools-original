@@ -7,7 +7,7 @@ using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Utils;
 using EonZeNx.ApexTools.IRTPC.V01.Models;
 
-namespace EonZeNx.ApexTools.IRTPC.V01
+namespace EonZeNx.ApexTools.Models.Managers
 {
     public class IRTPC_Manager : FileProcessor
     {
