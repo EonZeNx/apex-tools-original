@@ -39,7 +39,14 @@ namespace A01.Utils
         public static uint HexToUint(string value)
         {
             if (value.Length < 1) return 0;
-            return uint.Parse(value, NumberStyles.AllowHexSpecifier);
+
+            string reversedValue = "";
+            for (int i = value.Length - 2; i >= 0; i -= 2)
+            {
+                reversedValue += value[i..(i + 2)];
+            }
+            
+            return uint.Parse(reversedValue, NumberStyles.AllowHexSpecifier);
         }
     }
 }

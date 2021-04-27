@@ -32,7 +32,7 @@ namespace A01.Models.IRTPC.V01
             bw.Write(NameHash);
             bw.Write(Version01);
             bw.Write(Version02);
-            bw.Write((ushort) Properties.Length);
+            bw.Write(ObjectCount);
             foreach (var property in Properties)
             {
                 property.BinarySerialize(bw);
@@ -92,21 +92,23 @@ namespace A01.Models.IRTPC.V01
 
         public void XmlDeserialize(XmlReader xr)
         {
+            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
+            NameHash = HexUtils.HexToInt(nameHash);
             Version01 = byte.Parse(XmlUtils.GetAttribute(xr, "Version01"));
             Version02 = ushort.Parse(XmlUtils.GetAttribute(xr, "Version02"));
 
             var properties = new List<PropertyVariants>();
             xr.Read();
-            var tag = xr.Name;
-            var type = xr.NodeType;
+            string tag;
+            XmlNodeType nodeType;
             
             while (xr.Read())
             {
                 tag = xr.Name;
-                type = xr.NodeType;
+                nodeType = xr.NodeType;
                 
-                if (xr.Name == "Container" && xr.NodeType == XmlNodeType.EndElement) break;
-                if (xr.NodeType != XmlNodeType.Element) continue;
+                if (tag == "Container" && nodeType == XmlNodeType.EndElement) break;
+                if (nodeType != XmlNodeType.Element) continue;
                 
                 if (!xr.HasAttributes) throw new XmlException("Property missing attributes");
                 
@@ -139,6 +141,7 @@ namespace A01.Models.IRTPC.V01
             }
 
             Properties = properties.ToArray();
+            ObjectCount = (ushort) Properties.Length;
         }
     }
 }

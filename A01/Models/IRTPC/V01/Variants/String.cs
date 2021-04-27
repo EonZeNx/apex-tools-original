@@ -22,7 +22,10 @@ namespace A01.Models.IRTPC.V01.Variants
 
         public override void BinarySerialize(BinaryWriter bw)
         {
-            //
+            bw.Write(NameHash);
+            bw.Write((byte) VariantType);
+            bw.Write((ushort) Value.Length);
+            bw.Write(Encoding.UTF8.GetBytes(Value));
         }
         
         public override void BinaryDeserialize(BinaryReader br)

@@ -30,9 +30,9 @@ namespace A01.Models.IRTPC.V01.Variants
         {
             bw.Write(NameHash);
             bw.Write((byte) VariantType);
-            for (int i = 0; i < NUM; i++)
+            foreach (var val in Value)
             {
-                bw.Write(Value[i]);
+                bw.Write(val);
             }
         }
     

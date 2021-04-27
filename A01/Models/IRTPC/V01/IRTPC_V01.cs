@@ -34,7 +34,7 @@ namespace A01.Models.IRTPC.V01
         {
             bw.Write(Version01);
             bw.Write(Version02);
-            bw.Write((ushort) Containers.Length);
+            bw.Write(ObjectCount);
             foreach (var container in Containers)
             {
                 container.BinarySerialize(bw);
@@ -102,6 +102,7 @@ namespace A01.Models.IRTPC.V01
             xr.Close();
 
             Containers = containers.ToArray();
+            ObjectCount = (ushort) Containers.Length;
         }
     }
 }

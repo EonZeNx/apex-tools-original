@@ -25,6 +25,7 @@ namespace A01.Models.IRTPC.V01.Variants
         {
             bw.Write(NameHash);
             bw.Write((byte) VariantType);
+            bw.Write((uint) Value.Length);
             for (int i = 0; i < Value.Length; i++)
             {
                 bw.Write(Value[i].Item1);
@@ -70,7 +71,7 @@ namespace A01.Models.IRTPC.V01.Variants
             var value = xr.ReadString();
             if (value.Length == 0)
             {
-                Value = new (uint, uint)[0];
+                Value = Array.Empty<(uint, uint)>();
                 return;
             }
 
