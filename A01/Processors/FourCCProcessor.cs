@@ -9,6 +9,7 @@ namespace A01
     public enum EFoucCC
     {
         RTPC,
+        IRTPC,
         ADF,
         SARC,
         AAF,
@@ -43,14 +44,15 @@ namespace A01
                     return FOURC_CCS[bytes];
                 }
             }
-            throw new ArgumentException("Did not find supported FourCC");
+
+            return EFoucCC.IRTPC;
         }
 
         public byte[] GetFirst16Bytes(string filepath)
         {
-            using (var binaryStream = new BinaryReader(new FileStream(filepath, FileMode.Open)))
+            using (var br = new BinaryReader(new FileStream(filepath, FileMode.Open)))
             {
-                return binaryStream.ReadBytes(16);
+                return br.ReadBytes(16);
             }
         }
 
