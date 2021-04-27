@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace A01.Utility
+namespace EonZeNx.ApexTools.Core.Utils
 {
     public static class ConsoleUtils
     {
