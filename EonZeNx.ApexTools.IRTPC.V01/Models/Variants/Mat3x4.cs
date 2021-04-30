@@ -22,7 +22,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{HexUtils.IntToHex(NameHash)}");
+            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
 
             string[] strArray = new string[3];
             for (int i = 0; i < strArray.Length; i++)
@@ -39,7 +39,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         public override void XmlDeserialize(XmlReader xr)
         {
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = HexUtils.HexToInt(nameHash);
+            NameHash = ByteUtils.HexToInt(nameHash);
             
             var floatString = xr.ReadString();
             var vectorString = floatString.Split(", ");

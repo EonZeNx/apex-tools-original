@@ -33,6 +33,7 @@ namespace EonZeNx.ApexTools
             return fourCC switch
             {
                 EFoucCC.IRTPC =>  new IRTPC_Manager(),
+                EFoucCC.RTPC =>   new RTPC_Manager(),
                 _ =>              new IRTPC_Manager()
             };
         }

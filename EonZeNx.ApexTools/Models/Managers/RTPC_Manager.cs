@@ -6,10 +6,11 @@ using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Utils;
 using EonZeNx.ApexTools.IRTPC.V01.Models;
+using EonZeNx.ApexTools.RTPC.V01.Models;
 
 namespace EonZeNx.ApexTools.Models.Managers
 {
-    public class IRTPC_Manager : FileProcessor
+    public class RTPC_Manager : FileProcessor
     {
         public override string FullPath { get; protected set; }
         public override string ParentPath { get; protected set; }
@@ -20,7 +21,7 @@ namespace EonZeNx.ApexTools.Models.Managers
         public override string FileType { get; protected set; }
         public override int Version { get; protected set; }
         
-        private IXmlClassIO irtpc { get; set; }
+        private IXmlClassIO rtpc { get; set; }
         
         public override void GetClassIO(string path)
         {
@@ -32,11 +33,11 @@ namespace EonZeNx.ApexTools.Models.Managers
             {
                 version = br.ReadByte();
             }
-            
-            irtpc = version switch
+
+            rtpc = version switch
             {
-                1 => new IRTPC_V01(),
-                _ => new IRTPC_V01()
+                1 => new RTPC_V01(),
+                _ => new RTPC_V01()
             };
         }
 
@@ -47,50 +48,24 @@ namespace EonZeNx.ApexTools.Models.Managers
 
         public override void LoadBinary()
         {
-            irtpc.GetMetaInfo().Extension = Extension;
+            rtpc.GetMetaInfo().Extension = Extension;
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
-                irtpc.BinaryDeserialize(br);
+                rtpc.BinaryDeserialize(br);
             }
         }
 
         public override void ExportConverted()
         {
-            string extension;
-            
-            extension = "xml";
+            var extension = "xml";
             XmlWriterSettings settings = new XmlWriterSettings()
             {
                 Indent = true,
                 IndentChars = "\t"
             };
             XmlWriter xw = XmlWriter.Create(@$"{ParentPath}\{PathName}.{extension}", settings);
-            irtpc.XmlSerialize(xw);
+            rtpc.XmlSerialize(xw);
             xw.Close();
-        }
-
-        public void TempXmlDeserialize(XmlReader xr)
-        {
-            while (xr.Read())
-            {
-                switch (xr.NodeType)
-                {
-                    case XmlNodeType.Element:
-                        Console.WriteLine("Start Element {0}", xr.Name);
-                        break;
-                    case XmlNodeType.Text:
-                        Console.WriteLine("Text Node: {0}", xr.Value);
-                        break;
-                    case XmlNodeType.EndElement:
-                        Console.WriteLine("End Element {0}", xr.Name);
-                        break;
-                    default:
-                        Console.WriteLine("Other node {0} with value {1}", xr.NodeType, xr.Value);
-                        break;
-                }
-
-                ConsoleUtils.GetInput("Waiting...");
-            }
         }
 
         public override void LoadConverted()
@@ -112,22 +87,20 @@ namespace EonZeNx.ApexTools.Models.Managers
                 Console.WriteLine(e); throw;
             }
 
-            switch (versionInt)
+            rtpc = versionInt switch
             {
-                case 1:
-                    irtpc = new IRTPC_V01(); break;
-                default:
-                    irtpc = new IRTPC_V01(); break;
-            }
+                1 => new RTPC_V01(),
+                _ => new RTPC_V01()
+            };
             
-            irtpc.XmlDeserialize(xr);
+            rtpc.XmlDeserialize(xr);
         }
 
         public override void ExportBinary()
         {
-            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{irtpc.GetMetaInfo().Extension}", FileMode.Create)))
+            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{rtpc.GetMetaInfo().Extension}", FileMode.Create)))
             {
-                irtpc.BinarySerialize(bw);
+                rtpc.BinarySerialize(bw);
             }
         }
     }

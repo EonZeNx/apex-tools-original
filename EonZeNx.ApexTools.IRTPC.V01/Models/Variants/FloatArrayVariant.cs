@@ -14,11 +14,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         protected static int NUM = 2;
         public float[] Value;
 
-        public FloatArrayVariant()
-        {
-            NUM = 2;
-        }
-        
+        public FloatArrayVariant() { }
         public FloatArrayVariant(Property prop)
         {
             Offset = prop.Offset;
@@ -47,7 +43,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{HexUtils.IntToHex(NameHash)}");
+            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
 
             string array = string.Join(",", Value);
             xw.WriteValue(array);
@@ -57,7 +53,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         public override void XmlDeserialize(XmlReader xr)
         {
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = HexUtils.HexToInt(nameHash);
+            NameHash = ByteUtils.HexToInt(nameHash);
             var floatString = xr.ReadString();
             var floats = floatString.Split(",");
             Value = Array.ConvertAll(floats, input => float.Parse(input));

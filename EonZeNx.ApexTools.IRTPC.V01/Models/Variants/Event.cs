@@ -47,13 +47,13 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{HexUtils.IntToHex(NameHash)}");
+            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
             
             string[] strArray = new string[Value.Length];
             for (int i = 0; i < Value.Length; i++)
             {
-                var item1 = HexUtils.UintToHex(Value[i].Item1);
-                var item2 = HexUtils.UintToHex(Value[i].Item2);
+                var item1 = ByteUtils.UintToHex(Value[i].Item1);
+                var item2 = ByteUtils.UintToHex(Value[i].Item2);
                 strArray[i] = $"{item1}={item2}";
             }
 
@@ -65,7 +65,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         public override void XmlDeserialize(XmlReader xr)
         {
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = HexUtils.HexToInt(nameHash);
+            NameHash = ByteUtils.HexToInt(nameHash);
 
             var value = xr.ReadString();
             if (value.Length == 0)
@@ -85,7 +85,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
             foreach (var eventString in eventStringArray)
             {
                 var eventStrings = eventString.Split("=");
-                var eventsArray = Array.ConvertAll(eventStrings, HexUtils.HexToUint);
+                var eventsArray = Array.ConvertAll(eventStrings, ByteUtils.HexToUint);
                 var eventsTuple = (eventsArray[0], eventsArray[1]);
                 
                 events.Add(eventsTuple);

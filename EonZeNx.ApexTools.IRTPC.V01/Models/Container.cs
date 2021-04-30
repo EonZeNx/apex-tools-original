@@ -70,7 +70,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
                     case EVariantType.Event:
                         Properties[i] = new Event(prop); break;
                     default:
-                        throw new InvalidEnumArgumentException("Property type was not a valid variant.");
+                        throw new InvalidEnumArgumentException($"Property type was not a valid variant - {prop.Type}");
                 }
                 Properties[i].BinaryDeserialize(br);
             }
@@ -79,7 +79,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
         public void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{HexUtils.IntToHex(NameHash)}");
+            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
             xw.WriteAttributeString("Version01", $"{Version01}");
             xw.WriteAttributeString("Version02", $"{Version02}");
             
@@ -93,7 +93,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
         public void XmlDeserialize(XmlReader xr)
         {
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = HexUtils.HexToInt(nameHash);
+            NameHash = ByteUtils.HexToInt(nameHash);
             Version01 = byte.Parse(XmlUtils.GetAttribute(xr, "Version01"));
             Version02 = ushort.Parse(XmlUtils.GetAttribute(xr, "Version02"));
 
