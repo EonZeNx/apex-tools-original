@@ -69,30 +69,6 @@ namespace EonZeNx.ApexTools.Models.Managers
             xw.Close();
         }
 
-        public void TempXmlDeserialize(XmlReader xr)
-        {
-            while (xr.Read())
-            {
-                switch (xr.NodeType)
-                {
-                    case XmlNodeType.Element:
-                        Console.WriteLine("Start Element {0}", xr.Name);
-                        break;
-                    case XmlNodeType.Text:
-                        Console.WriteLine("Text Node: {0}", xr.Value);
-                        break;
-                    case XmlNodeType.EndElement:
-                        Console.WriteLine("End Element {0}", xr.Name);
-                        break;
-                    default:
-                        Console.WriteLine("Other node {0} with value {1}", xr.NodeType, xr.Value);
-                        break;
-                }
-
-                ConsoleUtils.GetInput("Waiting...");
-            }
-        }
-
         public override void LoadConverted()
         {
             if (Extension != ".xml") throw new IOException($"'{FullPath}' was not a valid IRTPC file (XML or YAML)");

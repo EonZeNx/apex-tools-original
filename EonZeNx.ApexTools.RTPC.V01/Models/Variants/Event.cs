@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Utils;
@@ -7,7 +8,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class Event : IPropertyVariants
     {
-        public int NameHash { get; }
+        public int NameHash { get; set; }
         public EVariantType VariantType => EVariantType.Event;
         public byte[] RawData { get; }
         public uint Offset { get; }
@@ -30,7 +31,18 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void BinarySerialize(BinaryWriter bw)
         {
-            //
+            if (Value == null)
+            {
+                bw.Write((uint) 0);
+                return;
+            }
+            
+            bw.Write(Value.Length);
+            for (int i = 0; i < Value.Length; i++)
+            {
+                bw.Write(Value[i].Item1);
+                bw.Write(Value[i].Item2);
+            }
         }
         
         public void BinaryDeserialize(BinaryReader br)
@@ -69,7 +81,34 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void XmlDeserialize(XmlReader xr)
         {
-            //
+            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
+            NameHash = ByteUtils.HexToInt(nameHash);
+
+            var value = xr.ReadString();
+            if (value.Length == 0)
+            {
+                Value = Array.Empty<(uint, uint)>();
+                return;
+            }
+
+            string[] eventStringArray = {value};
+            if (value.Contains(","))
+            {
+                eventStringArray = value.Split(", ");
+            }
+            
+
+            var events = new List<(uint, uint)>();
+            foreach (var eventString in eventStringArray)
+            {
+                var eventStrings = eventString.Split("=");
+                var eventsArray = Array.ConvertAll(eventStrings, ByteUtils.HexToUint);
+                var eventsTuple = (eventsArray[0], eventsArray[1]);
+                
+                events.Add(eventsTuple);
+            }
+
+            Value = events.ToArray();
         }
     }
 }

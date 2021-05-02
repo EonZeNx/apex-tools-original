@@ -7,7 +7,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class ByteArray : IPropertyVariants
     {
-        public int NameHash { get; }
+        public int NameHash { get; set; }
         public EVariantType VariantType => EVariantType.ByteArray;
         public byte[] RawData { get; }
         public uint Offset { get; }
@@ -30,7 +30,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         
         public void BinarySerialize(BinaryWriter bw)
         {
-            //
+            bw.Write(Value.Length);
+            foreach (var val in Value)
+            {
+                bw.Write(val);
+            }
         }
         
         public void BinaryDeserialize(BinaryReader br)
@@ -51,14 +55,18 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             xw.WriteStartElement($"{GetType().Name}");
             xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
 
-            string array = string.Join(",", Value);
+            var array = string.Join(",", Value);
             xw.WriteValue(array);
             xw.WriteEndElement();
         }
 
         public void XmlDeserialize(XmlReader xr)
         {
-            //
+            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
+            NameHash = ByteUtils.HexToInt(nameHash);
+            var floatString = xr.ReadString();
+            var floats = floatString.Split(",");
+            Value = Array.ConvertAll(floats, input => byte.Parse(input));
         }
     }
 }

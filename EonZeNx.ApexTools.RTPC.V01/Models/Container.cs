@@ -31,7 +31,9 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public long ContainerHeaderOffset { get; set; }
 
 
-        private void LoadProperties(BinaryReader br)
+        #region Binary Load Helpers
+
+        private void BinaryLoadProperties(BinaryReader br)
         {
             br.BaseStream.Position = Offset;
             PropertyHeaders = new Property[PropertyCount];
@@ -42,11 +44,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
             ContainerHeaderOffset = br.BaseStream.Position;
 
-            DeserializeProperties(br);
-        }
-        
-        private void DeserializeProperties(BinaryReader br)
-        {
             Properties = new IPropertyVariants[PropertyCount];
             for (int i = 0; i < PropertyHeaders.Length; i++)
             {
@@ -76,7 +73,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             }
         }
 
-        private void LoadContainers(BinaryReader br)
+        private void BinaryLoadContainers(BinaryReader br)
         {
             br.BaseStream.Seek(ContainerHeaderOffset, SeekOrigin.Begin);
             ByteUtils.Align(br, 4);
@@ -88,9 +85,98 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             }
         }
 
+        #endregion
+
+        #region Xml Load Helpers
+
+        private void XmlLoadProperties(XmlReader xr)
+        {
+            var properties = new List<IPropertyVariants>();
+            xr.Read();
+
+            while (xr.Read())
+            {
+                var tag = xr.Name;
+                var nodeType = xr.NodeType;
+                
+                if (tag == "Container") break;
+                if (nodeType != XmlNodeType.Element) continue;
+                
+                if (!xr.HasAttributes) throw new XmlException("Property missing attributes");
+                
+                var propertyType = xr.Name;
+                IPropertyVariants property = propertyType switch
+                {
+                    "Unassigned" => throw new InvalidEnumArgumentException("Property type was not a valid variant (Unassigned)."),
+                    "UInt32" => new UInt32(),
+                    "F32" => new F32(),
+                    "String" => new String(),
+                    "Vec2" => new Vec2(),
+                    "Vec3" => new Vec3(),
+                    "Vec4" => new Vec4(),
+                    "Mat3X3" => new Mat3X3(),
+                    "Mat4X4" => new Mat4X4(),
+                    "UIntArray" => new UIntArray(),
+                    "F32Array" => new F32Array(),
+                    "ByteArray" => new ByteArray(),
+                    "Deprecated" => throw new InvalidEnumArgumentException("Property type was not a valid variant (Deprecated)."),
+                    "OID" => new OID(),
+                    "Event" => new Event(),
+                    "Total" => throw new InvalidEnumArgumentException("Property type was not a valid variant (Total)."),
+                    _ => throw new InvalidEnumArgumentException("Property type was not a valid variant (Unknown type).")
+                };
+
+                property.XmlDeserialize(xr);
+                properties.Add(property);
+            }
+
+            Properties = properties.ToArray();
+            PropertyCount = (ushort) Properties.Length;
+        }
+        
+        private void XmlLoadContainers(XmlReader xr)
+        {
+            var containers = new List<Container>();
+
+            do
+            {
+                var tag = xr.Name;
+                var nodeType = xr.NodeType;
+                
+                if (tag == "Container" && nodeType == XmlNodeType.EndElement) break;
+                if (nodeType != XmlNodeType.Element) continue;
+                
+                if (!xr.HasAttributes) throw new XmlException("Property missing attributes");
+
+                var container = new Container();
+
+                container.XmlDeserialize(xr);
+                containers.Add(container);
+            } 
+            while (xr.Read());
+
+            Containers = containers.ToArray();
+            ContainerCount = (ushort) Containers.Length;
+        }
+
+        #endregion
+
         public void BinarySerialize(BinaryWriter bw)
         {
-            throw new System.NotImplementedException();
+            bw.Write(NameHash);
+            bw.Write(bw.BaseStream.Position);
+            bw.Write(PropertyCount);
+            bw.Write(ContainerCount);
+
+            foreach (var property in Properties)
+            {
+                property.BinarySerialize(bw);
+            }
+            
+            foreach (var container in Containers)
+            {
+                container.BinarySerialize(bw);
+            }
         }
 
         public void BinaryDeserialize(BinaryReader br)
@@ -101,8 +187,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             ContainerCount = br.ReadUInt16();
 
             var originalPosition = br.BaseStream.Position;
-            LoadProperties(br);
-            LoadContainers(br);
+            BinaryLoadProperties(br);
+            BinaryLoadContainers(br);
             br.BaseStream.Seek(originalPosition, SeekOrigin.Begin);
         }
 
@@ -124,7 +210,12 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         public void XmlDeserialize(XmlReader xr)
         {
-            throw new System.NotImplementedException();
+            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
+            NameHash = ByteUtils.HexToInt(nameHash);
+
+            // TODO: Check if the container has properties
+            XmlLoadProperties(xr);
+            XmlLoadContainers(xr);
         }
     }
 }

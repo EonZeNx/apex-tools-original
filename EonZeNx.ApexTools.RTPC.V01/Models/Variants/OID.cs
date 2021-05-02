@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Utils;
@@ -7,7 +8,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class OID : IPropertyVariants
     {
-        public int NameHash { get; }
+        public int NameHash { get; set; }
         public EVariantType VariantType => EVariantType.ObjectID;
         public byte[] RawData { get; }
         public uint Offset { get; }
@@ -30,7 +31,9 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void BinarySerialize(BinaryWriter bw)
         {
-            //
+            var data = Value.Item1 | Value.Item2;
+            bw.Write(ByteUtils.ReverseBytes((uint) (data >> 32)));
+            bw.Write(ByteUtils.ReverseBytes((uint) (data & uint.MaxValue)));
         }
         
         public void BinaryDeserialize(BinaryReader br)
@@ -59,7 +62,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void XmlDeserialize(XmlReader xr)
         {
-            //
+            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
+            NameHash = ByteUtils.HexToInt(nameHash);
+            var strValue = xr.ReadString();
+            var strArray = strValue.Split("=");
+            Value = (ulong.Parse(strArray[0], NumberStyles.AllowHexSpecifier), byte.Parse(strArray[1], NumberStyles.AllowHexSpecifier));
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class FloatArrayVariant : IPropertyVariants
     {
-        public int NameHash { get; }
+        public int NameHash { get; set; }
         public EVariantType VariantType { get; set; }
         public byte[] RawData { get; }
         public uint Offset { get; }
@@ -30,7 +31,10 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         
         public void BinarySerialize(BinaryWriter bw)
         {
-            //
+            foreach (var f32 in Value)
+            {
+                bw.Write(f32);
+            }
         }
         
         public void BinaryDeserialize(BinaryReader br)
@@ -48,12 +52,21 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public virtual void XmlSerialize(XmlWriter xw)
         {
-            //
+            xw.WriteStartElement($"{GetType().Name}");
+            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+
+            var array = string.Join(",", Value);
+            xw.WriteValue(array);
+            xw.WriteEndElement();
         }
 
         public virtual void XmlDeserialize(XmlReader xr)
         {
-            //
+            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
+            NameHash = ByteUtils.HexToInt(nameHash);
+            var floatString = xr.ReadString();
+            var floats = floatString.Split(",");
+            Value = Array.ConvertAll(floats, input => float.Parse(input));
         }
     }
 }

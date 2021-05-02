@@ -5,5 +5,7 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=eec63f22_002D623d_002D41ec_002D9785_002Dffa1801771bd/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from FourCCProcessorTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;Project Location="E:\Projects\Just Cause Tools\Apex Engine Tools CSharp\A01.Tests" Presentation="&amp;lt;A01.Tests&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=IRTPC/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=RTPC/@EntryIndexedValue">True</s:Boolean>
 	
 	</wpf:ResourceDictionary>
