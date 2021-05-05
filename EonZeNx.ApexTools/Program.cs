@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using EonZeNx.ApexTools.Configuration;
-using Microsoft.Extensions.Configuration;
 using EonZeNx.ApexTools.Core;
 using EonZeNx.ApexTools.Core.Utils;
 
@@ -17,12 +16,8 @@ namespace EonZeNx.ApexTools
             "fuck this took way too long to make",
             "This stupid random MOTD was one of the first things I did",
         };
-        private static readonly Dictionary<string, string> arguments = new () {
-            {"-h", "Help: Display this message. All arguments are lower case."},
-            {"-nac", "No Auto Close: Will prevent the console from automatically closing."}
-        };
 
-        public static IConfiguration Config;
+        public static ConfigData Config;
 
         /// <summary>
         /// Push a little message to the top of the console.
@@ -40,31 +35,28 @@ namespace EonZeNx.ApexTools
             Console.WriteLine(motdBreak);
         }
 
-        /// <summary>
-        /// Filters out arguments passed to program. This should be an array of filepaths.
-        /// </summary>
-        /// <param name="args">Args launched with program.</param>
-        /// <returns></returns>
-        private static string[] FilterForFilePaths(string[] args)
+        private static void LoadConfig()
         {
-            return args.Where(arg => !arguments.ContainsKey(arg)).ToArray();
+            Config = new ConfigData();
+            Config.Load();
         }
         
         static void Main(string[] args)
         {
             Console.Title = Info.Get();
-            Config = new ConfigurationBuilder()
-                .AddJsonFile(@"appsettings.json")
-                .Build();
-            
+            LoadConfig();
             WriteMOTD();
-            
-            var filepaths = FilterForFilePaths(args);
-            var manager = new FileManager(filepaths);
-            manager.ProcessPaths();
+
+            // Program launches with itself as the first argument, filter it
+            var filepaths = args[1..].Where(File.Exists).ToArray();
+            if (args.Length > 0)
+            {
+                var manager = new FileManager(filepaths);
+                manager.ProcessPaths();
+            }
 
             // No auto close optional argument
-            if (!Config.GetAutoClose())
+            if (!Config.AutoClose)
             {
                 ConsoleUtils.GetInput("Press any key to continue...");
             }
