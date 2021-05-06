@@ -12,11 +12,13 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         {
             NUM = 16;
             VariantType = EVariantType.Mat4X4;
+            Alignment = 8;
         }
         public Mat4X4(Property prop) : base(prop)
         {
             NUM = 16;
             VariantType = EVariantType.Mat4X4;
+            Alignment = 8;
         }
         
         public override void XmlSerialize(XmlWriter xw)

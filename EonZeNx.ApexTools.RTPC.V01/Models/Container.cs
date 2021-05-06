@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
+using EonZeNx.ApexTools.Core.Models;
 using EonZeNx.ApexTools.Core.Utils;
 using EonZeNx.ApexTools.RTPC.V01.Models.Variants;
+using String = EonZeNx.ApexTools.RTPC.V01.Models.Variants.String;
+using UInt32 = EonZeNx.ApexTools.RTPC.V01.Models.Variants.UInt32;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
-    public class Container : IBinarySerializable, IXmlSerializable
+    public class Container : IBinarySerializable, IXmlSerializable, IMemorySerializable
     {
         /* CONTAINER
          * Name hash : s32
@@ -21,7 +25,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
          */
         
         public int NameHash { get; set; }
-        public uint Offset { get; set; }
+        private string HexNameHash => ByteUtils.IntToHex(NameHash);
+        public long Offset { get; set; }
         public ushort PropertyCount { get; set; }
         public ushort ContainerCount { get; set; }
         public IPropertyVariants[] Properties { get; set; }
@@ -161,6 +166,9 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         #endregion
 
+
+        #region BinarySerializable
+
         public void BinarySerialize(BinaryWriter bw)
         {
             bw.Write(NameHash);
@@ -192,6 +200,10 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             br.BaseStream.Seek(originalPosition, SeekOrigin.Begin);
         }
 
+        #endregion
+
+        #region XmlSerializable
+
         public void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
@@ -217,5 +229,80 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             XmlLoadProperties(xr);
             XmlLoadContainers(xr);
         }
+
+        #endregion
+
+        #region MemorySerializable
+
+        #region Memory Serializable Helpers
+
+        public byte[] GetPropertyData(ref long offset)
+        {
+            using (var pms = new MemoryStream())
+            {
+                foreach (var property in Properties)
+                {
+                    offset = property.MemorySerializeData(pms, offset);
+                }
+                
+                return pms.ToArray();
+            }
+        }
+        
+        private byte[] GetContainerData(ref long offset)
+        {
+            using (var cms = new MemoryStream())
+            {
+                foreach (var container in Containers)
+                {
+                    offset = container.MemorySerializeData(cms, offset);
+                }
+                
+                return cms.ToArray();
+            }
+        }
+
+        #endregion
+
+        public long MemorySerializeData(MemoryStream ms, long offset)
+        {
+            Offset = offset;
+            var containerHeaderSize = 4 + 4 + 2 + 2;
+            var subContainerHeaderSize = Containers.Length * containerHeaderSize;
+            var propertyHeaderSize = 4 + 4 + 1;
+            var subPropertyHeaderSize = Properties.Length * propertyHeaderSize;
+            
+            var coffset = offset + subPropertyHeaderSize + subContainerHeaderSize;
+
+            var propertyData = GetPropertyData(ref coffset);
+            var containerData = GetContainerData(ref coffset);
+            
+            foreach (var property in Properties)
+            {
+                property.MemorySerializeHeader(ms);
+            }
+            coffset = ByteUtils.Align(ms, coffset, 4);
+            
+            foreach (var container in Containers)
+            {
+                container.MemorySerializeHeader(ms);
+            }
+            coffset = ByteUtils.Align(ms, coffset, 4);
+            
+            ms.Write(propertyData);
+            ms.Write(containerData);
+
+            return coffset;
+        }
+
+        public void MemorySerializeHeader(MemoryStream ms)
+        {
+            ms.Write(BitConverter.GetBytes(NameHash));
+            ms.Write(BitConverter.GetBytes((uint) Offset));
+            ms.Write(BitConverter.GetBytes(PropertyCount));
+            ms.Write(BitConverter.GetBytes(ContainerCount));
+        }
+
+        #endregion
     }
 }

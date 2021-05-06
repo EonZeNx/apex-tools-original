@@ -99,27 +99,51 @@ namespace EonZeNx.ApexTools.Core.Utils
 
         public static int Align(int value, int align)
         {
+            if (value == 0) return align;
+            if (align == 0) return value;
+            
             return value + ((align - (value % align)) % align);
         }
         
         public static uint Align(uint value, uint align)
         {
+            if (value == 0) return align;
+            if (align == 0) return value;
+
             return value + ((align - (value % align)) % align);
         }
         
         public static long Align(long value, long align)
         {
+            if (value == 0) return 0;
+            if (align == 0) return value;
+
             return value + ((align - (value % align)) % align);
         }
         
         public static ulong Align(ulong value, ulong align)
         {
+            if (value == 0) return align;
+            if (align == 0) return value;
+
             return value + ((align - (value % align)) % align);
         }
 
         public static void Align(BinaryReader br, uint align)
         {
             br.BaseStream.Seek(Align(br.BaseStream.Position, align), SeekOrigin.Begin);
+        }
+        
+        public static long Align(MemoryStream ms, long offset, long align)
+        {
+            var preAlign = Align(offset, align);
+            var alignment = preAlign - offset;
+            for (int i = 0; i < alignment; i++)
+            {
+                ms.WriteByte(0x50);
+            }
+
+            return preAlign;
         }
 
         #endregion

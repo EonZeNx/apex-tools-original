@@ -10,7 +10,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         public int NameHash { get; set; }
         public EVariantType VariantType => EVariantType.UInteger32Array;
         public byte[] RawData { get; }
-        public uint Offset { get; }
+        public long Offset { get; set; }
         public uint Alignment => 4;
         public bool Primitive => false;
         
@@ -77,6 +77,27 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             
             var uints = uintString.Split(",");
             Value = Array.ConvertAll(uints, uint.Parse);
+        }
+
+        public long MemorySerializeData(MemoryStream ms, long offset)
+        {
+            var coffset = ByteUtils.Align(ms, offset, Alignment);
+            Offset = coffset;
+            
+            ms.Write(BitConverter.GetBytes(Value.Length));
+            foreach (var val in Value)
+            {
+                ms.Write(BitConverter.GetBytes(val));
+            }
+
+            return coffset + 4 + (Value.Length * 4);
+        }
+
+        public void MemorySerializeHeader(MemoryStream ms)
+        {
+            ms.Write(BitConverter.GetBytes(NameHash));
+            ms.Write(BitConverter.GetBytes((uint) Offset));
+            ms.WriteByte((byte) VariantType);
         }
     }
 }

@@ -8,10 +8,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
     public class FloatArrayVariant : IPropertyVariants
     {
         public int NameHash { get; set; }
+        private string HexNameHash => ByteUtils.IntToHex(NameHash);
         public EVariantType VariantType { get; set; }
         public byte[] RawData { get; }
-        public uint Offset { get; }
-        public uint Alignment => 0;
+        public long Offset { get; set; }
+        public uint Alignment { get; set; }
         public bool Primitive => false;
 
         public int NUM = 2;
@@ -67,6 +68,26 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             var floatString = xr.ReadString();
             var floats = floatString.Split(",");
             Value = Array.ConvertAll(floats, input => float.Parse(input));
+        }
+
+        public long MemorySerializeData(MemoryStream ms, long offset)
+        {
+            var coffset = ByteUtils.Align(ms, offset, Alignment);
+            Offset = coffset;
+            
+            foreach (var val in Value)
+            {
+                ms.Write(BitConverter.GetBytes(val));
+            }
+
+            return coffset + (Value.Length * 4);
+        }
+
+        public void MemorySerializeHeader(MemoryStream ms)
+        {
+            ms.Write(BitConverter.GetBytes(NameHash));
+            ms.Write(BitConverter.GetBytes((uint) Offset));
+            ms.WriteByte((byte) VariantType);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         public int NameHash { get; set; }
         public EVariantType VariantType => EVariantType.UInteger32;
         public byte[] RawData { get; }
-        public uint Offset { get; }
+        public long Offset { get; }
         public uint Alignment => 0;
         public bool Primitive => true;
         
@@ -51,6 +51,19 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
             NameHash = ByteUtils.HexToInt(nameHash);
             Value = uint.Parse(xr.ReadString());
+        }
+
+        public long MemorySerializeData(MemoryStream ms, long offset)
+        {
+            // Is primitive, does not need memory serialize
+            return offset;
+        }
+
+        public void MemorySerializeHeader(MemoryStream ms)
+        {
+            ms.Write(BitConverter.GetBytes(NameHash));
+            ms.Write(BitConverter.GetBytes(Value));
+            ms.WriteByte((byte) VariantType);
         }
     }
 }

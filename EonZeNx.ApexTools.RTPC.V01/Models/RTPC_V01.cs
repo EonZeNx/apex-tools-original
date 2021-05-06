@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
@@ -31,7 +29,21 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         {
             bw.Write(Encoding.UTF8.GetBytes(Minfo.FileType));
             bw.Write(Version);
-            Root.BinarySerialize(bw);
+            
+            using (var ms = new MemoryStream())
+            {
+                byte[] containerData;
+                using (var cms = new MemoryStream())
+                {
+                    Root.MemorySerializeData(cms, 20);
+                    containerData = cms.ToArray();
+                }
+                
+                Root.MemorySerializeHeader(ms);
+                ms.Write(containerData);
+                
+                bw.Write(ms.ToArray());
+            }
         }
 
         public void BinaryDeserialize(BinaryReader br)
