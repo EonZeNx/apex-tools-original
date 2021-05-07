@@ -16,6 +16,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         public uint Alignment => 0;
         public bool Primitive => false;
 
+        public static readonly Dictionary<string, long> StringMap = new();
+
         public string Value;
 
         /// <summary>
@@ -70,11 +72,20 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public long MemorySerializeData(MemoryStream ms, long offset)
         {
+            // If value already exists in file, use that offset
+            if (StringMap.ContainsKey(Value))
+            {
+                Offset = StringMap[Value];
+                return offset;
+            }
+            
             var coffset = ByteUtils.Align(ms, offset, Alignment);
             Offset = coffset;
             
             ms.Write(Encoding.UTF8.GetBytes(Value));
             ms.WriteByte(0x00);
+
+            StringMap[Value] = Offset;
 
             return coffset + Value.Length + 1;
         }

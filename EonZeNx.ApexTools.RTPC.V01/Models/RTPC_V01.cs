@@ -78,7 +78,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             
             xr.ReadToDescendant("RTPC_V01");
             Version = byte.Parse(XmlUtils.GetAttribute(xr, "Version"));
-
+            
             Root = new Container();
             xr.ReadToDescendant($"{Root.GetType().Name}");
             Root.XmlDeserialize(xr);

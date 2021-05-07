@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
-using EonZeNx.ApexTools.Core.Models;
 using EonZeNx.ApexTools.Core.Utils;
 using EonZeNx.ApexTools.RTPC.V01.Models.Variants;
 using String = EonZeNx.ApexTools.RTPC.V01.Models.Variants.String;
@@ -32,8 +31,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public IPropertyVariants[] Properties { get; set; }
         public Container[] Containers { get; set; }
 
-        public static int HEADER_SIZE = 4 + 4 + 2 + 2;
-        public static int PROPERTY_SIZE = 4 + 4 + 1;
+        public const int HEADER_SIZE = 4 + 4 + 2 + 2;
+        public const int PROPERTY_SIZE = 4 + 4 + 1;
         
         public Property[] PropertyHeaders { get; set; }
         public long ContainerHeaderOffset { get; set; }
@@ -293,15 +292,14 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             {
                 property.MemorySerializeHeader(ms);
             }
-            ByteUtils.Align(ms, propertyHeaderEnd, 4);
-            
             foreach (var container in Containers)
             {
                 container.MemorySerializeHeader(ms);
             }
-            ByteUtils.Align(ms, subContainerHeaderEnd, 4);
             
+            ByteUtils.Align(ms, ms.Position, 4);
             ms.Write(propertyData);
+            ByteUtils.Align(ms, ms.Position, 4);
             ms.Write(containerData);
 
             return coffset;
@@ -309,6 +307,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         public void MemorySerializeHeader(MemoryStream ms)
         {
+            ByteUtils.Align(ms, ms.Position, 4);
             ms.Write(BitConverter.GetBytes(NameHash));
             ms.Write(BitConverter.GetBytes((uint) Offset));
             ms.Write(BitConverter.GetBytes(PropertyCount));
