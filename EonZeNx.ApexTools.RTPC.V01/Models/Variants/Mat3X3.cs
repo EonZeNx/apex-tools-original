@@ -5,19 +5,15 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class Mat3X3 : FloatArrayVariant
     {
+        public override uint Alignment => 4;
+        public override EVariantType VariantType => EVariantType.Mat4X4;
+        public override int NUM => 9;
+        
         /// <summary>
         /// Blank constructor for XML processing.
         /// </summary>
-        public Mat3X3()
-        {
-            NUM = 9;
-            VariantType = EVariantType.Mat3X3;
-        }
-        public Mat3X3(Property prop) : base(prop)
-        {
-            NUM = 9;
-            VariantType = EVariantType.Mat3X3;
-        }
+        public Mat3X3() { }
+        public Mat3X3(Property prop) : base(prop) { }
         
         public override void XmlSerialize(XmlWriter xw)
         {

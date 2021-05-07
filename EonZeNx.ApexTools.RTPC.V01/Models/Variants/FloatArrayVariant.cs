@@ -9,13 +9,13 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
     {
         public int NameHash { get; set; }
         private string HexNameHash => ByteUtils.IntToHex(NameHash);
-        public EVariantType VariantType { get; set; }
+        public virtual EVariantType VariantType { get; set; }
         public byte[] RawData { get; }
         public long Offset { get; set; }
-        public uint Alignment { get; set; }
+        public virtual uint Alignment { get; set; }
         public bool Primitive => false;
 
-        public int NUM = 2;
+        public virtual int NUM { get; set; } = 2;
         public float[] Value;
         
         /// <summary>
@@ -67,7 +67,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             NameHash = ByteUtils.HexToInt(nameHash);
             var floatString = xr.ReadString();
             var floats = floatString.Split(",");
-            Value = Array.ConvertAll(floats, input => float.Parse(input));
+            Value = Array.ConvertAll(floats, float.Parse);
         }
 
         public long MemorySerializeData(MemoryStream ms, long offset)

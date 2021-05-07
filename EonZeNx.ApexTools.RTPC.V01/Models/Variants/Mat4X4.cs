@@ -5,21 +5,15 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class Mat4X4 : FloatArrayVariant
     {
+        public override uint Alignment => 8;
+        public override EVariantType VariantType => EVariantType.Mat4X4;
+        public override int NUM => 16;
+        
         /// <summary>
         /// Blank constructor for XML processing.
         /// </summary>
-        public Mat4X4()
-        {
-            NUM = 16;
-            VariantType = EVariantType.Mat4X4;
-            Alignment = 8;
-        }
-        public Mat4X4(Property prop) : base(prop)
-        {
-            NUM = 16;
-            VariantType = EVariantType.Mat4X4;
-            Alignment = 8;
-        }
+        public Mat4X4() { }
+        public Mat4X4(Property prop) : base(prop) { }
         
         public override void XmlSerialize(XmlWriter xw)
         {

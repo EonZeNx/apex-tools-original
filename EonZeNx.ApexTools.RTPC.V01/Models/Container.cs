@@ -31,8 +31,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public IPropertyVariants[] Properties { get; set; }
         public Container[] Containers { get; set; }
 
-        public const int HEADER_SIZE = 4 + 4 + 2 + 2;
-        public const int PROPERTY_SIZE = 4 + 4 + 1;
+        public const int HeaderSize = 4 + 4 + 2 + 2;
+        public const int PropertySize = 4 + 4 + 1;
         
         public Property[] PropertyHeaders { get; set; }
         public long ContainerHeaderOffset { get; set; }
@@ -266,15 +266,15 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         #endregion
 
-        private long CalcRelativeOffsets(long offset, out long propertyHeaderEnd, out long subContainerHeaderEnd)
+        private long CalcRelativeOffsets(long offset)
         {
-            var propertyHeaderSize = Properties.Length * PROPERTY_SIZE;
-            var subContainerHeaderSize = Containers.Length * HEADER_SIZE;
+            var propertyHeaderSize = Properties.Length * PropertySize;
+            var subContainerHeaderSize = Containers.Length * HeaderSize;
 
-            propertyHeaderEnd = offset + propertyHeaderSize;
+            var propertyHeaderEnd = offset + propertyHeaderSize;
             propertyHeaderEnd = ByteUtils.Align(propertyHeaderEnd, 4);
             
-            subContainerHeaderEnd = propertyHeaderEnd + subContainerHeaderSize;
+            var subContainerHeaderEnd = propertyHeaderEnd + subContainerHeaderSize;
             subContainerHeaderEnd = ByteUtils.Align(subContainerHeaderEnd, 4);
 
             return subContainerHeaderEnd;
@@ -283,7 +283,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public long MemorySerializeData(MemoryStream ms, long offset)
         {
             Offset = offset;
-            var coffset = CalcRelativeOffsets(offset, out var propertyHeaderEnd, out var subContainerHeaderEnd);
+            var coffset = CalcRelativeOffsets(offset);
 
             var propertyData = GetPropertyData(ref coffset);
             var containerData = GetContainerData(ref coffset);

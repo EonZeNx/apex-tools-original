@@ -6,19 +6,15 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class Vec2 : FloatArrayVariant
     {
+        public override uint Alignment => 4;
+        public override EVariantType VariantType => EVariantType.Vec2;
+        public override int NUM => 2;
+        
         /// <summary>
         /// Blank constructor for XML processing.
         /// </summary>
-        public Vec2()
-        {
-            NUM = 2;
-            VariantType = EVariantType.Vec2;
-        }
-        public Vec2(Property prop) : base(prop)
-        {
-            NUM = 2;
-            VariantType = EVariantType.Vec2;
-        }
+        public Vec2() { }
+        public Vec2(Property prop) : base(prop) { }
         
         public override void XmlSerialize(XmlWriter xw)
         {
