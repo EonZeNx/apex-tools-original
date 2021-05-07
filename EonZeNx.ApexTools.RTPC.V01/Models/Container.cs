@@ -31,6 +31,9 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public ushort ContainerCount { get; set; }
         public IPropertyVariants[] Properties { get; set; }
         public Container[] Containers { get; set; }
+
+        public static int HEADER_SIZE = 4 + 4 + 2 + 2;
+        public static int PROPERTY_SIZE = 4 + 4 + 1;
         
         public Property[] PropertyHeaders { get; set; }
         public long ContainerHeaderOffset { get; set; }
@@ -264,15 +267,24 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         #endregion
 
+        private long CalcRelativeOffsets(long offset, out long propertyHeaderEnd, out long subContainerHeaderEnd)
+        {
+            var propertyHeaderSize = Properties.Length * PROPERTY_SIZE;
+            var subContainerHeaderSize = Containers.Length * HEADER_SIZE;
+
+            propertyHeaderEnd = offset + propertyHeaderSize;
+            propertyHeaderEnd = ByteUtils.Align(propertyHeaderEnd, 4);
+            
+            subContainerHeaderEnd = propertyHeaderEnd + subContainerHeaderSize;
+            subContainerHeaderEnd = ByteUtils.Align(subContainerHeaderEnd, 4);
+
+            return subContainerHeaderEnd;
+        }
+
         public long MemorySerializeData(MemoryStream ms, long offset)
         {
             Offset = offset;
-            var containerHeaderSize = 4 + 4 + 2 + 2;
-            var subContainerHeaderSize = Containers.Length * containerHeaderSize;
-            var propertyHeaderSize = 4 + 4 + 1;
-            var subPropertyHeaderSize = Properties.Length * propertyHeaderSize;
-            
-            var coffset = offset + subPropertyHeaderSize + subContainerHeaderSize;
+            var coffset = CalcRelativeOffsets(offset, out var propertyHeaderEnd, out var subContainerHeaderEnd);
 
             var propertyData = GetPropertyData(ref coffset);
             var containerData = GetContainerData(ref coffset);
@@ -281,13 +293,13 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             {
                 property.MemorySerializeHeader(ms);
             }
-            coffset = ByteUtils.Align(ms, coffset, 4);
+            ByteUtils.Align(ms, propertyHeaderEnd, 4);
             
             foreach (var container in Containers)
             {
                 container.MemorySerializeHeader(ms);
             }
-            coffset = ByteUtils.Align(ms, coffset, 4);
+            ByteUtils.Align(ms, subContainerHeaderEnd, 4);
             
             ms.Write(propertyData);
             ms.Write(containerData);

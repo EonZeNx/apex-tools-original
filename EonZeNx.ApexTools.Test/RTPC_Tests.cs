@@ -50,7 +50,7 @@ namespace EonZeNx.ApexTools.Test
         public void ContainerData_Jc3GlobalXml_ByteArrayShouldEqualRTPC_Test()
         {
             // Load XML data
-            var xmlPath = @$"{basePath}\PropertyData - 6E14D700.xml";
+            var xmlPath = @$"{basePath}\ContainerData - 6E14D700.xml";
             var xr = XmlReader.Create(xmlPath);
             xr.MoveToContent();
 
@@ -68,7 +68,7 @@ namespace EonZeNx.ApexTools.Test
             
             
             // Load correct data
-            var binaryPath = @$"{basePath}\PropertyData - 6E14D700.rtpc";
+            var binaryPath = @$"{basePath}\ContainerData - 6E14D700.rtpc";
             byte[] binaryBlock;
             using (var br = new BinaryReader(new FileStream(binaryPath, FileMode.Open)))
             {
@@ -76,7 +76,7 @@ namespace EonZeNx.ApexTools.Test
             }
             
             // Write converted block
-            var convertedPath = @$"{basePath}\PropertyData - 6E14D700 CONV.rtpc";
+            var convertedPath = @$"{basePath}\ContainerData - 6E14D700 CONV.rtpc";
             using (var bw = new BinaryWriter(new FileStream(convertedPath, FileMode.Create)))
             {
                 bw.Write(convertedBlock);
