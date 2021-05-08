@@ -31,9 +31,22 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void BinarySerialize(BinaryWriter bw)
         {
+            bw.Write(NameHash);
+            bw.Write((uint) Offset);
+            bw.Write((byte) VariantType);
+        }
+        
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            ByteUtils.Align(bw, Alignment);
+            Offset = bw.BaseStream.Position;
+            
             var data = Value.Item1 | Value.Item2;
-            bw.Write(ByteUtils.ReverseBytes((uint) (data >> 32)));
-            bw.Write(ByteUtils.ReverseBytes((uint) (data & uint.MaxValue)));
+            var first = (uint) (data >> 32);
+            var second = (uint) (data & uint.MaxValue);
+            
+            bw.Write(BitConverter.GetBytes(second));
+            bw.Write(BitConverter.GetBytes(first));
         }
         
         public void BinaryDeserialize(BinaryReader br)
@@ -68,28 +81,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             var strValue = xr.ReadString();
             var strArray = strValue.Split("=");
             Value = (ulong.Parse(strArray[0], NumberStyles.AllowHexSpecifier), byte.Parse(strArray[1], NumberStyles.AllowHexSpecifier));
-        }
-
-        public long MemorySerializeData(MemoryStream ms, long offset)
-        {
-            var coffset = ByteUtils.Align(ms, offset, Alignment);
-            Offset = coffset;
-            
-            var data = Value.Item1 | Value.Item2;
-            var first = (uint) (data >> 32);
-            var second = (uint) (data & uint.MaxValue);
-            
-            ms.Write(BitConverter.GetBytes(second));
-            ms.Write(BitConverter.GetBytes(first));
-
-            return coffset + 4 + 4;
-        }
-
-        public void MemorySerializeHeader(MemoryStream ms)
-        {
-            ms.Write(BitConverter.GetBytes(NameHash));
-            ms.Write(BitConverter.GetBytes((uint) Offset));
-            ms.WriteByte((byte) VariantType);
         }
     }
 }

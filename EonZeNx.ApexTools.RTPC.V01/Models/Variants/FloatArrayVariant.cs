@@ -29,9 +29,18 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             RawData = prop.RawData;
         }
         
-        
         public void BinarySerialize(BinaryWriter bw)
         {
+            bw.Write(NameHash);
+            bw.Write((uint) Offset);
+            bw.Write((byte) VariantType);
+        }
+        
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            ByteUtils.Align(bw, Alignment);
+            Offset = bw.BaseStream.Position;
+            
             foreach (var f32 in Value)
             {
                 bw.Write(f32);

@@ -30,7 +30,14 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         
         public void BinarySerialize(BinaryWriter bw)
         {
+            bw.Write(NameHash);
             bw.Write(Value);
+            bw.Write((byte) VariantType);
+        }
+        
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            return;
         }
         
         public void BinaryDeserialize(BinaryReader br)

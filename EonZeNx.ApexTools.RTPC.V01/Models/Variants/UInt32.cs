@@ -30,7 +30,14 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void BinarySerialize(BinaryWriter bw)
         {
+            bw.Write(NameHash);
             bw.Write(Value);
+            bw.Write((byte) VariantType);
+        }
+        
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            return;
         }
         
         public void BinaryDeserialize(BinaryReader br)
@@ -51,19 +58,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
             NameHash = ByteUtils.HexToInt(nameHash);
             Value = uint.Parse(xr.ReadString());
-        }
-
-        public long MemorySerializeData(MemoryStream ms, long offset)
-        {
-            // Is primitive, does not need memory serialize
-            return offset;
-        }
-
-        public void MemorySerializeHeader(MemoryStream ms)
-        {
-            ms.Write(BitConverter.GetBytes(NameHash));
-            ms.Write(BitConverter.GetBytes(Value));
-            ms.WriteByte((byte) VariantType);
         }
     }
 }

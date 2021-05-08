@@ -2,7 +2,7 @@
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
-    public interface IPropertyVariants : IBinarySerializable, IXmlSerializable, IMemorySerializable
+    public interface IPropertyVariants : IBinarySerializable, IXmlSerializable, IDeferredSerializable
     {
         int NameHash { get; }
         EVariantType VariantType { get; }

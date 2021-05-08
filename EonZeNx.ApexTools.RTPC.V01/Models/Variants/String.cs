@@ -31,11 +31,28 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             RawData = prop.RawData;
         }
 
-        
         public void BinarySerialize(BinaryWriter bw)
         {
+            bw.Write(NameHash);
+            bw.Write((uint) Offset);
+            bw.Write((byte) VariantType);
+        }
+        
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            // If value already exists in file, use that offset
+            if (StringMap.ContainsKey(Value))
+            {
+                Offset = StringMap[Value];
+                return;
+            }
+            
+            ByteUtils.Align(bw, Alignment);
+            Offset = bw.BaseStream.Position;
+            StringMap[Value] = Offset;
+            
             bw.Write(Encoding.UTF8.GetBytes(Value));
-            bw.Write(0x00);
+            bw.Write((byte) 0x00);
         }
         
         public void BinaryDeserialize(BinaryReader br)
@@ -68,33 +85,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
             NameHash = ByteUtils.HexToInt(nameHash);
             Value = xr.ReadString();
-        }
-
-        public long MemorySerializeData(MemoryStream ms, long offset)
-        {
-            // If value already exists in file, use that offset
-            if (StringMap.ContainsKey(Value))
-            {
-                Offset = StringMap[Value];
-                return offset;
-            }
-            
-            var coffset = ByteUtils.Align(ms, offset, Alignment);
-            Offset = coffset;
-            
-            ms.Write(Encoding.UTF8.GetBytes(Value));
-            ms.WriteByte(0x00);
-
-            StringMap[Value] = Offset;
-
-            return coffset + Value.Length + 1;
-        }
-
-        public void MemorySerializeHeader(MemoryStream ms)
-        {
-            ms.Write(BitConverter.GetBytes(NameHash));
-            ms.Write(BitConverter.GetBytes((uint) Offset));
-            ms.WriteByte((byte) VariantType);
         }
     }
 }

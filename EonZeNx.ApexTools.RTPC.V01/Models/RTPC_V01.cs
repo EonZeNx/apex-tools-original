@@ -29,21 +29,13 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         {
             bw.Write(Encoding.UTF8.GetBytes(Minfo.FileType));
             bw.Write(Version);
+
+            var originalOffset = bw.BaseStream.Position;
+            bw.Seek(Container.ContainerHeaderSize, SeekOrigin.Current);
+            Root.BinarySerializeData(bw);
             
-            using (var ms = new MemoryStream())
-            {
-                byte[] containerData;
-                using (var cms = new MemoryStream())
-                {
-                    Root.MemorySerializeData(cms, 20);
-                    containerData = cms.ToArray();
-                }
-                
-                Root.MemorySerializeHeader(ms);
-                ms.Write(containerData);
-                
-                bw.Write(ms.ToArray());
-            }
+            bw.Seek((int) originalOffset, SeekOrigin.Begin);
+            Root.BinarySerialize(bw);
         }
 
         public void BinaryDeserialize(BinaryReader br)

@@ -30,13 +30,23 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         
         public void BinarySerialize(BinaryWriter bw)
         {
+            bw.Write(NameHash);
+            bw.Write((uint) Offset);
+            bw.Write((byte) VariantType);
+        }
+        
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            ByteUtils.Align(bw, Alignment);
+            Offset = bw.BaseStream.Position;
+            
             bw.Write(Value.Length);
             foreach (var val in Value)
             {
                 bw.Write(val);
             }
         }
-        
+
         public void BinaryDeserialize(BinaryReader br)
         {
             var dataOffset = BitConverter.ToUInt32(RawData);
@@ -67,24 +77,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             var floatString = xr.ReadString();
             var floats = floatString.Split(",");
             Value = Array.ConvertAll(floats, input => byte.Parse(input));
-        }
-
-        public long MemorySerializeData(MemoryStream ms, long offset)
-        {
-            var coffset = ByteUtils.Align(ms, offset, Alignment);
-            Offset = coffset;
-            
-            ms.Write(BitConverter.GetBytes(Value.Length));
-            ms.Write(Value);
-
-            return coffset + 4 + Value.Length;
-        }
-
-        public void MemorySerializeHeader(MemoryStream ms)
-        {
-            ms.Write(BitConverter.GetBytes(NameHash));
-            ms.Write(BitConverter.GetBytes((uint) Offset));
-            ms.WriteByte((byte) VariantType);
         }
     }
 }

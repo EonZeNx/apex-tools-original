@@ -11,7 +11,7 @@ using UInt32 = EonZeNx.ApexTools.RTPC.V01.Models.Variants.UInt32;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
-    public class Container : IBinarySerializable, IXmlSerializable, IMemorySerializable
+    public class Container : IBinarySerializable, IXmlSerializable, IDeferredSerializable
     {
         /* CONTAINER
          * Name hash : s32
@@ -31,8 +31,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public IPropertyVariants[] Properties { get; set; }
         public Container[] Containers { get; set; }
 
-        public const int HeaderSize = 4 + 4 + 2 + 2;
-        public const int PropertySize = 4 + 4 + 1;
+        public const int ContainerHeaderSize = 4 + 4 + 2 + 2;
+        public const int PropertyHeaderSize = 4 + 4 + 1;
+
+        public long PropertyHeaderStart;
+        public long ContainerHeaderStart;
         
         public Property[] PropertyHeaders { get; set; }
         public long ContainerHeaderOffset { get; set; }
@@ -171,23 +174,79 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         #region BinarySerializable
 
-        public void BinarySerialize(BinaryWriter bw)
-        {
-            bw.Write(NameHash);
-            bw.Write(bw.BaseStream.Position);
-            bw.Write(PropertyCount);
-            bw.Write(ContainerCount);
+        #region BinarySerializable Helpers
 
+        private void BinarySerializeProperties(BinaryWriter bw)
+        {
+            var originalOffset = bw.BaseStream.Position;
+            
+            bw.Seek((int) ContainerHeaderStart + ContainerCount * ContainerHeaderSize, SeekOrigin.Begin);
+            
+            foreach (var property in Properties)
+            {
+                property.BinarySerializeData(bw);
+            }
+
+            var endOfProperties = bw.BaseStream.Position;
+
+            bw.Seek((int) originalOffset, SeekOrigin.Begin);
+            
             foreach (var property in Properties)
             {
                 property.BinarySerialize(bw);
             }
             
+            bw.Seek((int) endOfProperties, SeekOrigin.Begin);
+        }
+        
+        private void BinarySerializeContainers(BinaryWriter bw)
+        {
+            bw.Seek(ContainerCount * ContainerHeaderSize, SeekOrigin.Current);
+            
+            foreach (var container in Containers)
+            {
+                container.BinarySerializeData(bw);
+            }
+            var endOfContainers = bw.BaseStream.Position;
+
+            bw.Seek((int) ContainerHeaderStart, SeekOrigin.Begin);
+            ByteUtils.Align(bw, 4);
+            
             foreach (var container in Containers)
             {
                 container.BinarySerialize(bw);
             }
+            
+            bw.Seek((int) endOfContainers, SeekOrigin.Begin);
         }
+
+        #endregion
+
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            Offset = bw.BaseStream.Position;
+            PropertyHeaderStart = Offset;
+            ContainerHeaderStart = Offset + PropertyCount * PropertyHeaderSize;
+            
+            if (Properties.Length > 0)
+            {
+                BinarySerializeProperties(bw);
+
+                ByteUtils.Align(bw, 4);
+            }
+            
+            if (Containers.Length > 0) BinarySerializeContainers(bw);
+        }
+
+        public void BinarySerialize(BinaryWriter bw)
+        {
+            bw.Write(NameHash);
+            bw.Write((uint) Offset);
+            bw.Write(PropertyCount);
+            bw.Write(ContainerCount);
+        }
+        
+        
 
         public void BinaryDeserialize(BinaryReader br)
         {
@@ -230,88 +289,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             // TODO: Check if the container has properties
             XmlLoadProperties(xr);
             XmlLoadContainers(xr);
-        }
-
-        #endregion
-
-        #region MemorySerializable
-
-        #region Memory Serializable Helpers
-
-        public byte[] GetPropertyData(ref long offset)
-        {
-            using (var pms = new MemoryStream())
-            {
-                foreach (var property in Properties)
-                {
-                    offset = property.MemorySerializeData(pms, offset);
-                }
-                
-                return pms.ToArray();
-            }
-        }
-        
-        private byte[] GetContainerData(ref long offset)
-        {
-            using (var cms = new MemoryStream())
-            {
-                foreach (var container in Containers)
-                {
-                    offset = container.MemorySerializeData(cms, offset);
-                }
-                
-                return cms.ToArray();
-            }
-        }
-
-        #endregion
-
-        private long CalcRelativeOffsets(long offset)
-        {
-            var propertyHeaderSize = Properties.Length * PropertySize;
-            var subContainerHeaderSize = Containers.Length * HeaderSize;
-
-            var propertyHeaderEnd = offset + propertyHeaderSize;
-            propertyHeaderEnd = ByteUtils.Align(propertyHeaderEnd, 4);
-            
-            var subContainerHeaderEnd = propertyHeaderEnd + subContainerHeaderSize;
-            subContainerHeaderEnd = ByteUtils.Align(subContainerHeaderEnd, 4);
-
-            return subContainerHeaderEnd;
-        }
-
-        public long MemorySerializeData(MemoryStream ms, long offset)
-        {
-            Offset = offset;
-            var coffset = CalcRelativeOffsets(offset);
-
-            var propertyData = GetPropertyData(ref coffset);
-            var containerData = GetContainerData(ref coffset);
-            
-            foreach (var property in Properties)
-            {
-                property.MemorySerializeHeader(ms);
-            }
-            foreach (var container in Containers)
-            {
-                container.MemorySerializeHeader(ms);
-            }
-            
-            ByteUtils.Align(ms, ms.Position, 4);
-            ms.Write(propertyData);
-            ByteUtils.Align(ms, ms.Position, 4);
-            ms.Write(containerData);
-
-            return coffset;
-        }
-
-        public void MemorySerializeHeader(MemoryStream ms)
-        {
-            ByteUtils.Align(ms, ms.Position, 4);
-            ms.Write(BitConverter.GetBytes(NameHash));
-            ms.Write(BitConverter.GetBytes((uint) Offset));
-            ms.Write(BitConverter.GetBytes(PropertyCount));
-            ms.Write(BitConverter.GetBytes(ContainerCount));
         }
 
         #endregion
