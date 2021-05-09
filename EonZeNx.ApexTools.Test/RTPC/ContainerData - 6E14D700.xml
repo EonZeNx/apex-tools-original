@@ -1,0 +1,31 @@
+<Container NameHash="6E14D700">
+	<Event NameHash="808BCF09"></Event>
+	<String NameHash="79B17314">CEventTrigger</String>
+	<Event NameHash="A072EB38"></Event>
+	<Event NameHash="4865D343"></Event>
+	<UInt32 NameHash="86091954">0</UInt32>
+	<UIntArray NameHash="8F7E6954"></UIntArray>
+	<Event NameHash="A94FBF54"></Event>
+	<Event NameHash="C3BEF863">75BA05A5=A9DB0000, 03CD6F22=988C0000</Event>
+	<UInt32 NameHash="96E57268">1</UInt32>
+	<Mat4X4 NameHash="B9D4A66C">1,0,0,0, 0,1,0,0, 0,0,1,0, -7016.0864,1047.551,-1591.2161,1</Mat4X4>
+	<UInt32 NameHash="4B12E970">0</UInt32>
+	<UInt32 NameHash="1509B979">0</UInt32>
+	<UInt32 NameHash="8C863A7D">1022442020</UInt32>
+	<Event NameHash="1BBFDE83"></Event>
+	<OID NameHash="0584FFCF">0000F9BDCD0D55A5=0</OID>
+	<UInt32 NameHash="E65940D0">1313580645</UInt32>
+	<String NameHash="84B61AD3">evt.vs.mus.stop</String>
+	<Event NameHash="9C46B4E8"></Event>
+	<Container NameHash="6D5AAE9B">
+		<Event NameHash="B086800D">885F1210=3FB00000</Event>
+		<String NameHash="79B17314">SEventTriggerComponent</String>
+		<UIntArray NameHash="8F7E6954"></UIntArray>
+		<UInt32 NameHash="47C5B370">1</UInt32>
+		<UInt32 NameHash="8C863A7D">385049753</UInt32>
+		<UInt32 NameHash="7EDB188B">100</UInt32>
+		<OID NameHash="0584FFCF">000091B79AE133F9=0</OID>
+		<UInt32 NameHash="E65940D0">1011030555</UInt32>
+		<String NameHash="84B61AD3">etc.</String>
+	</Container>
+</Container>

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Xml;
 using EonZeNx.ApexTools.Core.Interfaces;
 using EonZeNx.ApexTools.Core.Processors;
+using EonZeNx.ApexTools.Core.Utils;
 using EonZeNx.ApexTools.Models.Managers;
 
 namespace EonZeNx.ApexTools
@@ -33,7 +35,26 @@ namespace EonZeNx.ApexTools
             return fourCC switch
             {
                 EFoucCC.IRTPC =>  new IRTPC_Manager(),
+                EFoucCC.RTPC =>   new RTPC_Manager(),
+                EFoucCC.XML =>    GetXmlProcessor(fullPath),
                 _ =>              new IRTPC_Manager()
+            };
+        }
+
+        public FileProcessor GetXmlProcessor(string fullPath)
+        {
+            var path = @$"{fullPath}";
+            var xr = XmlReader.Create(path);
+            xr.MoveToContent();
+            
+            var fileType = XmlUtils.GetAttribute(xr, "FileType");
+            xr.Close();
+            
+            return fileType switch
+            {
+                "IRTPC" => new IRTPC_Manager(),
+                "RTPC" => new RTPC_Manager(),
+                _ => new IRTPC_Manager()
             };
         }
         

@@ -4,27 +4,50 @@ using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Utils;
 
-namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
+namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
-    public class Event : PropertyVariants
+    public class Event : IPropertyVariants
     {
-        public override int NameHash { get; set; }
-        protected override EVariantType VariantType { get; set; } = EVariantType.Event;
-        protected override long Offset { get; set; }
-        public (uint, uint)[] Value;
+        public int NameHash { get; set; }
+        public EVariantType VariantType => EVariantType.Event;
+        public byte[] RawData { get; }
+        public long Offset { get; set; }
+        public uint Alignment => 4;
+        public bool Primitive => false;
         
+        public (uint, uint)[] Value;
+
+        /// <summary>
+        /// Blank constructor for XML processing.
+        /// </summary>
         public Event() { }
         public Event(Property prop)
         {
             Offset = prop.Offset;
             NameHash = prop.NameHash;
+            RawData = prop.RawData;
         }
 
-        public override void BinarySerialize(BinaryWriter bw)
+
+        public void BinarySerialize(BinaryWriter bw)
         {
             bw.Write(NameHash);
+            bw.Write((uint) Offset);
             bw.Write((byte) VariantType);
-            bw.Write((uint) Value.Length);
+        }
+        
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            ByteUtils.Align(bw, Alignment);
+            Offset = bw.BaseStream.Position;
+            
+            if (Value == null)
+            {
+                bw.Write((uint) 0);
+                return;
+            }
+            
+            bw.Write(Value.Length);
             for (int i = 0; i < Value.Length; i++)
             {
                 bw.Write(Value[i].Item1);
@@ -32,8 +55,12 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
             }
         }
         
-        public override void BinaryDeserialize(BinaryReader br)
+        public void BinaryDeserialize(BinaryReader br)
         {
+            var dataOffset = BitConverter.ToUInt32(RawData);
+            
+            br.BaseStream.Seek(dataOffset, SeekOrigin.Begin);
+            
             var length = br.ReadUInt32();
             Value = new (uint, uint)[length];
             for (int i = 0; i < length; i++)
@@ -44,7 +71,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
             }
         }
 
-        public override void XmlSerialize(XmlWriter xw)
+        public void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
             xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
@@ -62,7 +89,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
             xw.WriteEndElement();
         }
 
-        public override void XmlDeserialize(XmlReader xr)
+        public void XmlDeserialize(XmlReader xr)
         {
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
             NameHash = ByteUtils.HexToInt(nameHash);

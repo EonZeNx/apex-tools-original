@@ -12,7 +12,8 @@ namespace EonZeNx.ApexTools.Core.Processors
         ADF,
         SARC,
         AAF,
-        TAB
+        TAB,
+        XML
     }
     
     public class FourCCProcessor
@@ -24,6 +25,7 @@ namespace EonZeNx.ApexTools.Core.Processors
             {new byte[] {0x53, 0x41, 0x52, 0x43}, EFoucCC.SARC},
             {new byte[] {0x41, 0x41, 0x46, 0x00}, EFoucCC.AAF},
             {new byte[] {0x54, 0x41, 0x42, 0x00}, EFoucCC.TAB},
+            {new byte[] {0x3F, 0x78, 0x6D, 0x6C}, EFoucCC.XML},
         };
         
         public bool IsSupportedFourCC(byte[] input)

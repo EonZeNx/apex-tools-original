@@ -10,10 +10,10 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
     public class IRTPC_V01 : IXmlClassIO
     {
         /* ROOT
-        * Version 01 : u8
-        * Version 02 : u16
-        * Object count : u16
-        */
+         * Version 01 : u8
+         * Version 02 : u16
+         * Object count : u16
+         */
 
         public MetaInfo Minfo { get; set; } = new (){FileType = "IRTPC", Version = 01};
         

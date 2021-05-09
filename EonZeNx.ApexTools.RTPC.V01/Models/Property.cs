@@ -1,23 +1,26 @@
 ﻿using System.IO;
 using EonZeNx.ApexTools.Core.Utils;
 
-namespace EonZeNx.ApexTools.IRTPC.V01.Models
+namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
     public class Property
     {
         /* PROPERTY
          * Name hash : s32
+         * Raw data : u32
          * Type : u8/Enum
          */
-
-        public long Offset { get; private set; }
+        
+        public uint Offset { get; private set; }
         public int NameHash { get; private set; }
+        public byte[] RawData { get; private set; }
         public EVariantType Type { get; private set; }
 
         public Property(BinaryReader br)
         {
-            Offset = BinaryReaderUtils.Position(br);
+            Offset = (uint) BinaryReaderUtils.Position(br);
             NameHash = br.ReadInt32();
+            RawData = br.ReadBytes(4);
             Type = (EVariantType) br.ReadByte();
         }
     }

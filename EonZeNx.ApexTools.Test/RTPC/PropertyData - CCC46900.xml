@@ -1,0 +1,27 @@
+<Container NameHash="CCC46900">
+	<Event NameHash="EDFDA00A"></Event>
+	<String NameHash="79B17314">CTimeTrigger</String>
+	<Event NameHash="7087DB26"></Event>
+	<F32 NameHash="9EF80F42">4</F32>
+	<Event NameHash="4865D343"></Event>
+	<UIntArray NameHash="8F7E6954"></UIntArray>
+	<UInt32 NameHash="F0731D64">0</UInt32>
+	<UInt32 NameHash="96E57268">1</UInt32>
+	<Event NameHash="089CE86B"></Event>
+	<F32 NameHash="415F3F6C">0</F32>
+	<Mat4X4 NameHash="B9D4A66C">1,0,0,0, 0,1,0,0, 0,0,1,0, 3303.8862,1032.1827,9470.03,1</Mat4X4>
+	<UInt32 NameHash="8C863A7D">3744333304</UInt32>
+	<Event NameHash="1BBFDE83">DC4AA3C2=835B0000</Event>
+	<Event NameHash="88DE7E8A"></Event>
+	<F32 NameHash="6779C496">0</F32>
+	<Event NameHash="B3FB5F9D">2D2C0EE0=E0540000</Event>
+	<UInt32 NameHash="0750A59E">0</UInt32>
+	<UInt32 NameHash="B8CEC2A6">0</UInt32>
+	<UInt32 NameHash="D2AC6BAE">0</UInt32>
+	<UInt32 NameHash="99E1ACBA">0</UInt32>
+	<OID NameHash="0584FFCF">0000E626F86F596F=0</OID>
+	<UInt32 NameHash="E65940D0">2071185270</UInt32>
+	<String NameHash="84B61AD3">tit.teleport</String>
+	<Event NameHash="4E0549E3">DC4AA3C2=835B0000</Event>
+	<Event NameHash="988A2BF8"></Event>
+</Container>
