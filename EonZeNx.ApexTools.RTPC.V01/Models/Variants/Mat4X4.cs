@@ -5,7 +5,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class Mat4X4 : FloatArrayVariant
     {
-        public override uint Alignment => 8;
+        public override uint Alignment => 16;
         public override EVariantType VariantType => EVariantType.Mat4X4;
         public override int NUM => 16;
         

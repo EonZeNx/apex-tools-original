@@ -5,7 +5,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class Vec4 : FloatArrayVariant
     {
-        public override uint Alignment => 4;
+        public override uint Alignment => 16;
         public override EVariantType VariantType => EVariantType.Vec4;
         public override int NUM => 4;
 
