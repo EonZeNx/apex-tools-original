@@ -55,13 +55,14 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             
             br.BaseStream.Seek(dataOffset, SeekOrigin.Begin);
 
-            // TODO: OID is reversed when deserialized, need to fix that.
             var upper = ByteUtils.ReverseBytes(br.ReadUInt32());
             var lower = ByteUtils.ReverseBytes(br.ReadUInt32());
             
+            // Thanks UnknownMiscreant
             var oid = ((ulong)upper) << 32 | lower;
-            var udata = (byte)(oid & byte.MaxValue);
-            Value = (oid, udata);
+            var userData = (byte)(oid & byte.MaxValue);
+            
+            Value = (oid, userData);
         }
 
         public void XmlSerialize(XmlWriter xw)
@@ -69,8 +70,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             xw.WriteStartElement($"{GetType().Name}");
             xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
 
-            var oid = $"{ByteUtils.UlongToHex(Value.Item1)}={Value.Item2}";
-            xw.WriteValue(oid);
+            var reversedOid = ByteUtils.ReverseBytes(Value.Item1);
+            var stringOid = ByteUtils.UlongToHex(reversedOid);
+            
+            var full = $"{stringOid}={Value.Item2}";
+            xw.WriteValue(full);
             xw.WriteEndElement();
         }
 
@@ -80,7 +84,13 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             NameHash = ByteUtils.HexToInt(nameHash);
             var strValue = xr.ReadString();
             var strArray = strValue.Split("=");
-            Value = (ulong.Parse(strArray[0], NumberStyles.AllowHexSpecifier), byte.Parse(strArray[1], NumberStyles.AllowHexSpecifier));
+
+            var reversedOid = ulong.Parse(strArray[0], NumberStyles.AllowHexSpecifier);
+            var oid = ByteUtils.ReverseBytes(reversedOid);
+
+            var userData = byte.Parse(strArray[1], NumberStyles.AllowHexSpecifier);
+            
+            Value = (oid, userData);
         }
     }
 }
