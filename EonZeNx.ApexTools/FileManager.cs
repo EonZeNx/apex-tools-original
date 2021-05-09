@@ -50,6 +50,7 @@ namespace EonZeNx.ApexTools
             var fileType = XmlUtils.GetAttribute(xr, "FileType");
             xr.Close();
             
+            // TODO: Create function to filter random files from potential IRTPC files
             return fileType switch
             {
                 "IRTPC" => new IRTPC_Manager(),

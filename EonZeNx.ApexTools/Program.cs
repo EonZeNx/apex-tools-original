@@ -40,6 +40,17 @@ namespace EonZeNx.ApexTools
             Config = new ConfigData();
             Config.Load();
         }
+
+        private static void Close(string msg = "")
+        {
+            if (msg.Length != 0) Console.WriteLine(msg);
+            
+            // No auto close optional argument
+            if (!Config.AutoClose)
+            {
+                ConsoleUtils.GetInput("Press any key to continue...");
+            }
+        }
         
         static void Main(string[] args)
         {
@@ -47,19 +58,25 @@ namespace EonZeNx.ApexTools
             LoadConfig();
             WriteMOTD();
 
+            if (args.Length == 0)
+            {
+                Close("No arguments passed. Try dragging a supported file onto me.");
+                return;
+            }
+            
             // Program launches with itself as the first argument, filter it
-            var filepaths = args[1..].Where(File.Exists).ToArray();
-            if (args.Length > 0)
+            var filepaths = args
+                .Where(File.Exists)
+                .Where(path => !path.Contains(".exe")).ToArray();
+            if (filepaths.Length == 0)
             {
-                var manager = new FileManager(filepaths);
-                manager.ProcessPaths();
+                Close("No valid paths detected. Double check the paths passed in.");
+                return;
             }
-
-            // No auto close optional argument
-            if (!Config.AutoClose)
-            {
-                ConsoleUtils.GetInput("Press any key to continue...");
-            }
+            
+            var manager = new FileManager(filepaths);
+            manager.ProcessPaths();
+            Close();
         }
     }
 }

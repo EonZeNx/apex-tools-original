@@ -1,0 +1,76 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v5.0/win10-x64",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v5.0": {},
+    ".NETCoreApp,Version=v5.0/win10-x64": {
+      "EonZeNx.ApexTools/1.0.0": {
+        "dependencies": {
+          "EonZeNx.ApexTools.Configuration": "1.0.0",
+          "EonZeNx.ApexTools.Core": "1.0.0",
+          "EonZeNx.ApexTools.IRTPC.V01": "1.0.0",
+          "EonZeNx.ApexTools.RTPC.V01": "1.0.0"
+        },
+        "runtime": {
+          "EonZeNx.ApexTools.dll": {}
+        }
+      },
+      "EonZeNx.ApexTools.Configuration/1.0.0": {
+        "runtime": {
+          "EonZeNx.ApexTools.Configuration.dll": {}
+        }
+      },
+      "EonZeNx.ApexTools.Core/1.0.0": {
+        "runtime": {
+          "EonZeNx.ApexTools.Core.dll": {}
+        }
+      },
+      "EonZeNx.ApexTools.IRTPC.V01/1.0.0": {
+        "dependencies": {
+          "EonZeNx.ApexTools.Core": "1.0.0"
+        },
+        "runtime": {
+          "EonZeNx.ApexTools.IRTPC.V01.dll": {}
+        }
+      },
+      "EonZeNx.ApexTools.RTPC.V01/1.0.0": {
+        "dependencies": {
+          "EonZeNx.ApexTools.Core": "1.0.0"
+        },
+        "runtime": {
+          "EonZeNx.ApexTools.RTPC.V01.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "EonZeNx.ApexTools/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EonZeNx.ApexTools.Configuration/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EonZeNx.ApexTools.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EonZeNx.ApexTools.IRTPC.V01/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "EonZeNx.ApexTools.RTPC.V01/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
