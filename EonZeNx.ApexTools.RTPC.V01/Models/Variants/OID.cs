@@ -41,12 +41,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             ByteUtils.Align(bw, Alignment);
             Offset = bw.BaseStream.Position;
             
-            var data = Value.Item1 | Value.Item2;
-            var first = (uint) (data >> 32);
-            var second = (uint) (data & uint.MaxValue);
-            
-            bw.Write(BitConverter.GetBytes(second));
-            bw.Write(BitConverter.GetBytes(first));
+            bw.Write(Value.Item1);
         }
         
         public void BinaryDeserialize(BinaryReader br)
@@ -54,12 +49,9 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             var dataOffset = BitConverter.ToUInt32(RawData);
             
             br.BaseStream.Seek(dataOffset, SeekOrigin.Begin);
-
-            var upper = ByteUtils.ReverseBytes(br.ReadUInt32());
-            var lower = ByteUtils.ReverseBytes(br.ReadUInt32());
             
             // Thanks UnknownMiscreant
-            var oid = ((ulong)upper) << 32 | lower;
+            var oid = ByteUtils.ReverseBytes(br.ReadUInt64());
             var userData = (byte)(oid & byte.MaxValue);
             
             Value = (oid, userData);
@@ -72,8 +64,10 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
             var reversedOid = ByteUtils.ReverseBytes(Value.Item1);
             var stringOid = ByteUtils.UlongToHex(reversedOid);
+
+            var stringUserData = ByteUtils.ByteToHex(Value.Item2);
             
-            var full = $"{stringOid}={Value.Item2}";
+            var full = $"{stringOid}={stringUserData}";
             xw.WriteValue(full);
             xw.WriteEndElement();
         }
