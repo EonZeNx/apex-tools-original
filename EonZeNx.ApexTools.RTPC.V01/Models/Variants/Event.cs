@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class Event : IPropertyVariants
     {
+        public SQLiteConnection DbConnection { get; set; }
+        public string Name { get; set; } = "";
+
         public int NameHash { get; set; }
         public EVariantType VariantType => EVariantType.Event;
         public byte[] RawData { get; }
@@ -69,12 +74,17 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
                 var secondEventHalf = br.ReadUInt32();
                 Value[i] = (firstEventHalf, secondEventHalf);
             }
+            
+            // If valid connection, attempt to dehash
+            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
 
         public void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            // Write Name if valid
+            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
             
             string[] strArray = new string[Value.Length];
             for (int i = 0; i < Value.Length; i++)

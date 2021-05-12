@@ -12,9 +12,10 @@ namespace EonZeNx.ApexTools.Configuration
     
     public static class ConfigData
     {
-        public static ConfigFile Data { get; set; }
+        public static ConfigFile Data { get; set; } = new ();
         public static bool AutoClose => Data.AutoClose;
         public static string AbsolutePathToDatabase => Data.AbsolutePathToDatabase;
+        public static bool AlwaysOutputHash => Data.AlwaysOutputHash;
 
         public static void Load()
         {
@@ -29,7 +30,7 @@ namespace EonZeNx.ApexTools.Configuration
 
         public static void Save()
         {
-            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+            var ns = new XmlSerializerNamespaces();
             ns.Add(string.Empty, string.Empty);
             
             var xs = new XmlSerializer(typeof(ConfigFile));

@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class F32 : IPropertyVariants
     {
+        public SQLiteConnection DbConnection { get; set; }
+        public string Name { get; set; } = "";
+
         public int NameHash { get; set; }
         public EVariantType VariantType => EVariantType.Float32;
         public byte[] RawData { get; }
@@ -25,6 +30,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             Offset = prop.Offset;
             NameHash = prop.NameHash;
             RawData = prop.RawData;
+            DbConnection = prop.DbConnection;
         }
 
         
@@ -43,12 +49,25 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         public void BinaryDeserialize(BinaryReader br)
         {
             Value = BitConverter.ToSingle(RawData);
+            
+            // If valid connection, attempt to dehash
+            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
 
         public void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            // Write Name if valid
+            if (ConfigData.AlwaysOutputHash || Name.Length > 0)
+            {
+                xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            }
+            if (Name.Length > 0)
+            {
+                xw.WriteAttributeString("Name", Name);
+            }
+            
             xw.WriteValue(Value);
             xw.WriteEndElement();
         }

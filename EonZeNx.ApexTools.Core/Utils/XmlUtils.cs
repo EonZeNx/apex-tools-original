@@ -1,4 +1,5 @@
 ﻿using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 
 namespace EonZeNx.ApexTools.Core.Utils
 {
@@ -12,6 +13,18 @@ namespace EonZeNx.ApexTools.Core.Utils
             if (attributeValue == null) throw new XmlException($"Missing attribute '{attribute}'");
             
             return attributeValue;
+        }
+
+        public static void WriteNameIfValid(XmlWriter xw, int nameHash, string name = "")
+        {
+            if (ConfigData.AlwaysOutputHash || name.Length == 0)
+            {
+                xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(nameHash)}");
+            }
+            if (name.Length > 0)
+            {
+                xw.WriteAttributeString("Name", name);
+            }
         }
     }
 }

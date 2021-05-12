@@ -33,11 +33,6 @@ namespace EonZeNx.ApexTools
             Console.WriteLine(motdBreak);
         }
 
-        private static void LoadConfig()
-        {
-            ConfigData.Load();
-        }
-
         private static void Close(string msg = "")
         {
             if (msg.Length != 0) Console.WriteLine(msg);
@@ -52,7 +47,7 @@ namespace EonZeNx.ApexTools
         static void Main(string[] args)
         {
             Console.Title = Info.Get();
-            LoadConfig();
+            ConfigData.Load();
             WriteMOTD();
 
             if (args.Length == 0)
