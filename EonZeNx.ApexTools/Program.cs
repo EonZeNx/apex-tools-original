@@ -17,8 +17,6 @@ namespace EonZeNx.ApexTools
             "This stupid random MOTD was one of the first things I did",
         };
 
-        public static ConfigData Config;
-
         /// <summary>
         /// Push a little message to the top of the console.
         /// </summary>
@@ -37,8 +35,7 @@ namespace EonZeNx.ApexTools
 
         private static void LoadConfig()
         {
-            Config = new ConfigData();
-            Config.Load();
+            ConfigData.Load();
         }
 
         private static void Close(string msg = "")
@@ -46,7 +43,7 @@ namespace EonZeNx.ApexTools
             if (msg.Length != 0) Console.WriteLine(msg);
             
             // No auto close optional argument
-            if (!Config.AutoClose)
+            if (!ConfigData.AutoClose)
             {
                 ConsoleUtils.GetInput("Press any key to continue...");
             }
