@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public class FloatArrayVariant : IPropertyVariants
     {
+        public SQLiteConnection DbConnection { get; set; }
+        public string Name { get; set; } = "";
+
         public int NameHash { get; set; }
         private string HexNameHash => ByteUtils.IntToHex(NameHash);
         public virtual EVariantType VariantType { get; set; }
@@ -58,12 +63,17 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             {
                 Value[i] = br.ReadSingle();
             }
+            
+            // If valid connection, attempt to dehash
+            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
 
         public virtual void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            // Write Name if valid
+            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
 
             var array = string.Join(",", Value);
             xw.WriteValue(array);

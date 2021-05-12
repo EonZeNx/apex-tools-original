@@ -6,20 +6,18 @@ namespace EonZeNx.ApexTools.Configuration
     public class ConfigFile
     {
         public bool AutoClose { get; set; } = false;
+        public string AbsolutePathToDatabase { get; set; } = Path.GetFullPath(@"dbs\global.db");
+        public bool AlwaysOutputHash { get; set; } = false;
     }
     
-    public class ConfigData
+    public static class ConfigData
     {
-        public ConfigFile Data { get; set; }
-        public bool AutoClose => Data.AutoClose;
+        public static ConfigFile Data { get; set; } = new ();
+        public static bool AutoClose => Data.AutoClose;
+        public static string AbsolutePathToDatabase => Data.AbsolutePathToDatabase;
+        public static bool AlwaysOutputHash => Data.AlwaysOutputHash;
 
-
-        public ConfigData()
-        {
-            Data = new ConfigFile();
-        }
-        
-        public void Load()
+        public static void Load()
         {
             if (!File.Exists(@"config.xml")) Save();
             
@@ -30,9 +28,9 @@ namespace EonZeNx.ApexTools.Configuration
             }
         }
 
-        public void Save()
+        public static void Save()
         {
-            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
+            var ns = new XmlSerializerNamespaces();
             ns.Add(string.Empty, string.Empty);
             
             var xs = new XmlSerializer(typeof(ConfigFile));

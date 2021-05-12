@@ -8,4 +8,8 @@
       <ProjectReference Include="..\EonZeNx.ApexTools.Core\EonZeNx.ApexTools.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
+    </ItemGroup>
+
 </Project>

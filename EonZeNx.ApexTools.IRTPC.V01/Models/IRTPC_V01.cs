@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
@@ -16,6 +17,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
          */
 
         public MetaInfo Minfo { get; set; } = new (){FileType = "IRTPC", Version = 01};
+        public SQLiteConnection DbConnection { get; set; }
         
         protected long Offset { get; private set; }
         protected ushort ObjectCount { get; private set; }

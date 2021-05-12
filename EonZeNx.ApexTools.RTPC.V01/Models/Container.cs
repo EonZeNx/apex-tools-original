@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Utils;
 using EonZeNx.ApexTools.RTPC.V01.Models.Variants;
@@ -23,7 +24,10 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
          * NOTE: Can have both properties & other containers
          */
         
+        public SQLiteConnection DbConnection { get; set; }
+        
         public int NameHash { get; set; }
+        public string Name { get; set; }
         private string HexNameHash => ByteUtils.IntToHex(NameHash);
         public long Offset { get; set; }
         public ushort PropertyCount { get; set; }
@@ -41,6 +45,12 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public long ContainerHeaderOffset { get; set; }
 
 
+        public Container(SQLiteConnection con = null)
+        {
+            DbConnection = con;
+        }
+
+
         #region Binary Load Helpers
 
         private void BinaryLoadProperties(BinaryReader br)
@@ -49,7 +59,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             PropertyHeaders = new Property[PropertyCount];
             for (int i = 0; i < PropertyCount; i++)
             {
-                PropertyHeaders[i] = new Property(br);
+                PropertyHeaders[i] = new Property(br, DbConnection);
             }
 
             ContainerHeaderOffset = br.BaseStream.Position;
@@ -90,7 +100,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             Containers = new Container[ContainerCount];
             for (int i = 0; i < ContainerCount; i++)
             {
-                Containers[i] = new Container();
+                Containers[i] = new Container(DbConnection);
                 Containers[i].BinaryDeserialize(br);
             }
         }
@@ -250,11 +260,16 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         public void BinaryDeserialize(BinaryReader br)
         {
+            // Read variables
             NameHash = br.ReadInt32();
             Offset = br.ReadUInt32();
             PropertyCount = br.ReadUInt16();
             ContainerCount = br.ReadUInt16();
+            
+            // If valid connection, attempt to dehash
+            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
 
+            // Read properties and sub-containers
             var originalPosition = br.BaseStream.Position;
             BinaryLoadProperties(br);
             BinaryLoadContainers(br);
@@ -268,7 +283,15 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            if (ConfigData.AlwaysOutputHash || string.IsNullOrEmpty(Name))
+            {
+                xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            }
+            if (!string.IsNullOrEmpty(Name))
+            {
+                xw.WriteAttributeString("Name", Name);
+            }
             
             foreach (var property in Properties)
             {

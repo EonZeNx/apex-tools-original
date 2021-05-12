@@ -17,8 +17,6 @@ namespace EonZeNx.ApexTools
             "This stupid random MOTD was one of the first things I did",
         };
 
-        public static ConfigData Config;
-
         /// <summary>
         /// Push a little message to the top of the console.
         /// </summary>
@@ -35,18 +33,12 @@ namespace EonZeNx.ApexTools
             Console.WriteLine(motdBreak);
         }
 
-        private static void LoadConfig()
-        {
-            Config = new ConfigData();
-            Config.Load();
-        }
-
         private static void Close(string msg = "")
         {
             if (msg.Length != 0) Console.WriteLine(msg);
             
             // No auto close optional argument
-            if (!Config.AutoClose)
+            if (!ConfigData.AutoClose)
             {
                 ConsoleUtils.GetInput("Press any key to continue...");
             }
@@ -55,7 +47,7 @@ namespace EonZeNx.ApexTools
         static void Main(string[] args)
         {
             Console.Title = Info.Get();
-            LoadConfig();
+            ConfigData.Load();
             WriteMOTD();
 
             if (args.Length == 0)

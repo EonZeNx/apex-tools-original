@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Utils;
-using EonZeNx.ApexTools.IRTPC.V01.Models;
 using EonZeNx.ApexTools.RTPC.V01.Models;
 
 namespace EonZeNx.ApexTools.Models.Managers
@@ -46,24 +47,43 @@ namespace EonZeNx.ApexTools.Models.Managers
             return !ConvertedExtensions.Contains(Extension);
         }
 
-        public override void LoadBinary()
+        private void LoadBinaryDeserialize()
         {
-            rtpc.GetMetaInfo().Extension = Extension;
+            var dataSource = @$"Data Source={ConfigData.AbsolutePathToDatabase}";
+            if (File.Exists($"{ConfigData.AbsolutePathToDatabase}"))
+            {
+                using (var connection = new SQLiteConnection(dataSource))
+                {
+                    connection.Open();
+                    
+                    rtpc.DbConnection = connection;
+                    using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+                    {
+                        rtpc.BinaryDeserialize(br);
+                    }
+                }
+
+                return;
+            }
+            
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
                 rtpc.BinaryDeserialize(br);
             }
         }
 
+        public override void LoadBinary()
+        {
+            rtpc.GetMetaInfo().Extension = Extension;
+            LoadBinaryDeserialize();
+        }
+
         public override void ExportConverted()
         {
             var extension = "xml";
-            XmlWriterSettings settings = new XmlWriterSettings()
-            {
-                Indent = true,
-                IndentChars = "\t"
-            };
-            XmlWriter xw = XmlWriter.Create(@$"{ParentPath}\{PathName}.{extension}", settings);
+            var settings = new XmlWriterSettings{ Indent = true, IndentChars = "\t" };
+            var xw = XmlWriter.Create(@$"{ParentPath}\{PathName}.{extension}", settings);
+            
             rtpc.XmlSerialize(xw);
             xw.Close();
         }

@@ -1,9 +1,12 @@
-﻿using EonZeNx.ApexTools.Core.Interfaces.Serializable;
+﻿using System.Data.SQLite;
+using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
     public interface IPropertyVariants : IBinarySerializable, IXmlSerializable, IDeferredSerializable
     {
+        SQLiteConnection DbConnection { get; set; }
+        string Name { get; set; }
         int NameHash { get; }
         EVariantType VariantType { get; }
         byte[] RawData { get; }

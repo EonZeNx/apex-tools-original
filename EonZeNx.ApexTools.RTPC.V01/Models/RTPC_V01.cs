@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Data;
+using System.Data.SQLite;
+using System.IO;
 using System.Text;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
@@ -14,6 +16,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
          */
 
         public MetaInfo Minfo { get; set; } = new (){FileType = "RTPC", Version = 01};
+        public SQLiteConnection DbConnection { get; set; }
         
         protected long Offset { get; private set; }
         public int Version { get; set; }
@@ -43,7 +46,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             Offset = BinaryReaderUtils.Position(br);
             var fourCc = br.ReadInt32();
             Version = br.ReadInt32();
-            Root = new Container();
+            Root = new Container(DbConnection);
             Root.BinaryDeserialize(br);
         }
 
@@ -56,7 +59,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             
             xw.WriteStartElement($"{GetType().Name}");
             xw.WriteAttributeString("Version", $"{Version}");
-
             Root.XmlSerialize(xw);
             
             xw.WriteEndElement();

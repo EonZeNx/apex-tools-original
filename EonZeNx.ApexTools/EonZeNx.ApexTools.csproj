@@ -14,4 +14,14 @@
       <ProjectReference Include="..\EonZeNx.ApexTools.RTPC.V01\EonZeNx.ApexTools.RTPC.V01.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="dbs\global.db">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
+    </ItemGroup>
+
 </Project>
