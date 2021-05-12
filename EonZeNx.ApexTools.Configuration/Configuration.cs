@@ -7,6 +7,7 @@ namespace EonZeNx.ApexTools.Configuration
     {
         public bool AutoClose { get; set; } = false;
         public string AbsolutePathToDatabase { get; set; } = Path.GetFullPath(@"dbs\global.db");
+        public bool AlwaysOutputHash { get; set; } = false;
     }
     
     public static class ConfigData
