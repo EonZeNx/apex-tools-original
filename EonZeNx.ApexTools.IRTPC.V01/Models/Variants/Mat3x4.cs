@@ -40,8 +40,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 
         public override void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
             
             var floatString = xr.ReadString();
             var vectorString = floatString.Split(", ");
