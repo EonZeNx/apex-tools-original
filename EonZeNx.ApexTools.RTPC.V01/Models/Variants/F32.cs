@@ -59,14 +59,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             xw.WriteStartElement($"{GetType().Name}");
             
             // Write Name if valid
-            if (ConfigData.AlwaysOutputHash || Name.Length > 0)
-            {
-                xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
-            }
-            if (Name.Length > 0)
-            {
-                xw.WriteAttributeString("Name", Name);
-            }
+            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
             
             xw.WriteValue(Value);
             xw.WriteEndElement();
@@ -74,22 +67,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
             Value = float.Parse(xr.ReadString());
-        }
-
-        public long MemorySerializeData(MemoryStream ms, long offset)
-        {
-            // Is primitive, does not need memory serialize
-            return offset;
-        }
-
-        public void MemorySerializeHeader(MemoryStream ms)
-        {
-            ms.Write(BitConverter.GetBytes(NameHash));
-            ms.Write(BitConverter.GetBytes(Value));
-            ms.WriteByte((byte) VariantType);
         }
     }
 }

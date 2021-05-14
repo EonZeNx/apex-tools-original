@@ -82,8 +82,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
+            
             var floatString = xr.ReadString();
             var floats = floatString.Split(",");
             Value = Array.ConvertAll(floats, input => byte.Parse(input));

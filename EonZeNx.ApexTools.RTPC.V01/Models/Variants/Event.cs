@@ -101,8 +101,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
 
             var value = xr.ReadString();
             if (value.Length == 0)

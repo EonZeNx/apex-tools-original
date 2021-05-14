@@ -82,31 +82,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         public virtual void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
+            
             var floatString = xr.ReadString();
             var floats = floatString.Split(",");
             Value = Array.ConvertAll(floats, float.Parse);
-        }
-
-        public long MemorySerializeData(MemoryStream ms, long offset)
-        {
-            var coffset = ByteUtils.Align(ms, offset, Alignment);
-            Offset = coffset;
-            
-            foreach (var val in Value)
-            {
-                ms.Write(BitConverter.GetBytes(val));
-            }
-
-            return coffset + (Value.Length * 4);
-        }
-
-        public void MemorySerializeHeader(MemoryStream ms)
-        {
-            ms.Write(BitConverter.GetBytes(NameHash));
-            ms.Write(BitConverter.GetBytes((uint) Offset));
-            ms.WriteByte((byte) VariantType);
         }
     }
 }
