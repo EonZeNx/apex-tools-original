@@ -4,9 +4,9 @@ using EonZeNx.ApexTools.RTPC.V01.Models.Variants;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
-    public class PropertyComparer : Comparer<IPropertyVariants>
+    public class PropertyComparer : Comparer<PropertyVariants>
     {
-        public override int Compare(IPropertyVariants x, IPropertyVariants y)
+        public override int Compare(PropertyVariants x, PropertyVariants y)
         {
             // Null compare
             if (x == null && y == null) return 0;

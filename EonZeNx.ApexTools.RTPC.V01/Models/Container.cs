@@ -33,7 +33,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public long Offset { get; set; }
         public ushort PropertyCount { get; set; }
         public ushort ContainerCount { get; set; }
-        public IPropertyVariants[] Properties { get; set; }
+        public PropertyVariants[] Properties { get; set; }
         public Container[] Containers { get; set; }
 
         public const int ContainerHeaderSize = 4 + 4 + 2 + 2;
@@ -85,7 +85,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
             ContainerHeaderOffset = br.BaseStream.Position;
 
-            Properties = new IPropertyVariants[PropertyCount];
+            Properties = new PropertyVariants[PropertyCount];
             for (int i = 0; i < PropertyHeaders.Length; i++)
             {
                 var prop = PropertyHeaders[i];
@@ -136,7 +136,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         private void XmlLoadProperties(XmlReader xr)
         {
-            var properties = new List<IPropertyVariants>();
+            var properties = new List<PropertyVariants>();
             xr.Read();
 
             while (xr.Read())
@@ -150,7 +150,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                 if (!xr.HasAttributes) throw new XmlException("Property missing attributes");
                 
                 var propertyType = xr.Name;
-                IPropertyVariants property = propertyType switch
+                PropertyVariants property = propertyType switch
                 {
                     "Unassigned" => throw new InvalidEnumArgumentException("Property type was not a valid variant (Unassigned)."),
                     "UInt32" => new UInt32(),

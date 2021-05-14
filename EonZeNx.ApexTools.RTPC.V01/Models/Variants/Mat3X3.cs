@@ -9,11 +9,13 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         public override EVariantType VariantType => EVariantType.Mat4X4;
         public override int NUM => 9;
         
+        
         /// <summary>
         /// Blank constructor for XML processing.
         /// </summary>
         public Mat3X3() { }
         public Mat3X3(Property prop) : base(prop) { }
+        
         
         public override void XmlSerialize(XmlWriter xw)
         {

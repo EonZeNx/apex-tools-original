@@ -7,20 +7,21 @@ using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
-    public class F32 : IPropertyVariants
+    public class F32 : PropertyVariants
     {
-        public SQLiteConnection DbConnection { get; set; }
-        public string Name { get; set; } = "";
-
-        public int NameHash { get; set; }
-        public EVariantType VariantType => EVariantType.Float32;
-        public byte[] RawData { get; }
-        public long Offset { get; }
-        public uint Alignment => 0;
-        public bool Primitive => true;
+        public override SQLiteConnection DbConnection { get; set; }
+        public override string Name { get; set; } = "";
+        public override string HexNameHash => ByteUtils.IntToHex(NameHash);
+        public override int NameHash { get; set; }
+        public override EVariantType VariantType { get; set; } = EVariantType.Float32;
+        public override byte[] RawData { get; set; }
+        public override long Offset { get; set; }
+        public override uint Alignment => 0;
+        public override bool Primitive => true;
         
         public float Value;
 
+        
         /// <summary>
         /// Blank constructor for XML processing.
         /// </summary>
@@ -33,20 +34,22 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             DbConnection = prop.DbConnection;
         }
 
-        
-        public void BinarySerialize(BinaryWriter bw)
+
+        #region Binary Serialization
+
+        public override void BinarySerialize(BinaryWriter bw)
         {
             bw.Write(NameHash);
             bw.Write(Value);
             bw.Write((byte) VariantType);
         }
         
-        public void BinarySerializeData(BinaryWriter bw)
+        public override void BinarySerializeData(BinaryWriter bw)
         {
             return;
         }
         
-        public void BinaryDeserialize(BinaryReader br)
+        public override void BinaryDeserialize(BinaryReader br)
         {
             Value = BitConverter.ToSingle(RawData);
             
@@ -54,9 +57,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
 
+        #endregion
+
         #region XML Serialization
 
-        public void XmlSerialize(XmlWriter xw)
+        public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
             
@@ -67,7 +72,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             xw.WriteEndElement();
         }
 
-        public void XmlDeserialize(XmlReader xr)
+        public override void XmlDeserialize(XmlReader xr)
         {
             NameHash = XmlUtils.ReadNameIfValid(xr);
             Value = float.Parse(xr.ReadString());
