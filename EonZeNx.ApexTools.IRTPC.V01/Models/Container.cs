@@ -110,7 +110,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
             xw.WriteStartElement($"{GetType().Name}");
             
             // Write Name if valid
-            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
+            XmlUtils.WriteNameOrNameHash(xw, NameHash, Name);
             
             xw.WriteAttributeString("Version01", $"{Version01}");
             xw.WriteAttributeString("Version02", $"{Version02}");

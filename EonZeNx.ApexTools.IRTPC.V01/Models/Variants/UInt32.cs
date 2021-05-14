@@ -48,7 +48,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
             xw.WriteStartElement($"{GetType().Name}");
             
             // Write Name if valid
-            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
+            XmlUtils.WriteNameOrNameHash(xw, NameHash, Name);
             
             xw.WriteValue(Value);
             xw.WriteEndElement();

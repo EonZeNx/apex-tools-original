@@ -18,7 +18,9 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            // Write Name if valid
+            XmlUtils.WriteNameOrNameHash(xw, NameHash, Name);
 
             string[] strArray = new string[4];
             for (int i = 0; i < strArray.Length; i++)

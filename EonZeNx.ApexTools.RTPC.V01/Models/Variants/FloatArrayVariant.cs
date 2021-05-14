@@ -73,7 +73,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             xw.WriteStartElement($"{GetType().Name}");
             
             // Write Name if valid
-            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
+            XmlUtils.WriteNameOrNameHash(xw, NameHash, Name);
 
             var array = string.Join(",", Value);
             xw.WriteValue(array);

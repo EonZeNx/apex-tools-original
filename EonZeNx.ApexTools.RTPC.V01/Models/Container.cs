@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Data.SQLite;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
