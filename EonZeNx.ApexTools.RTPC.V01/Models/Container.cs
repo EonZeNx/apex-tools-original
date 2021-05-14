@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Data.SQLite;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Utils;
+using EonZeNx.ApexTools.RTPC.V01.Models.Comparer;
 using EonZeNx.ApexTools.RTPC.V01.Models.Variants;
 using String = EonZeNx.ApexTools.RTPC.V01.Models.Variants.String;
 using UInt32 = EonZeNx.ApexTools.RTPC.V01.Models.Variants.UInt32;
@@ -28,7 +32,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         
         public int NameHash { get; set; }
         public string Name { get; set; }
-        private string HexNameHash => ByteUtils.IntToHex(NameHash);
+        public string HexNameHash => ByteUtils.IntToHex(NameHash);
         public long Offset { get; set; }
         public ushort PropertyCount { get; set; }
         public ushort ContainerCount { get; set; }
@@ -51,6 +55,26 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         }
 
 
+        #region Helpers
+
+        private void SortProperties()
+        {
+            if (ConfigData.SortFiles)
+            {
+                Array.Sort(Properties, new PropertyComparer());
+            }
+        }
+        
+        private void SortContainers()
+        {
+            if (ConfigData.SortFiles)
+            {
+                Array.Sort(Containers, new ContainerComparer());
+            }
+        }
+
+        #endregion
+        
         #region Binary Load Helpers
 
         private void BinaryLoadProperties(BinaryReader br)
@@ -91,6 +115,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
                 Properties[i].BinaryDeserialize(br);
             }
+
+            SortProperties();
         }
 
         private void BinaryLoadContainers(BinaryReader br)
@@ -103,6 +129,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                 Containers[i] = new Container(DbConnection);
                 Containers[i].BinaryDeserialize(br);
             }
+
+            SortContainers();
         }
 
         #endregion
@@ -152,6 +180,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
             Properties = properties.ToArray();
             PropertyCount = (ushort) Properties.Length;
+
+            SortProperties();
         }
         
         private void XmlLoadContainers(XmlReader xr)
@@ -177,6 +207,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
             Containers = containers.ToArray();
             ContainerCount = (ushort) Containers.Length;
+
+            SortContainers();
         }
 
         #endregion
@@ -309,7 +341,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
             NameHash = ByteUtils.HexToInt(nameHash);
 
-            // TODO: Check if the container has properties
             XmlLoadProperties(xr);
             XmlLoadContainers(xr);
         }
