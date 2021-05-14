@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Utils;
@@ -8,7 +9,9 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 {
     public class Event : PropertyVariants
     {
+        public override SQLiteConnection DbConnection { get; set; }
         public override int NameHash { get; set; }
+        public override string Name { get; set; }
         protected override EVariantType VariantType { get; set; } = EVariantType.Event;
         protected override long Offset { get; set; }
         public (uint, uint)[] Value;
@@ -18,7 +21,10 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         {
             Offset = prop.Offset;
             NameHash = prop.NameHash;
+            DbConnection = prop.DbConnection;
         }
+
+        #region Binary Serialization
 
         public override void BinarySerialize(BinaryWriter bw)
         {
@@ -42,12 +48,21 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
                 var secondEventHalf = br.ReadUInt32();
                 Value[i] = (firstEventHalf, secondEventHalf);
             }
+            
+            // If valid connection, attempt to dehash
+            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
+
+        #endregion
+
+        #region XML Serialization
 
         public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            // Write Name if valid
+            XmlUtils.WriteNameOrNameHash(xw, NameHash, Name);
             
             string[] strArray = new string[Value.Length];
             for (int i = 0; i < Value.Length; i++)
@@ -64,8 +79,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 
         public override void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
 
             var value = xr.ReadString();
             if (value.Length == 0)
@@ -93,5 +107,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 
             Value = events.ToArray();
         }
+
+        #endregion
     }
 }

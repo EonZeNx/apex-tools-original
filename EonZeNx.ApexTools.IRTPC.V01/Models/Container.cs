@@ -1,11 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Utils;
 using EonZeNx.ApexTools.IRTPC.V01.Models.Variants;
 using IXmlSerializable = EonZeNx.ApexTools.Core.Interfaces.Serializable.IXmlSerializable;
+using String = EonZeNx.ApexTools.IRTPC.V01.Models.Variants.String;
+using UInt32 = EonZeNx.ApexTools.IRTPC.V01.Models.Variants.UInt32;
 
 namespace EonZeNx.ApexTools.IRTPC.V01.Models
 {
@@ -18,14 +23,38 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
          * Object count : u16
          * NOTE: Containers only contain properties
          */
+        
+        public SQLiteConnection DbConnection { get; set; }
 
         public int NameHash { get; set; }
+        public string Name { get; set; }
+        public string HexNameHash => ByteUtils.IntToHex(NameHash);
         private ushort ObjectCount { get; set; }
         public byte Version01 { get; set; }
         public ushort Version02 { get; set; }
         private long Offset { get; set; }
         public PropertyVariants[] Properties { get; set; }
 
+
+        
+        public Container(SQLiteConnection con = null)
+        {
+            DbConnection = con;
+        }
+
+        #region Helpers
+
+        private void SortProperties()
+        {
+            if (ConfigData.SortFiles)
+            {
+                Array.Sort(Properties, new PropertyComparer());
+            }
+        }
+
+        #endregion
+
+        #region Binary Serialization
 
         public void BinarySerialize(BinaryWriter bw)
         {
@@ -46,40 +75,43 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
             Version01 = br.ReadByte();
             Version02 = br.ReadUInt16();
             ObjectCount = br.ReadUInt16();
+            
+            // If valid connection, attempt to dehash
+            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
 
             Properties = new PropertyVariants[ObjectCount];
             for (int i = 0; i < ObjectCount; i++)
             {
-                var prop = new Property(br);
-                switch (prop.Type)
+                var prop = new Property(br, DbConnection);
+                Properties[i] = prop.Type switch
                 {
-                    case EVariantType.UInteger32:
-                        Properties[i] = new UInt32(prop); break;
-                    case EVariantType.Float32:
-                        Properties[i] = new F32(prop); break;
-                    case EVariantType.String:
-                        Properties[i] = new String(prop); break;
-                    case EVariantType.Vec2:
-                        Properties[i] = new Vec2(prop); break;
-                    case EVariantType.Vec3:
-                        Properties[i] = new Vec3(prop); break;
-                    case EVariantType.Vec4:
-                        Properties[i] = new Vec4(prop); break;
-                    case EVariantType.Mat3X4:
-                        Properties[i] = new Mat3X4(prop); break;
-                    case EVariantType.Event:
-                        Properties[i] = new Event(prop); break;
-                    default:
-                        throw new InvalidEnumArgumentException($"Property type was not a valid variant - {prop.Type}");
-                }
+                    EVariantType.UInteger32 => new UInt32(prop),
+                    EVariantType.Float32 => new F32(prop),
+                    EVariantType.String => new String(prop),
+                    EVariantType.Vec2 => new Vec2(prop),
+                    EVariantType.Vec3 => new Vec3(prop),
+                    EVariantType.Vec4 => new Vec4(prop),
+                    EVariantType.Mat3X4 => new Mat3X4(prop),
+                    EVariantType.Event => new Event(prop),
+                    _ => throw new InvalidEnumArgumentException($"Property type was not a valid variant - {prop.Type}")
+                };
                 Properties[i].BinaryDeserialize(br);
             }
+            
+            SortProperties();
         }
+
+        #endregion
+
+        #region XML Serialization
 
         public void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            // Write Name if valid
+            XmlUtils.WriteNameOrNameHash(xw, NameHash, Name);
+            
             xw.WriteAttributeString("Version01", $"{Version01}");
             xw.WriteAttributeString("Version02", $"{Version02}");
             
@@ -92,8 +124,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
 
         public void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
             Version01 = byte.Parse(XmlUtils.GetAttribute(xr, "Version01"));
             Version02 = ushort.Parse(XmlUtils.GetAttribute(xr, "Version02"));
 
@@ -142,7 +173,11 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
 
             Properties = properties.ToArray();
             ObjectCount = (ushort) Properties.Length;
+            
+            SortProperties();
         }
+
+        #endregion
     }
 }
 

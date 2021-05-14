@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Utils;
@@ -45,13 +47,35 @@ namespace EonZeNx.ApexTools.Models.Managers
             return !ConvertedExtensions.Contains(Extension);
         }
 
-        public override void LoadBinary()
+        private void LoadBinaryDeserialize()
         {
-            irtpc.GetMetaInfo().Extension = Extension;
+            var dataSource = @$"Data Source={ConfigData.AbsolutePathToDatabase}";
+            if (File.Exists($"{ConfigData.AbsolutePathToDatabase}"))
+            {
+                using (var connection = new SQLiteConnection(dataSource))
+                {
+                    connection.Open();
+                    
+                    irtpc.DbConnection = connection;
+                    using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+                    {
+                        irtpc.BinaryDeserialize(br);
+                    }
+                }
+
+                return;
+            }
+            
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
                 irtpc.BinaryDeserialize(br);
             }
+        }
+
+        public override void LoadBinary()
+        {
+            irtpc.GetMetaInfo().Extension = Extension;
+            LoadBinaryDeserialize();
         }
 
         public override void ExportConverted()

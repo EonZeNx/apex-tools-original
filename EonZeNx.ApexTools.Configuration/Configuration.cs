@@ -8,6 +8,7 @@ namespace EonZeNx.ApexTools.Configuration
         public bool AutoClose { get; set; } = false;
         public string AbsolutePathToDatabase { get; set; } = Path.GetFullPath(@"dbs\global.db");
         public bool AlwaysOutputHash { get; set; } = false;
+        public bool SortFiles { get; set; } = false;
     }
     
     public static class ConfigData
@@ -16,6 +17,7 @@ namespace EonZeNx.ApexTools.Configuration
         public static bool AutoClose => Data.AutoClose;
         public static string AbsolutePathToDatabase => Data.AbsolutePathToDatabase;
         public static bool AlwaysOutputHash => Data.AlwaysOutputHash;
+        public static bool SortFiles => Data.SortFiles;
 
         public static void Load()
         {

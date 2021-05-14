@@ -22,7 +22,7 @@ namespace EonZeNx.ApexTools.Core.Utils
             return attributeValue;
         }
 
-        public static void WriteNameIfValid(XmlWriter xw, int nameHash, string name = "")
+        public static void WriteNameOrNameHash(XmlWriter xw, int nameHash, string name = "")
         {
             if (ConfigData.AlwaysOutputHash || name.Length == 0)
             {

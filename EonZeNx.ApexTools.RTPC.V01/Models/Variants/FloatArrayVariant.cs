@@ -7,21 +7,22 @@ using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
-    public class FloatArrayVariant : IPropertyVariants
+    public class FloatArrayVariant : PropertyVariants
     {
-        public SQLiteConnection DbConnection { get; set; }
-        public string Name { get; set; } = "";
+        public override SQLiteConnection DbConnection { get; set; }
+        public override string Name { get; set; } = "";
 
-        public int NameHash { get; set; }
-        private string HexNameHash => ByteUtils.IntToHex(NameHash);
-        public virtual EVariantType VariantType { get; set; }
-        public byte[] RawData { get; }
-        public long Offset { get; set; }
-        public virtual uint Alignment { get; set; }
-        public bool Primitive => false;
+        public override int NameHash { get; set; }
+        public override string HexNameHash => ByteUtils.IntToHex(NameHash);
+        public override EVariantType VariantType { get; set; }
+        public override byte[] RawData { get; set; }
+        public override long Offset { get; set; }
+        public override uint Alignment => 4;
+        public override bool Primitive => false;
 
         public virtual int NUM { get; set; } = 2;
         public float[] Value;
+        
         
         /// <summary>
         /// Blank constructor for XML processing.
@@ -33,15 +34,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             NameHash = prop.NameHash;
             RawData = prop.RawData;
         }
-        
-        public void BinarySerialize(BinaryWriter bw)
-        {
-            bw.Write(NameHash);
-            bw.Write((uint) Offset);
-            bw.Write((byte) VariantType);
-        }
-        
-        public void BinarySerializeData(BinaryWriter bw)
+
+
+        #region Binary Serialization
+
+        public override void BinarySerializeData(BinaryWriter bw)
         {
             ByteUtils.Align(bw, Alignment);
             Offset = bw.BaseStream.Position;
@@ -52,7 +49,14 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             }
         }
         
-        public void BinaryDeserialize(BinaryReader br)
+        public override void BinarySerialize(BinaryWriter bw)
+        {
+            bw.Write(NameHash);
+            bw.Write((uint) Offset);
+            bw.Write((byte) VariantType);
+        }
+        
+        public override void BinaryDeserialize(BinaryReader br)
         {
             var dataOffset = BitConverter.ToUInt32(RawData);
             
@@ -68,19 +72,23 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
 
-        public virtual void XmlSerialize(XmlWriter xw)
+        #endregion
+
+        #region XML Serialization
+
+        public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
             
             // Write Name if valid
-            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
+            XmlUtils.WriteNameOrNameHash(xw, NameHash, Name);
 
             var array = string.Join(",", Value);
             xw.WriteValue(array);
             xw.WriteEndElement();
         }
 
-        public virtual void XmlDeserialize(XmlReader xr)
+        public override void XmlDeserialize(XmlReader xr)
         {
             NameHash = XmlUtils.ReadNameIfValid(xr);
             
@@ -88,5 +96,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             var floats = floatString.Split(",");
             Value = Array.ConvertAll(floats, float.Parse);
         }
+
+        #endregion
     }
 }

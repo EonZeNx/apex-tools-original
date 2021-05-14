@@ -28,6 +28,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             return Minfo;
         }
 
+        #region Binary Serialization
+
         public void BinarySerialize(BinaryWriter bw)
         {
             bw.Write(Encoding.UTF8.GetBytes(Minfo.FileType));
@@ -49,6 +51,10 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             Root = new Container(DbConnection);
             Root.BinaryDeserialize(br);
         }
+
+        #endregion
+
+        #region XML Serialization
 
         public void XmlSerialize(XmlWriter xw)
         {
@@ -79,5 +85,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             
             xr.Close();
         }
+
+        #endregion
     }
 }

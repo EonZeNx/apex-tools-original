@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Models;
 using EonZeNx.ApexTools.Core.Utils;
@@ -31,6 +33,20 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
             return Minfo;
         }
 
+        #region Helpers
+
+        private void SortContainers()
+        {
+            if (ConfigData.SortFiles)
+            {
+                Array.Sort(Containers, new ContainerComparer());
+            }
+        }
+
+        #endregion
+
+        #region Binary Serialization
+
         public void BinarySerialize(BinaryWriter bw)
         {
             bw.Write(Version01);
@@ -52,10 +68,16 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
             Containers = new Container[ObjectCount];
             for (int i = 0; i < ObjectCount; i++)
             {
-                Containers[i] = new Container();
+                Containers[i] = new Container(DbConnection);
                 Containers[i].BinaryDeserialize(br);
             }
+
+            SortContainers();
         }
+
+        #endregion
+
+        #region XML Serialization
 
         public void XmlSerialize(XmlWriter xw)
         {
@@ -105,5 +127,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
             Containers = containers.ToArray();
             ObjectCount = (ushort) Containers.Length;
         }
+
+        #endregion
     }
 }

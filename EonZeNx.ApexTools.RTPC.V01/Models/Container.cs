@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.SQLite;
 using System.IO;
@@ -28,11 +29,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         
         public int NameHash { get; set; }
         public string Name { get; set; }
-        private string HexNameHash => ByteUtils.IntToHex(NameHash);
+        public string HexNameHash => ByteUtils.IntToHex(NameHash);
         public long Offset { get; set; }
         public ushort PropertyCount { get; set; }
         public ushort ContainerCount { get; set; }
-        public IPropertyVariants[] Properties { get; set; }
+        public PropertyVariants[] Properties { get; set; }
         public Container[] Containers { get; set; }
 
         public const int ContainerHeaderSize = 4 + 4 + 2 + 2;
@@ -51,6 +52,26 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         }
 
 
+        #region Helpers
+
+        private void SortProperties()
+        {
+            if (ConfigData.SortFiles)
+            {
+                Array.Sort(Properties, new PropertyComparer());
+            }
+        }
+        
+        private void SortContainers()
+        {
+            if (ConfigData.SortFiles)
+            {
+                Array.Sort(Containers, new ContainerComparer());
+            }
+        }
+
+        #endregion
+        
         #region Binary Load Helpers
 
         private void BinaryLoadProperties(BinaryReader br)
@@ -64,7 +85,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
             ContainerHeaderOffset = br.BaseStream.Position;
 
-            Properties = new IPropertyVariants[PropertyCount];
+            Properties = new PropertyVariants[PropertyCount];
             for (int i = 0; i < PropertyHeaders.Length; i++)
             {
                 var prop = PropertyHeaders[i];
@@ -91,6 +112,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
                 Properties[i].BinaryDeserialize(br);
             }
+
+            SortProperties();
         }
 
         private void BinaryLoadContainers(BinaryReader br)
@@ -103,6 +126,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                 Containers[i] = new Container(DbConnection);
                 Containers[i].BinaryDeserialize(br);
             }
+
+            SortContainers();
         }
 
         #endregion
@@ -111,7 +136,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         private void XmlLoadProperties(XmlReader xr)
         {
-            var properties = new List<IPropertyVariants>();
+            var properties = new List<PropertyVariants>();
             xr.Read();
 
             while (xr.Read())
@@ -125,7 +150,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                 if (!xr.HasAttributes) throw new XmlException("Property missing attributes");
                 
                 var propertyType = xr.Name;
-                IPropertyVariants property = propertyType switch
+                PropertyVariants property = propertyType switch
                 {
                     "Unassigned" => throw new InvalidEnumArgumentException("Property type was not a valid variant (Unassigned)."),
                     "UInt32" => new UInt32(),
@@ -152,6 +177,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
             Properties = properties.ToArray();
             PropertyCount = (ushort) Properties.Length;
+
+            SortProperties();
         }
         
         private void XmlLoadContainers(XmlReader xr)
@@ -177,6 +204,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
             Containers = containers.ToArray();
             ContainerCount = (ushort) Containers.Length;
+
+            SortContainers();
         }
 
         #endregion
@@ -309,7 +338,6 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
             NameHash = ByteUtils.HexToInt(nameHash);
 
-            // TODO: Check if the container has properties
             XmlLoadProperties(xr);
             XmlLoadContainers(xr);
         }
