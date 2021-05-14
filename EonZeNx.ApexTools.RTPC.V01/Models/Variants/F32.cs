@@ -54,6 +54,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
 
+        #region XML Serialization
+
         public void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
@@ -70,5 +72,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             NameHash = XmlUtils.ReadNameIfValid(xr);
             Value = float.Parse(xr.ReadString());
         }
+
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Data.SQLite;
+using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Utils;
 
@@ -6,7 +7,9 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 {
     public class UInt32 : PropertyVariants
     {
+        public override SQLiteConnection DbConnection { get; set; }
         public override int NameHash { get; set; }
+        public override string Name { get; set; }
         protected override EVariantType VariantType { get; set; } = EVariantType.UInteger32;
         protected override long Offset { get; set; }
         public uint Value;
@@ -16,7 +19,10 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         {
             Offset = prop.Offset;
             NameHash = prop.NameHash;
+            DbConnection = prop.DbConnection;
         }
+
+        #region Binary Serialization
 
         public override void BinarySerialize(BinaryWriter bw)
         {
@@ -28,21 +34,32 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         public override void BinaryDeserialize(BinaryReader br)
         {
             Value = br.ReadUInt32();
+            
+            // If valid connection, attempt to dehash
+            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
+
+        #endregion
+
+        #region XML Serialization
 
         public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            // Write Name if valid
+            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
+            
             xw.WriteValue(Value);
             xw.WriteEndElement();
         }
 
         public override void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
             Value = uint.Parse(xr.ReadString());
         }
+
+        #endregion
     }
 }

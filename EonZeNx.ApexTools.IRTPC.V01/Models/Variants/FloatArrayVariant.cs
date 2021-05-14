@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SQLite;
 using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Utils;
@@ -7,7 +8,9 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 {
     public class FloatArrayVariant : PropertyVariants
     {
+        public override SQLiteConnection DbConnection { get; set; }
         public override int NameHash { get; set; }
+        public override string Name { get; set; }
         protected override EVariantType VariantType { get; set; }
         protected override long Offset { get; set; }
         
@@ -19,7 +22,10 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         {
             Offset = prop.Offset;
             NameHash = prop.NameHash;
+            DbConnection = prop.DbConnection;
         }
+
+        #region Binary Serialization
 
         public override void BinarySerialize(BinaryWriter bw)
         {
@@ -38,12 +44,21 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
             {
                 Value[i] = br.ReadSingle();
             }
+            
+            // If valid connection, attempt to dehash
+            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
         }
+
+        #endregion
+
+        #region XML Serialization
 
         public override void XmlSerialize(XmlWriter xw)
         {
             xw.WriteStartElement($"{GetType().Name}");
-            xw.WriteAttributeString("NameHash", $"{ByteUtils.IntToHex(NameHash)}");
+            
+            // Write Name if valid
+            XmlUtils.WriteNameIfValid(xw, NameHash, Name);
 
             string array = string.Join(",", Value);
             xw.WriteValue(array);
@@ -52,11 +67,13 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 
         public override void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
+            
             var floatString = xr.ReadString();
             var floats = floatString.Split(",");
             Value = Array.ConvertAll(floats, input => float.Parse(input));
         }
+
+        #endregion
     }
 }

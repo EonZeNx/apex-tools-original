@@ -9,7 +9,6 @@ using System.Xml;
 using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Utils;
-using EonZeNx.ApexTools.RTPC.V01.Models.Comparer;
 using EonZeNx.ApexTools.RTPC.V01.Models.Variants;
 using String = EonZeNx.ApexTools.RTPC.V01.Models.Variants.String;
 using UInt32 = EonZeNx.ApexTools.RTPC.V01.Models.Variants.UInt32;
