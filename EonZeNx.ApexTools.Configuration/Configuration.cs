@@ -8,15 +8,20 @@ namespace EonZeNx.ApexTools.Configuration
         public bool AutoClose { get; set; } = false;
         public string AbsolutePathToDatabase { get; set; } = Path.GetFullPath(@"dbs\global.db");
         public bool AlwaysOutputHash { get; set; } = false;
+        public bool PerformDehash { get; set; } = true;
+        public uint HashCache { get; set; } = 500;
         public bool SortFiles { get; set; } = false;
     }
     
     public static class ConfigData
     {
-        public static ConfigFile Data { get; set; } = new ();
+        private static ConfigFile Data { get; set; } = new ();
+        
         public static bool AutoClose => Data.AutoClose;
         public static string AbsolutePathToDatabase => Data.AbsolutePathToDatabase;
         public static bool AlwaysOutputHash => Data.AlwaysOutputHash;
+        public static bool PerformDehash => Data.PerformDehash;
+        public static uint HashCache => Data.HashCache;
         public static bool SortFiles => Data.SortFiles;
 
         public static void Load()
@@ -30,7 +35,7 @@ namespace EonZeNx.ApexTools.Configuration
             }
         }
 
-        public static void Save()
+        private static void Save()
         {
             var ns = new XmlSerializerNamespaces();
             ns.Add(string.Empty, string.Empty);
