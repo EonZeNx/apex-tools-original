@@ -1,19 +1,41 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
+using EonZeNx.ApexTools.Configuration;
 
 namespace EonZeNx.ApexTools.Core.Utils
 {
     public static class HashUtils
     {
+        public static Dictionary<int, string> HashCache = new ();
+        public static Dictionary<int, int> HashCacheCount = new ();
+        
         public static string Lookup(SQLiteConnection con, int hash)
         {
+            if (!ConfigData.PerformDehash) return "";
+
+            if (HashCache.ContainsKey(hash))
+            {
+                HashCacheCount[hash]++;
+                return HashCache[hash];
+            }
+            
+            // TODO: Update to cache most popular 500 results to speed up duplicate dehashing
             var command = con.CreateCommand();
             command.CommandText = "SELECT Value " +
                                   "FROM properties " +
                                   $"WHERE Hash = {hash}";
             using (var dbr = command.ExecuteReader())
             {
-                if (dbr.Read()) return dbr.GetString(0);
+                if (dbr.Read())
+                {
+                    var value = dbr.GetString(0);
+                    
+                    // HashCache[hash] = value;
+                    // HashCacheCount[hash] = 0;
+                    
+                    return value;
+                }
                 return "";
             }
         }
