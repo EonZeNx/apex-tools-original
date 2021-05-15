@@ -9,7 +9,7 @@ namespace EonZeNx.ApexTools.Configuration
         public string AbsolutePathToDatabase { get; set; } = Path.GetFullPath(@"dbs\global.db");
         public bool AlwaysOutputHash { get; set; } = false;
         public bool PerformDehash { get; set; } = true;
-        public uint HashCacheSize { get; set; } = 500;
+        public int HashCacheSize { get; set; } = 500;
         public bool SortFiles { get; set; } = false;
     }
     
@@ -21,7 +21,7 @@ namespace EonZeNx.ApexTools.Configuration
         public static string AbsolutePathToDatabase => Data.AbsolutePathToDatabase;
         public static bool AlwaysOutputHash => Data.AlwaysOutputHash;
         public static bool PerformDehash => Data.PerformDehash;
-        public static uint HashCacheSize => Data.HashCacheSize;
+        public static int HashCacheSize => Data.HashCacheSize;
         public static bool SortFiles => Data.SortFiles;
 
         public static void Load()

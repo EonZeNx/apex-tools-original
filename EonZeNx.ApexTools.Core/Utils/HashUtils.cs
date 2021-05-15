@@ -1,26 +1,118 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Linq;
 using EonZeNx.ApexTools.Configuration;
 
 namespace EonZeNx.ApexTools.Core.Utils
 {
+    public class HashCacheEntry
+    {
+        public string Value;
+        public int Count;
+
+        public HashCacheEntry(string value)
+        {
+            Value = value;
+            Count = 1;
+        }
+    }
+    
+    public class HashCache
+    {
+        private readonly Dictionary<int, HashCacheEntry> Cache = new();
+        private int MaxSize { get; set; }
+
+        public HashCache(int size)
+        {
+            MaxSize = size;
+        }
+
+        /// <summary>
+        /// Whether or not a given hash exists in the cache
+        /// </summary>
+        /// <param name="hash">Hash to lookup</param>
+        /// <returns></returns>
+        public bool Contains(int hash)
+        {
+            return Cache.ContainsKey(hash);
+        }
+
+        /// <summary>
+        /// Get a value from the cache.
+        /// </summary>
+        /// <param name="hash">Hash to search for.</param>
+        /// <returns>Non-nullable string</returns>
+        public string Get(int hash)
+        {
+            if (!Contains(hash)) return "";
+            
+            return Cache[hash].Value;
+
+        }
+
+        /// <summary>
+        /// Gets the lowest count hash in the cache and returns it.
+        /// </summary>
+        /// <returns>Nullable HashCacheEntry</returns>
+        public int Lowest()
+        {
+            if (Cache.Count == 0) return 0;
+            
+            var low = Cache.Keys.ElementAt(0);
+            int lowestValue = 999;
+            foreach (var key in Cache.Keys)
+            {
+                if (Cache[key].Count < lowestValue)
+                {
+                    low = key;
+                    lowestValue = Cache[key].Count;
+                }
+            }
+
+            return low;
+        }
+
+        /// <summary>
+        /// Adds a value to the cache
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <param name="value"></param>
+        public void Add(int hash, string value)
+        {
+            // Check if exists in cache already
+            if (Contains(hash))
+            {
+                Cache[hash].Count++;
+                return;
+            }
+
+            // Trim cache if at limit
+            if (Cache.Count >= MaxSize)
+            {
+                var lowestHash = Lowest();
+                Cache.Remove(hash);
+            }
+
+            Cache[hash] = new HashCacheEntry(value);
+        }
+    }
+    
     public static class HashUtils
     {
-        public static Dictionary<int, string> HashCache = new ();
-        public static Dictionary<int, int> HashCacheCount = new ();
+        public static HashCache Cache;
         
         public static string Lookup(SQLiteConnection con, int hash)
         {
             if (!ConfigData.PerformDehash) return "";
 
-            if (HashCache.ContainsKey(hash))
+            Cache ??= new HashCache(ConfigData.HashCacheSize);
+
+            if (Cache.Contains(hash))
             {
-                HashCacheCount[hash]++;
-                return HashCache[hash];
+                return Cache.Get(hash);
             }
             
-            // TODO: Update to cache most popular 500 results to speed up duplicate dehashing
             var command = con.CreateCommand();
             command.CommandText = "SELECT Value " +
                                   "FROM properties " +
@@ -31,8 +123,7 @@ namespace EonZeNx.ApexTools.Core.Utils
                 {
                     var value = dbr.GetString(0);
                     
-                    // HashCache[hash] = value;
-                    // HashCacheCount[hash] = 0;
+                    Cache.Add(hash, value);
                     
                     return value;
                 }
