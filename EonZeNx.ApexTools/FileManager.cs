@@ -37,6 +37,7 @@ namespace EonZeNx.ApexTools
                 EFoucCC.IRTPC =>  new IRTPC_Manager(),
                 EFoucCC.RTPC =>   new RTPC_Manager(),
                 EFoucCC.XML =>    GetXmlProcessor(fullPath),
+                EFoucCC.AAF =>    new AAF_Manager(),
                 _ =>              new IRTPC_Manager()
             };
         }
