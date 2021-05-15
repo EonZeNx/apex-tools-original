@@ -21,7 +21,7 @@ namespace EonZeNx.ApexTools.Configuration
         public static string AbsolutePathToDatabase => Data.AbsolutePathToDatabase;
         public static bool AlwaysOutputHash => Data.AlwaysOutputHash;
         public static bool PerformDehash => Data.PerformDehash;
-        public static uint HashCache => Data.HashCacheSize;
+        public static uint HashCacheSize => Data.HashCacheSize;
         public static bool SortFiles => Data.SortFiles;
 
         public static void Load()
