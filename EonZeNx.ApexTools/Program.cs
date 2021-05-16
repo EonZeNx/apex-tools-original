@@ -62,7 +62,7 @@ namespace EonZeNx.ApexTools
                 .Where(path => !path.Contains(".exe")).ToArray();
             if (filepaths.Length == 0)
             {
-                Close("No valid paths detected. Double check the paths passed in.");
+                Close("No valid paths detected. Double check the paths used.");
                 return;
             }
             
