@@ -6,12 +6,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\EonZeNx.ApexTools.Core\EonZeNx.ApexTools.Core.csproj" />
-      <ProjectReference Include="..\EonZeNx.ApexTools.zlib\EonZeNx.ApexTools.zlib.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="DotNetZip" Version="1.15.0" />
-      <PackageReference Include="zlib.net" Version="1.0.4" />
     </ItemGroup>
 
 </Project>

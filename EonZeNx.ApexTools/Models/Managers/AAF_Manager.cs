@@ -61,18 +61,20 @@ namespace EonZeNx.ApexTools.Models.Managers
         {
             using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}.sarc", FileMode.Create)))
             {
-                aaf.BinarySerialize(bw);
+                aaf.BinaryConvertedSerialize(bw);
             }
         }
 
         public override void LoadConverted()
         {
-            throw new NotImplementedException("Have yet to implement LoadConverted on AAF_Manager");
+            using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+            {
+                aaf.BinaryConvertedDeserialize(br);
+            }
         }
 
         public override void ExportBinary()
         {
-            throw new NotImplementedException("Have yet to implement ExportBinary on AAF_Manager");
             using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{aaf.GetMetaInfo().Extension}", FileMode.Create)))
             {
                 aaf.BinarySerialize(bw);

@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Models;
+using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.AAF.V01.Models
 {
@@ -27,9 +30,17 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         public void BinarySerialize(BinaryWriter bw)
         {
-            for (int i = 0; i < BlockCount; i++)
+            bw.Write(ByteUtils.ReverseBytes(0x41414600));  // FourCC 'AAF '
+            bw.Write((uint) 1);
+            bw.Write(Encoding.UTF8.GetBytes("AVALANCHEARCHIVEFORMATISCOOL"));
+            
+            bw.Write((uint) Blocks.Sum(block => block.UncompressedSize));
+            bw.Write((uint) Blocks.Sum(block => block.CompressedSize));
+            bw.Write(BlockCount);
+
+            foreach (var block in Blocks)
             {
-                Blocks[i].BinarySerialize(bw);
+                block.BinarySerialize(bw);
             }
         }
 
@@ -57,12 +68,24 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         public void BinaryConvertedSerialize(BinaryWriter bw)
         {
-            throw new System.NotImplementedException();
+            for (int i = 0; i < BlockCount; i++)
+            {
+                Blocks[i].BinaryConvertedSerialize(bw);
+            }
         }
 
         public void BinaryConvertedDeserialize(BinaryReader br)
         {
-            throw new System.NotImplementedException();
+            var blockList = new List<Block>();
+            while (br.BaseStream.Position < br.BaseStream.Length)
+            {
+                var block = new Block();
+                block.BinaryConvertedDeserialize(br);
+                blockList.Add(block);
+            }
+
+            Blocks = blockList.ToArray();
+            BlockCount = (uint) Blocks.Length;
         }
 
         #endregion
