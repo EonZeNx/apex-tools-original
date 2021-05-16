@@ -8,6 +8,15 @@ using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.AAF.V01.Models
 {
+    /*
+     * AAF v01
+     * Version : uint32
+     * Comment (Length 28) : utf8 string
+     * Uncompressed Size : uint32
+     * Compressed Size : uint32
+     * Block count : uint32
+     * BLOCKS[]
+     */
     public class AAF_V01 : IBinaryClassIO
     {
         public MetaInfo Minfo { get; set; } = new (){FileType = "AAF", Version = 01};

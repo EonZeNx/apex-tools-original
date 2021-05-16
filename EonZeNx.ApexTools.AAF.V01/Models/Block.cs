@@ -5,6 +5,14 @@ using Ionic.Zlib;
 
 namespace EonZeNx.ApexTools.AAF.V01.Models
 {
+    /*
+     * Block
+     * Compressed Size : uint32
+     * Uncompressed Size : uint32
+     * Next block offset : uint32 (From start of block)
+     * FourCC
+     * COMPRESSED DATA : ZLib uncompress Level 6
+     */
     public class Block : IBinarySerializable, IBinaryConvertedSerializable
     {
         // EWAM / MAWE
