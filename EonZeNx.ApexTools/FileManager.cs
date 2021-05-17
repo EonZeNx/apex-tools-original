@@ -31,19 +31,19 @@ namespace EonZeNx.ApexTools
         
         public FileProcessor GetFileProcessor(string fullPath)
         {
-            var fourCC = new FourCCProcessor().GetFourCC(fullPath);
-            return fourCC switch
+            var fourCc = FourCCProcessor.GetCharacterCode(fullPath);
+            return fourCc switch
             {
-                EFoucCC.IRTPC =>  new IRTPC_Manager(),
-                EFoucCC.RTPC =>   new RTPC_Manager(),
-                EFoucCC.XML =>    GetXmlProcessor(fullPath),
-                EFoucCC.AAF =>    new AAF_Manager(),
-                EFoucCC.SARC =>    new AAF_Manager(),
+                EFourCc.IRTPC =>  new IRTPC_Manager(),
+                EFourCc.RTPC =>   new RTPC_Manager(),
+                EFourCc.XML =>    GetXmlProcessor(fullPath),
+                EFourCc.AAF =>    new AAF_Manager(),
+                EFourCc.SARC =>   new SARC_Manager(),
                 _ =>              new IRTPC_Manager()
             };
         }
 
-        public FileProcessor GetXmlProcessor(string fullPath)
+        private static FileProcessor GetXmlProcessor(string fullPath)
         {
             var path = @$"{fullPath}";
             var xr = XmlReader.Create(path);

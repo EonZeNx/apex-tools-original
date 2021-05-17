@@ -1,55 +1,57 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.Core.Processors
 {
-    public enum EFoucCC
+    public enum EFourCc
     {
         RTPC,
         IRTPC,
-        ADF,
-        SARC,
         AAF,
+        SARC,
+        ADF,
         TAB,
         XML
     }
     
-    public class FourCCProcessor
+    public static class FourCCProcessor
     {
-        public static readonly Dictionary<byte[], EFoucCC> FOURC_CCS = new(new ByteArrayEqualityComparer())
+        public static readonly Dictionary<int, EFourCc> CharacterCodes = new()
         {
-            {new byte[] {0x52, 0x54, 0x50, 0x43}, EFoucCC.RTPC},
-            {new byte[] {0x20, 0x46, 0x44, 0x41}, EFoucCC.ADF},
-            {new byte[] {0x53, 0x41, 0x52, 0x43}, EFoucCC.SARC},
-            {new byte[] {0x41, 0x41, 0x46, 0x00}, EFoucCC.AAF},
-            {new byte[] {0x54, 0x41, 0x42, 0x00}, EFoucCC.TAB},
-            {new byte[] {0x3F, 0x78, 0x6D, 0x6C}, EFoucCC.XML},
+            {0x52545043, EFourCc.RTPC},
+            {0x20464441, EFourCc.ADF},
+            {0x53415243, EFourCc.SARC},
+            {0x41414600, EFourCc.AAF},
+            {0x54414200, EFourCc.TAB},
+            {0x3F786D6C, EFourCc.XML},
         };
         
-        public bool IsSupportedFourCC(byte[] input)
+        public static bool IsSupportedCharacterCode(int input)
         {
-            var result = FOURC_CCS.Any(pair => pair.Key.SequenceEqual(input));
+            var result = CharacterCodes.Any(pair => pair.Key == input);
             return result;
         }
 
-        public EFoucCC FourCCInByteArray(byte[] input)
+        public static EFourCc ValidCharacterCode(byte[] input)
         {
             for (var i = 4; i <= input.Length; i += 4)
             {
                 var lastI = i - 4;
                 var bytes = input[lastI..i];
-                if (IsSupportedFourCC(bytes))
+                var value = BitConverter.ToInt32(bytes);
+                
+                if (IsSupportedCharacterCode(value))
                 {
-                    return FOURC_CCS[bytes];
+                    return CharacterCodes[value];
                 }
             }
 
-            return EFoucCC.IRTPC;
+            return EFourCc.IRTPC;
         }
 
-        public byte[] GetFirst16Bytes(string filepath)
+        public static byte[] GetFirst16Bytes(string filepath)
         {
             using (var br = new BinaryReader(new FileStream(filepath, FileMode.Open)))
             {
@@ -57,10 +59,10 @@ namespace EonZeNx.ApexTools.Core.Processors
             }
         }
 
-        public EFoucCC GetFourCC(string filepath)
+        public static EFourCc GetCharacterCode(string filepath)
         {
             var bytes = GetFirst16Bytes(filepath);
-            return FourCCInByteArray(bytes);
+            return ValidCharacterCode(bytes);
         }
     }
 }
