@@ -96,18 +96,18 @@ namespace EonZeNx.ApexTools.Core.Utils
 
         #region Bytes
 
-        public static UInt16 ReverseBytes(UInt16 value)
+        public static ushort ReverseBytes(ushort value)
         {
             return (UInt16)((value & 0xFFU) << 8 | (value & 0xFF00U) >> 8);
         }
         
-        public static UInt32 ReverseBytes(UInt32 value)
+        public static uint ReverseBytes(uint value)
         {
             return (value & 0x000000FFU) << 24 | (value & 0x0000FF00U) << 8 |
                    (value & 0x00FF0000U) >> 8 | (value & 0xFF000000U) >> 24;
         }
         
-        public static UInt64 ReverseBytes(UInt64 value)
+        public static ulong ReverseBytes(ulong value)
         {
             return (value & 0x00000000000000FFUL) << 56 | (value & 0x000000000000FF00UL) << 40 |
                    (value & 0x0000000000FF0000UL) << 24 | (value & 0x00000000FF000000UL) << 8 |
