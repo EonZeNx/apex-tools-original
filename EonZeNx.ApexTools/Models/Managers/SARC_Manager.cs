@@ -41,7 +41,7 @@ namespace EonZeNx.ApexTools.Models.Managers
 
         public override bool FileIsBinary()
         {
-            return !ConvertedExtensions.Contains(Extension);
+            return !string.IsNullOrEmpty(Extension);
         }
 
         public override void LoadBinary()

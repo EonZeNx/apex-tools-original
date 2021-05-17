@@ -73,18 +73,25 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
             xw.WriteAttributeString("Version", $"{Minfo.Version}");
             xw.WriteAttributeString("Extension", Minfo.Extension);
             
-            xw.WriteStartElement("Entries");
-            
             foreach (var entry in Entries)
             {
-                xw.WriteStartElement("Entry");
-                xw.WriteAttributeString("Ref", $"{entry.IsReference}");
-                xw.WriteAttributeString("Size", $"{entry.Size}");
-                xw.WriteValue(entry.Path);
-                xw.WriteEndElement();
+                // Only write references, can just gather contents of folder for internal files
+                if (entry.IsReference)
+                {
+                    xw.WriteStartElement("Entry");
+                    xw.WriteAttributeString("Size", $"{entry.Size}");
+                    xw.WriteValue(entry.Path);
+                    xw.WriteEndElement();
+                }
                 
                 entry.FolderSerialize(basePath);
             }
+            
+            // Ignore these extensions when deserializing the folder
+            xw.WriteStartElement("Ignore");
+            xw.WriteElementString("Extension", ".xml");
+            xw.WriteElementString("Extension", ".bak");
+            xw.WriteEndElement();
             
             xw.Close();
         }

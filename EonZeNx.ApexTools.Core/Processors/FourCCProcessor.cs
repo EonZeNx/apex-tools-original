@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.Core.Processors
 {
@@ -40,6 +41,9 @@ namespace EonZeNx.ApexTools.Core.Processors
             {
                 var lastI = i - 4;
                 var bytes = input[lastI..i];
+
+                Array.Reverse(bytes);
+                
                 var value = BitConverter.ToInt32(bytes);
                 
                 if (IsSupportedCharacterCode(value))
