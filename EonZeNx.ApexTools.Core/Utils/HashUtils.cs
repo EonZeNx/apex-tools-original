@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
+using System.Text;
 using EonZeNx.ApexTools.Configuration;
 
 namespace EonZeNx.ApexTools.Core.Utils
@@ -129,6 +130,18 @@ namespace EonZeNx.ApexTools.Core.Utils
                 }
                 return "";
             }
+        }
+
+        /// <summary>
+        /// Simple string version.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="index"></param>
+        /// <param name="seed"></param>
+        /// <returns></returns>
+        public static int HashJenkinsL3(string data, int index = 0, uint seed = 0)
+        {
+            return HashJenkinsL3(Encoding.UTF8.GetBytes(data), index, seed);
         }
 
         /// <summary>

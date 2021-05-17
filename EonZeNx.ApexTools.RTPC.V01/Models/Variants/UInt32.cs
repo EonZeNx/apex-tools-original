@@ -18,8 +18,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         public override long Offset { get; set; }
         public override uint Alignment => 0;
         public override bool Primitive => true;
+
+        public static int[] ValuesToSkipLookup => new[] {0, 1, 2, 3};
         
         public uint Value;
+        public string LookupValue;
 
         
         /// <summary>
@@ -53,8 +56,13 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         {
             Value = BitConverter.ToUInt32(RawData);
             
-            // If valid connection, attempt to dehash
-            if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
+            // If valid connection, attempt lookup
+            if (DbConnection == null) return;
+            
+            Name = HashUtils.Lookup(DbConnection, NameHash);
+            var valueInt = (int) Value;
+            
+            if (ConfigData.TryFindUint32Hash && (valueInt > 10 || valueInt < -10)) LookupValue = HashUtils.Lookup(DbConnection, valueInt);
         }
 
         #endregion
@@ -67,15 +75,34 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             
             // Write Name if valid
             XmlUtils.WriteNameOrNameHash(xw, NameHash, Name);
+
+            if (!string.IsNullOrEmpty(LookupValue))
+            {
+                xw.WriteAttributeString("Hash", $"{Value}");
+                xw.WriteValue(LookupValue);
+            }
+            else
+            {
+                xw.WriteValue(Value);
+            }
             
-            xw.WriteValue(Value);
             xw.WriteEndElement();
         }
 
         public override void XmlDeserialize(XmlReader xr)
         {
             NameHash = XmlUtils.ReadNameIfValid(xr);
-            Value = uint.Parse(xr.ReadString());
+            var rawValue = xr.ReadString();
+            
+            if (XmlUtils.GetAttribute(xr, "Hash").Length > 0)
+            {
+                LookupValue = rawValue;
+                Value = (uint) HashUtils.HashJenkinsL3(LookupValue);
+            }
+            else
+            {
+                Value = uint.Parse(rawValue);
+            }
         }
 
         #endregion

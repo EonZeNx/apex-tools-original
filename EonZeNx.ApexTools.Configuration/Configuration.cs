@@ -11,6 +11,7 @@ namespace EonZeNx.ApexTools.Configuration
         public bool PerformDehash { get; set; } = true;
         public int HashCacheSize { get; set; } = 500;
         public bool SortFiles { get; set; } = false;
+        public bool TryFindUint32Hash { get; set; } = false;
     }
     
     public static class ConfigData
@@ -23,6 +24,7 @@ namespace EonZeNx.ApexTools.Configuration
         public static bool PerformDehash => Data.PerformDehash;
         public static int HashCacheSize => Data.HashCacheSize;
         public static bool SortFiles => Data.SortFiles;
+        public static bool TryFindUint32Hash => Data.TryFindUint32Hash;
 
         public static void Load()
         {
