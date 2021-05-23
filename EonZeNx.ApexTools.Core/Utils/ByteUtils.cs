@@ -156,13 +156,13 @@ namespace EonZeNx.ApexTools.Core.Utils
             br.BaseStream.Seek(Align(br.BaseStream.Position, align), SeekOrigin.Begin);
         }
         
-        public static void Align(BinaryWriter bw, long align)
+        public static void Align(BinaryWriter bw, long align, byte fill = 0x50)
         {
             var pos = bw.BaseStream.Position;
             var alignment = Align(pos, align);
             for (int i = 0; i < alignment - pos; i++)
             {
-                bw.Write((byte) 0x50);
+                bw.Write(fill);
             }
         }
         

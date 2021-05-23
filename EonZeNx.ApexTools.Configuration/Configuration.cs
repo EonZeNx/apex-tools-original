@@ -12,6 +12,7 @@ namespace EonZeNx.ApexTools.Configuration
         public int HashCacheSize { get; set; } = 500;
         public bool SortFiles { get; set; } = false;
         public bool TryFindUint32Hash { get; set; } = false;
+        public bool MergeTocToSarc { get; set; } = true;
     }
     
     public static class ConfigData
@@ -25,6 +26,7 @@ namespace EonZeNx.ApexTools.Configuration
         public static int HashCacheSize => Data.HashCacheSize;
         public static bool SortFiles => Data.SortFiles;
         public static bool TryFindUint32Hash => Data.TryFindUint32Hash;
+        public static bool MergeTocToSarc => Data.MergeTocToSarc;
 
         public static void Load()
         {

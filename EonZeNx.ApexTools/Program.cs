@@ -58,7 +58,7 @@ namespace EonZeNx.ApexTools
             
             // Program launches with itself as the first argument, filter it
             var filepaths = args
-                .Where(File.Exists)
+                .Where(path => File.Exists(path) || Directory.Exists(path))
                 .Where(path => !path.Contains(".exe")).ToArray();
             if (filepaths.Length == 0)
             {

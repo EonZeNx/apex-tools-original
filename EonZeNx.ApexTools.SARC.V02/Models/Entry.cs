@@ -1,6 +1,9 @@
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Xml;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
+using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.SARC.V02.Models
 {
@@ -13,22 +16,70 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
     /// <br/> Size - <see cref="uint"/>
     /// <br/> DATA - (Deferred)
     /// </summary>
-    public class Entry : IBinarySerializable, IFolderSerializable
+    public class Entry : IBinarySerializable, IFolderSerializable, IDeferredSerializable
     {
         public uint PathLength { get; set; }
         public string Path { get; set; }
         public uint DataOffset { get; set; }
         public uint Size { get; set; }
-        public bool IsReference => DataOffset == 0;
+        public bool IsReference { get; set; }
+        public uint HeaderSize
+        {
+            get
+            {
+                var pathNulled = $"{Path}\0";
+                var pathLengthWithNulls = (uint) ByteUtils.Align(pathNulled.Length, 4);
+                return 4 + pathLengthWithNulls + 4 + 4;
+            }
+        }
 
         public byte[] Data { get; set; }
-        
+
+
+        public Entry() { }
+        public Entry(string path)
+        {
+            Path = path;
+            PathLength = (uint) Path.Length;
+        }
+
+        #region Xml Load Helpers
+
+        public void XmlLoadExternalReference(XmlReader xr)
+        {
+            DataOffset = 0;
+            IsReference = true;
+            Size = uint.Parse(XmlUtils.GetAttribute(xr, "Size"));
+            
+            Path = xr.ReadString().Replace("\\", "/");
+            PathLength = (uint) Path.Length + 1;
+        }
+
+        #endregion
         
         #region Binary Serialization
+        
+        public void BinarySerializeData(BinaryWriter bw)
+        {
+            if (IsReference) return;
+            
+            DataOffset = (uint) bw.BaseStream.Position;
+            bw.Write(Data);
+            
+            ByteUtils.Align(bw, 4, 0x00);
+        }
 
         public void BinarySerialize(BinaryWriter bw)
         {
-            throw new System.NotImplementedException();
+            var pathNulled = $"{Path}\0";
+            var pathLengthWithNulls = ByteUtils.Align(pathNulled.Length, 4);
+            var nulls = new string('\0', (int) (pathLengthWithNulls - pathNulled.Length));
+            
+            bw.Write(pathLengthWithNulls);
+            bw.Write(Encoding.UTF8.GetBytes(pathNulled));
+            bw.Write(Encoding.UTF8.GetBytes(nulls));
+            bw.Write(DataOffset);
+            bw.Write(Size);
         }
 
         public void BinaryDeserialize(BinaryReader br)
@@ -40,6 +91,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
             Path = Path.Replace("\0", "");
             
             DataOffset = br.ReadUInt32();
+            IsReference = DataOffset == 0;
             Size = br.ReadUInt32();
 
             if (IsReference) return;
@@ -72,7 +124,12 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
 
         public void FolderDeserialize(string basePath)
         {
-            throw new System.NotImplementedException();
+            using (var br = new BinaryReader(new FileStream(basePath, FileMode.Open)))
+            {
+                Data = br.ReadBytes((int) br.BaseStream.Length);
+            }
+            
+            Size = (uint) Data.Length;
         }
 
         #endregion

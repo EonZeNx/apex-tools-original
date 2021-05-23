@@ -80,15 +80,13 @@ namespace EonZeNx.ApexTools.Models.Managers
 
         public override void ExportConverted()
         {
-            string extension;
-            
-            extension = "xml";
-            XmlWriterSettings settings = new XmlWriterSettings()
+            var extension = "xml";
+            var settings = new XmlWriterSettings()
             {
                 Indent = true,
                 IndentChars = "\t"
             };
-            XmlWriter xw = XmlWriter.Create(@$"{ParentPath}\{PathName}.{extension}", settings);
+            var xw = XmlWriter.Create(@$"{ParentPath}\{PathName}.{extension}", settings);
             irtpc.XmlSerialize(xw);
             xw.Close();
         }

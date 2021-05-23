@@ -8,13 +8,13 @@ namespace EonZeNx.ApexTools.Core.Processors
 {
     public enum EFourCc
     {
-        RTPC,
-        IRTPC,
-        AAF,
-        SARC,
-        ADF,
-        TAB,
-        XML
+        RTPC = 0x52545043,
+        IRTPC = 0x0,
+        AAF = 0x41414600,
+        SARC = 0x53415243,
+        ADF = 0x20464441,
+        TAB = 0x54414200,
+        XML = 0x3F786D6C
     }
     
     public static class FourCCProcessor

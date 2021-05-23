@@ -20,9 +20,31 @@ namespace EonZeNx.ApexTools.Models.Managers
         public override int Version { get; protected set; }
         
         private IFolderClassIO sarc { get; set; }
+
+
+        public SARC_Manager() { }
+        public SARC_Manager(int version)
+        {
+            Version = version;
+        }
         
         public override void GetClassIO(string path)
         {
+            // Directory = Converted load
+            if (Directory.Exists(path))
+            {
+                if (Version == 0) throw new IOException("Path was a directory but manager was not init using version");
+
+                ParentPath = path;
+                sarc = Version switch
+                {
+                    2 => new SARC_V02(),
+                    _ => new SARC_V02()
+                };
+                
+                return;
+            }
+            // File = Binary load
             FullPath = path;
             (ParentPath, PathName, Extension) = PathUtils.SplitPath(path);
 
@@ -66,7 +88,10 @@ namespace EonZeNx.ApexTools.Models.Managers
 
         public override void ExportBinary()
         {
-            throw new NotImplementedException();
+            using (var bw = new BinaryWriter(new FileStream($"{ParentPath}{sarc.GetMetaInfo().Extension}", FileMode.Create)))
+            {
+                sarc.BinarySerialize(bw);
+            }
         }
     }
 }
