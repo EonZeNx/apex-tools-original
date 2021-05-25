@@ -27,8 +27,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
         {
             get
             {
-                var pathNulled = $"{Path}\0";
-                var pathLengthWithNulls = (uint) ByteUtils.Align(pathNulled.Length, 4);
+                var pathLengthWithNulls = ByteUtils.Align(PathLength, 4);
                 return 4 + pathLengthWithNulls + 4 + 4;
             }
         }
@@ -48,11 +47,12 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
         public void XmlLoadExternalReference(XmlReader xr)
         {
             DataOffset = 0;
-            IsReference = true;
+            // IsReference = true;
+            IsReference = bool.Parse(XmlUtils.GetAttribute(xr, "IsRef"));;
             Size = uint.Parse(XmlUtils.GetAttribute(xr, "Size"));
             
             Path = xr.ReadString().Replace("\\", "/");
-            PathLength = (uint) Path.Length + 1;
+            PathLength = (uint) Path.Length;
         }
 
         #endregion
@@ -71,12 +71,11 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
 
         public void BinarySerialize(BinaryWriter bw)
         {
-            var pathNulled = $"{Path}\0";
-            var pathLengthWithNulls = ByteUtils.Align(pathNulled.Length, 4);
-            var nulls = new string('\0', (int) (pathLengthWithNulls - pathNulled.Length));
+            var pathLengthWithNulls = ByteUtils.Align(PathLength, 4);
+            var nulls = new string('\0', (int) (pathLengthWithNulls - PathLength));
             
             bw.Write(pathLengthWithNulls);
-            bw.Write(Encoding.UTF8.GetBytes(pathNulled));
+            bw.Write(Encoding.UTF8.GetBytes(Path));
             bw.Write(Encoding.UTF8.GetBytes(nulls));
             bw.Write(DataOffset);
             bw.Write(Size);
@@ -124,6 +123,8 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
 
         public void FolderDeserialize(string basePath)
         {
+            if (IsReference) return;
+            
             using (var br = new BinaryReader(new FileStream(basePath, FileMode.Open)))
             {
                 Data = br.ReadBytes((int) br.BaseStream.Length);

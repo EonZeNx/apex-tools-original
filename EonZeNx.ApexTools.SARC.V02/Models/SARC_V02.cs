@@ -94,25 +94,30 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
             /* For each filepath in files...
              * Where !(Filepath contains any in Ignore)...
              * Keep filepath... */
-            files = (
-                from filepath in files 
-                where !Ignore.Any(filepath.Contains)
-                select filepath
-            ).ToArray();
-
-            var newEntries = new List<Entry>();
-            newEntries.AddRange(Entries);
+            // files = (
+            //     from filepath in files 
+            //     where !Ignore.Any(filepath.Contains)
+            //     select filepath
+            // ).ToArray();
+            //
+            // var newEntries = new List<Entry>();
+            // newEntries.AddRange(Entries);
+            //
+            // foreach (var filepath in files)
+            // {
+            //     var localFilePath = filepath.Replace(@$"{basePath}\", "");
+            //     var entry = new Entry(localFilePath);
+            //     entry.FolderDeserialize(filepath);
+            //     
+            //     newEntries.Add(entry);
+            // }
+            //
+            // Entries = newEntries.ToArray();
             
-            foreach (var filepath in files)
+            foreach (var entry in Entries)
             {
-                var localFilePath = filepath.Replace(@$"{basePath}\", "");
-                var entry = new Entry(localFilePath);
-                entry.FolderDeserialize(filepath);
-                
-                newEntries.Add(entry);
+                entry.FolderDeserialize(@$"{basePath}\{entry.Path}");
             }
-
-            Entries = newEntries.ToArray();
         }
 
         #endregion
@@ -180,13 +185,14 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
                 foreach (var entry in Entries)
                 {
                     // Only write references, can just gather contents of folder for internal files
-                    if (entry.IsReference)
-                    {
+                    // if (entry.IsReference)
+                    // {
                         xw.WriteStartElement("Entry");
                         xw.WriteAttributeString("Size", $"{entry.Size}");
+                        xw.WriteAttributeString("IsRef", $"{entry.IsReference}");
                         xw.WriteValue(entry.Path);
                         xw.WriteEndElement();
-                    }
+                    // }
                 
                     entry.FolderSerialize(basePath);
                 }
