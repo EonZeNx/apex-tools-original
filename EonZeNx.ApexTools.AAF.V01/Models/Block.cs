@@ -5,21 +5,23 @@ using Ionic.Zlib;
 
 namespace EonZeNx.ApexTools.AAF.V01.Models
 {
-    /*
-     * Block
-     * Compressed Size : uint32
-     * Uncompressed Size : uint32
-     * Next block offset : uint32 (From start of block)
-     * FourCC
-     * COMPRESSED DATA : ZLib uncompress Level 6
-     */
+    /// <summary>
+    /// A <see cref="Block"/> for a <see cref="AAF_V01"/>
+    /// <br/> Structure:
+    /// <br/> Compressed Size - <see cref="uint"/>
+    /// <br/> Uncompressed Size - <see cref="uint"/>
+    /// <br/> Next block offset : uint32 (From start of block) - <see cref="uint"/>
+    /// <br/> FourCC
+    /// <br/> COMPRESSED DATA : ZLib uncompress Level 6
+    /// </summary>
     public class Block : IBinarySerializable, IBinaryConvertedSerializable
     {
         // EWAM / MAWE
         public const uint FourCc = 0x4557414D;
         // 33,554,432 is 32MB
-        public const int MaxBlockSizeSize = 33554432;
-            
+        public const uint MaxBlockSizeSize = 33554432;
+
+        public uint BlockSize { get; set; } = MaxBlockSizeSize;
         public uint CompressedSize { get; set; }
         public uint UncompressedSize { get; set; }
         public long DataOffset { get; set; }
@@ -42,16 +44,24 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
                 return _compressedData;
             }
         }
+        
+        
+        public Block() { }
+        public Block(uint blockSize)
+        {
+            BlockSize = blockSize;
+        }
 
 
         #region Binary Serialization
 
         public void BinarySerialize(BinaryWriter bw)
         {
+            var blockStartPos = (uint) bw.BaseStream.Position;
             bw.Write(CompressedSize - 2);
             bw.Write(UncompressedSize);
             
-            bw.Write(4 + CompressedSize - 2);
+            bw.Write(4 + 4 + 4 + 4 + CompressedSize - 2);
             bw.Write(ByteUtils.ReverseBytes(FourCc));
             bw.Write(CompressedData[2..]);
         }
@@ -103,8 +113,9 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         public void BinaryConvertedDeserialize(BinaryReader br)
         {
-            Data = br.ReadBytes(MaxBlockSizeSize);
+            Data = br.ReadBytes((int) BlockSize);
             UncompressedSize = (uint) Data.Length;
+            BlockSize = UncompressedSize;
             CompressedSize = (uint) CompressedData.Length;
         }
 
