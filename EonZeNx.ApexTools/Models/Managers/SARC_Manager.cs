@@ -1,27 +1,50 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
-using EonZeNx.ApexTools.AAF.V01.Models;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Utils;
+using EonZeNx.ApexTools.SARC.V02.Models;
 
 namespace EonZeNx.ApexTools.Models.Managers
 {
-    public class AAF_Manager : FileProcessor
+    public class SARC_Manager : FileProcessor
     {
         public override string FullPath { get; protected set; }
         public override string ParentPath { get; protected set; }
         public override string PathName { get; protected set; }
         public override string Extension { get; protected set; }
-        public override string[] ConvertedExtensions { get; protected set; } = {".sarc"};
+        public override string[] ConvertedExtensions { get; protected set; }
 
         public override string FileType { get; protected set; }
         public override int Version { get; protected set; }
         
-        private IBinaryClassIO aaf { get; set; }
+        private IFolderClassIO sarc { get; set; }
+
+
+        public SARC_Manager() { }
+        public SARC_Manager(int version)
+        {
+            Version = version;
+        }
         
         public override void GetClassIO(string path)
         {
+            // Directory = Converted load
+            if (Directory.Exists(path))
+            {
+                if (Version == 0) throw new IOException("Path was a directory but manager was not init using version");
+
+                ParentPath = path;
+                sarc = Version switch
+                {
+                    2 => new SARC_V02(),
+                    _ => new SARC_V02()
+                };
+                
+                return;
+            }
+            // File = Binary load
             FullPath = path;
             (ParentPath, PathName, Extension) = PathUtils.SplitPath(path);
 
@@ -31,48 +54,43 @@ namespace EonZeNx.ApexTools.Models.Managers
                 version = br.ReadByte();
             }
 
-            aaf = version switch
+            sarc = version switch
             {
-                1 => new AAF_V01(),
-                _ => new AAF_V01()
+                2 => new SARC_V02(),
+                _ => new SARC_V02()
             };
         }
 
         public override bool FileIsBinary()
         {
-            return !ConvertedExtensions.Contains(Extension);
+            return !string.IsNullOrEmpty(Extension);
         }
 
         public override void LoadBinary()
         {
-            aaf.GetMetaInfo().Extension = Extension;
+            sarc.GetMetaInfo().Extension = Extension;
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
-                aaf.BinaryDeserialize(br);
+                sarc.BinaryDeserialize(br);
             }
         }
 
         public override void ExportConverted()
         {
-            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}.sarc", FileMode.Create)))
-            {
-                aaf.BinaryConvertedSerialize(bw);
-            }
+            var subPath = $@"{ParentPath}\{PathName}";
+            sarc.FolderSerialize(subPath);
         }
 
         public override void LoadConverted()
         {
-            using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
-            {
-                aaf.BinaryConvertedDeserialize(br);
-            }
+            sarc.FolderDeserialize(ParentPath);
         }
 
         public override void ExportBinary()
         {
-            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{aaf.GetMetaInfo().Extension}", FileMode.Create)))
+            using (var bw = new BinaryWriter(new FileStream($"{ParentPath}{sarc.GetMetaInfo().Extension}", FileMode.Create)))
             {
-                aaf.BinarySerialize(bw);
+                sarc.BinarySerialize(bw);
             }
         }
     }

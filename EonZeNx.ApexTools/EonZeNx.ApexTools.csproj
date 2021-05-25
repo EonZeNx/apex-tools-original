@@ -13,6 +13,7 @@
       <ProjectReference Include="..\EonZeNx.ApexTools.Core\EonZeNx.ApexTools.Core.csproj" />
       <ProjectReference Include="..\EonZeNx.ApexTools.IRTPC.V01\EonZeNx.ApexTools.IRTPC.V01.csproj" />
       <ProjectReference Include="..\EonZeNx.ApexTools.RTPC.V01\EonZeNx.ApexTools.RTPC.V01.csproj" />
+      <ProjectReference Include="..\EonZeNx.ApexTools.SARC.V02\EonZeNx.ApexTools.SARC.V02.csproj" />
     </ItemGroup>
 
     <ItemGroup>

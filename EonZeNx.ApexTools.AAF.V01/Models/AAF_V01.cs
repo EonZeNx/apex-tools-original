@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,23 +9,24 @@ using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.AAF.V01.Models
 {
-    /*
-     * AAF v01
-     * Version : uint32
-     * Comment (Length 28) : utf8 string
-     * Uncompressed Size : uint32
-     * Compressed Size : uint32
-     * Block count : uint32
-     * BLOCKS[]
-     */
+    /// <summary>
+    /// An <see cref="AAF_V01"/> file.
+    /// <br/> Structure:
+    /// <br/> Version - <see cref="uint"/>
+    /// <br/> Comment (Length 28, UTF8) - <see cref="string"/>
+    /// <br/> Uncompressed Size - <see cref="uint"/>
+    /// <br/> Compressed Size - <see cref="uint"/>
+    /// <br/> Block count - <see cref="uint"/>
+    /// <br/> BLOCKS[]
+    /// </summary>
     public class AAF_V01 : IBinaryClassIO
     {
-        public MetaInfo Minfo { get; set; } = new (){FileType = "AAF", Version = 01};
+        public MetaInfo Minfo { get; set; } = new (){FileType = "AAF", Version = 01, Extension = ".ee"};
         public int Version { get; set; }
         public string Comment { get; set; }
         
         public uint UncompressedSize { get; set; }
-        public uint CompressedSize { get; set; }
+        public uint BlockSize { get; set; }
         public uint BlockCount { get; set; }
         
         public Block[] Blocks { get; set; }
@@ -42,9 +44,16 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             bw.Write(ByteUtils.ReverseBytes(0x41414600));  // FourCC 'AAF '
             bw.Write((uint) 1);
             bw.Write(Encoding.UTF8.GetBytes("AVALANCHEARCHIVEFORMATISCOOL"));
+
+            var uncompressedSize = (uint) Blocks.Sum(block => block.UncompressedSize);
+            bw.Write(uncompressedSize);
             
-            bw.Write((uint) Blocks.Sum(block => block.UncompressedSize));
-            bw.Write((uint) Blocks.Sum(block => block.CompressedSize));
+            bw.Write(
+                Blocks.Length == 1
+                    ? Blocks[0].BlockSize
+                    : Math.Min(Blocks.Max(block => block.BlockSize), Block.MaxBlockSizeSize)
+            );
+
             bw.Write(BlockCount);
 
             foreach (var block in Blocks)
@@ -60,13 +69,13 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             Comment = Encoding.UTF8.GetString(br.ReadBytes(8 + 16 + 4));
             
             UncompressedSize = br.ReadUInt32();
-            CompressedSize = br.ReadUInt32();
+            BlockSize = br.ReadUInt32();
             BlockCount = br.ReadUInt32();
 
             Blocks = new Block[BlockCount];
             for (int i = 0; i < BlockCount; i++)
             {
-                Blocks[i] = new Block();
+                Blocks[i] = new Block(BlockSize);
                 Blocks[i].BinaryDeserialize(br);
             }
         }

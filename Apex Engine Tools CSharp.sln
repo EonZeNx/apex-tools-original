@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EonZeNx.ApexTools.Configura
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EonZeNx.ApexTools.AAF.V01", "EonZeNx.ApexTools.AAF.V01\EonZeNx.ApexTools.AAF.V01.csproj", "{3670EFD1-C8E1-4DFA-8DD6-D3EADA0D9990}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EonZeNx.ApexTools.SARC.V02", "EonZeNx.ApexTools.SARC.V02\EonZeNx.ApexTools.SARC.V02.csproj", "{4229EABF-5C40-443E-B885-B605569F82E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,5 +49,9 @@ Global
 		{3670EFD1-C8E1-4DFA-8DD6-D3EADA0D9990}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3670EFD1-C8E1-4DFA-8DD6-D3EADA0D9990}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3670EFD1-C8E1-4DFA-8DD6-D3EADA0D9990}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4229EABF-5C40-443E-B885-B605569F82E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4229EABF-5C40-443E-B885-B605569F82E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4229EABF-5C40-443E-B885-B605569F82E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4229EABF-5C40-443E-B885-B605569F82E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

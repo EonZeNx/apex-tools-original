@@ -5,21 +5,23 @@ using Ionic.Zlib;
 
 namespace EonZeNx.ApexTools.AAF.V01.Models
 {
-    /*
-     * Block
-     * Compressed Size : uint32
-     * Uncompressed Size : uint32
-     * Next block offset : uint32 (From start of block)
-     * FourCC
-     * COMPRESSED DATA : ZLib uncompress Level 6
-     */
+    /// <summary>
+    /// A <see cref="Block"/> for a <see cref="AAF_V01"/>
+    /// <br/> Structure:
+    /// <br/> Compressed Size - <see cref="uint"/>
+    /// <br/> Uncompressed Size - <see cref="uint"/>
+    /// <br/> Next block offset : uint32 (From start of block) - <see cref="uint"/>
+    /// <br/> FourCC
+    /// <br/> COMPRESSED DATA : ZLib uncompress Level 6
+    /// </summary>
     public class Block : IBinarySerializable, IBinaryConvertedSerializable
     {
         // EWAM / MAWE
-        public const uint FOUR_CC = 0x4557414D;
+        public const uint FourCc = 0x4557414D;
         // 33,554,432 is 32MB
-        public const int MAX_BLOCK_SIZE = 33554432;
-            
+        public const uint MaxBlockSizeSize = 33554432;
+
+        public uint BlockSize { get; set; } = MaxBlockSizeSize;
         public uint CompressedSize { get; set; }
         public uint UncompressedSize { get; set; }
         public long DataOffset { get; set; }
@@ -32,17 +34,22 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             {
                 if (_compressedData != null) return _compressedData;
 
-                using var msData = new MemoryStream(Data);
                 using var ms = new MemoryStream();
-                using (var zs = new ZlibStream(msData, CompressionMode.Compress, CompressionLevel.Level6))
+                using (var zs = new ZlibStream(ms, CompressionMode.Compress, CompressionLevel.Level6))
                 {
-                    zs.CopyTo(ms);
+                    zs.Write(Data, 0, Data.Length);
                 }
                             
                 _compressedData = ms.ToArray();
-
                 return _compressedData;
             }
+        }
+        
+        
+        public Block() { }
+        public Block(uint blockSize)
+        {
+            BlockSize = blockSize;
         }
 
 
@@ -50,11 +57,12 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         public void BinarySerialize(BinaryWriter bw)
         {
+            var blockStartPos = (uint) bw.BaseStream.Position;
             bw.Write(CompressedSize - 2);
             bw.Write(UncompressedSize);
             
-            bw.Write(4 + CompressedSize - 2);
-            bw.Write(ByteUtils.ReverseBytes(FOUR_CC));
+            bw.Write(4 + 4 + 4 + 4 + CompressedSize - 2);
+            bw.Write(ByteUtils.ReverseBytes(FourCc));
             bw.Write(CompressedData[2..]);
         }
 
@@ -67,7 +75,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             var nextBlock = br.ReadUInt32() + DataOffset;
             var fourCc = ByteUtils.ReverseBytes(br.ReadUInt32());
             
-            if (fourCc != FOUR_CC)
+            if (fourCc != FourCc)
             {
                 throw new IOException($"Block four cc was not valid (Pos: {br.BaseStream.Position})");
             }
@@ -105,8 +113,9 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         public void BinaryConvertedDeserialize(BinaryReader br)
         {
-            Data = br.ReadBytes(MAX_BLOCK_SIZE);
+            Data = br.ReadBytes((int) BlockSize);
             UncompressedSize = (uint) Data.Length;
+            BlockSize = UncompressedSize;
             CompressedSize = (uint) CompressedData.Length;
         }
 
