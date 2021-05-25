@@ -16,9 +16,9 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
     public class Block : IBinarySerializable, IBinaryConvertedSerializable
     {
         // EWAM / MAWE
-        public const uint FOUR_CC = 0x4557414D;
+        public const uint FourCc = 0x4557414D;
         // 33,554,432 is 32MB
-        public const int MAX_BLOCK_SIZE = 33554432;
+        public const int MaxBlockSizeSize = 33554432;
             
         public uint CompressedSize { get; set; }
         public uint UncompressedSize { get; set; }
@@ -32,15 +32,13 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             {
                 if (_compressedData != null) return _compressedData;
 
-                using var msData = new MemoryStream(Data);
                 using var ms = new MemoryStream();
-                using (var zs = new ZlibStream(msData, CompressionMode.Compress, CompressionLevel.Level6))
+                using (var zs = new ZlibStream(ms, CompressionMode.Compress, CompressionLevel.Level6))
                 {
-                    zs.CopyTo(ms);
+                    zs.Write(Data, 0, Data.Length);
                 }
                             
                 _compressedData = ms.ToArray();
-
                 return _compressedData;
             }
         }
@@ -54,7 +52,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             bw.Write(UncompressedSize);
             
             bw.Write(4 + CompressedSize - 2);
-            bw.Write(ByteUtils.ReverseBytes(FOUR_CC));
+            bw.Write(ByteUtils.ReverseBytes(FourCc));
             bw.Write(CompressedData[2..]);
         }
 
@@ -67,7 +65,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             var nextBlock = br.ReadUInt32() + DataOffset;
             var fourCc = ByteUtils.ReverseBytes(br.ReadUInt32());
             
-            if (fourCc != FOUR_CC)
+            if (fourCc != FourCc)
             {
                 throw new IOException($"Block four cc was not valid (Pos: {br.BaseStream.Position})");
             }
@@ -105,7 +103,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         public void BinaryConvertedDeserialize(BinaryReader br)
         {
-            Data = br.ReadBytes(MAX_BLOCK_SIZE);
+            Data = br.ReadBytes(MaxBlockSizeSize);
             UncompressedSize = (uint) Data.Length;
             CompressedSize = (uint) CompressedData.Length;
         }
