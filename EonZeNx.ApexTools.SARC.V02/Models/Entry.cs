@@ -47,8 +47,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
         public void XmlLoadExternalReference(XmlReader xr)
         {
             DataOffset = 0;
-            // IsReference = true;
-            IsReference = bool.Parse(XmlUtils.GetAttribute(xr, "IsRef"));;
+            IsReference = true;
             Size = uint.Parse(XmlUtils.GetAttribute(xr, "Size"));
             
             Path = xr.ReadString().Replace("\\", "/");
