@@ -4,14 +4,15 @@ using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
+    /// <summary>
+    /// Shared <see cref="Property"/> for PropertyVariants
+    /// <br/> Structure:
+    /// <br/> Name hash - <see cref="int"/>
+    /// <br/> Raw data - <see cref="uint"/>
+    /// <br/> Type - <see cref="sbyte"/>/<see cref="EVariantType"/>
+    /// </summary>
     public class Property
     {
-        /* PROPERTY
-         * Name hash : s32
-         * Raw data : u32
-         * Type : u8/Enum
-         */
-        
         public uint Offset { get; private set; }
         public int NameHash { get; private set; }
         public byte[] RawData { get; private set; }

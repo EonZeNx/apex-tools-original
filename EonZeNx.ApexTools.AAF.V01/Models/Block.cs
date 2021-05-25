@@ -12,7 +12,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
     /// <br/> Uncompressed Size - <see cref="uint"/>
     /// <br/> Next block offset : uint32 (From start of block) - <see cref="uint"/>
     /// <br/> FourCC
-    /// <br/> COMPRESSED DATA : ZLib uncompress Level 6
+    /// <br/> Compressed Data : ZLib uncompress Level 6
     /// </summary>
     public class Block : IBinarySerializable, IBinaryConvertedSerializable
     {

@@ -17,7 +17,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
     /// <br/> Uncompressed Size - <see cref="uint"/>
     /// <br/> Compressed Size - <see cref="uint"/>
     /// <br/> Block count - <see cref="uint"/>
-    /// <br/> BLOCKS[]
+    /// <br/> Blocks[]
     /// </summary>
     public class AAF_V01 : IBinaryClassIO
     {

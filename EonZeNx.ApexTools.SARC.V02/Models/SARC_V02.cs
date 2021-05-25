@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 using EonZeNx.ApexTools.Core.Models;
 using EonZeNx.ApexTools.Core.Processors;
@@ -18,7 +16,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
     /// <br/> FourCC
     /// <br/> Version - <see cref="uint"/>
     /// <br/> Data offset - <see cref="uint"/>
-    /// <br/> ENTRIES[]
+    /// <br/> Entries[]
     /// </summary>
     public class SARC_V02 : IFolderClassIO
     {
