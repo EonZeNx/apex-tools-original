@@ -8,12 +8,15 @@ using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
+    /// <summary>
+    /// An <see cref="RTPC_V01"/> file
+    /// <br/> Structure:
+    /// <br/> FourCC
+    /// <br/> Version - <see cref="uint"/>
+    /// <br/> Root container - <see cref="Container"/>
+    /// </summary>
     public class RTPC_V01 : IXmlClassIO
     {
-        /* ROOT
-         * Version : s32
-         */
-
         public MetaInfo Minfo { get; set; } = new (){FileType = "RTPC", Version = 01};
         public SQLiteConnection DbConnection { get; set; }
         

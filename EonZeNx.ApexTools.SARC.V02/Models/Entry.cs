@@ -1,5 +1,4 @@
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Interfaces.Serializable;
@@ -14,7 +13,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
     /// <br/> Path - <see cref="string"/>
     /// <br/> Data offset - <see cref="uint"/>
     /// <br/> Size - <see cref="uint"/>
-    /// <br/> DATA - (Deferred)
+    /// <br/> Data - (Deferred)
     /// </summary>
     public class Entry : IBinarySerializable, IFolderSerializable, IDeferredSerializable
     {

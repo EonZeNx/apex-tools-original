@@ -13,18 +13,18 @@ using UInt32 = EonZeNx.ApexTools.RTPC.V01.Models.Variants.UInt32;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
+    /// <summary>
+    /// A <see cref="Container"/> holding <see cref="Properties"/> and other <see cref="Containers"/>
+    /// <br/> Structure:
+    /// <br/> Name hash - <see cref="int"/>
+    /// <br/> Offset - <see cref="uint"/>
+    /// <br/> Property count - <see cref="ushort"/>
+    /// <br/> Container count - <see cref="ushort"/>
+    /// <br/> Properties[]
+    /// <br/> Containers[]
+    /// </summary>
     public class Container : IBinarySerializable, IXmlSerializable, IDeferredSerializable
     {
-        /* CONTAINER
-         * Name hash : s32
-         * Offset : u32
-         * Property count : u16
-         * Container count : u16
-         * PROPERTIES[]
-         * CONTAINERS[]
-         * NOTE: Can have both properties & other containers
-         */
-        
         public SQLiteConnection DbConnection { get; set; }
         
         public int NameHash { get; set; }
