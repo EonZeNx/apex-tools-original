@@ -1,0 +1,10 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+.idea/
+.idea/.idea.Apex Engine Tools CSharp/
+.idea/.idea.Apex Engine Tools CSharp/.idea/
+.vscode/
