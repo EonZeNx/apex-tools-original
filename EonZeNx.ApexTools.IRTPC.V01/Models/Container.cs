@@ -130,42 +130,30 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
 
             var properties = new List<PropertyVariants>();
             xr.Read();
-            string tag;
-            XmlNodeType nodeType;
-            
+
             while (xr.Read())
             {
-                tag = xr.Name;
-                nodeType = xr.NodeType;
+                var tag = xr.Name;
+                var nodeType = xr.NodeType;
                 
                 if (tag == "Container" && nodeType == XmlNodeType.EndElement) break;
                 if (nodeType != XmlNodeType.Element) continue;
                 
                 if (!xr.HasAttributes) throw new XmlException("Property missing attributes");
                 
-                var propertyType = xr.Name;
-                PropertyVariants property;
-                switch (propertyType)
+                var propertyType = tag;
+                PropertyVariants property = propertyType switch
                 {
-                    case "UInt32":
-                        property = new UInt32(); break;
-                    case "F32":
-                        property = new F32(); break;
-                    case "String":
-                        property = new String(); break;
-                    case "Vec2":
-                        property = new Vec2(); break;
-                    case "Vec3":
-                        property = new Vec3(); break;
-                    case "Vec4":
-                        property = new Vec4(); break;
-                    case "Mat3X4":
-                        property = new Mat3X4(); break;
-                    case "Event":
-                        property = new Event(); break;
-                    default:
-                        property = new UInt32(); break;
-                }
+                    "UInt32" => new UInt32(),
+                    "F32" => new F32(),
+                    "String" => new String(),
+                    "Vec2" => new Vec2(),
+                    "Vec3" => new Vec3(),
+                    "Vec4" => new Vec4(),
+                    "Mat3X4" => new Mat3X4(),
+                    "Event" => new Event(),
+                    _ => new UInt32()
+                };
 
                 property.XmlDeserialize(xr);
                 properties.Add(property);
