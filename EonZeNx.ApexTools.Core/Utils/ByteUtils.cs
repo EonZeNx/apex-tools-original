@@ -70,7 +70,7 @@ namespace EonZeNx.ApexTools.Core.Utils
         {
             if (value.Length < 1) return 0;
 
-            string reversedValue = "";
+            var reversedValue = "";
             for (int i = value.Length - 2; i >= 0; i -= 2)
             {
                 reversedValue += value[i..(i + 2)];
