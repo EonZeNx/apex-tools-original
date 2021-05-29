@@ -234,6 +234,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                 property.BinarySerialize(bw);
             }
             
+            // TODO: On final property in file, fix this to not align
             ByteUtils.Align(bw, 4);
         }
         
