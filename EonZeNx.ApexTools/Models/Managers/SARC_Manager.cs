@@ -71,7 +71,7 @@ namespace EonZeNx.ApexTools.Models.Managers
             sarc.GetMetaInfo().Extension = Extension;
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
-                sarc.BinaryDeserialize(br);
+                sarc.StreamDeserialize(br);
             }
         }
 
@@ -90,7 +90,7 @@ namespace EonZeNx.ApexTools.Models.Managers
         {
             using (var bw = new BinaryWriter(new FileStream($"{ParentPath}{sarc.GetMetaInfo().Extension}", FileMode.Create)))
             {
-                sarc.BinarySerialize(bw);
+                sarc.StreamSerialize(bw);
             }
         }
     }

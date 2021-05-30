@@ -14,7 +14,7 @@ using UInt32 = EonZeNx.ApexTools.IRTPC.V01.Models.Variants.UInt32;
 
 namespace EonZeNx.ApexTools.IRTPC.V01.Models
 {
-    public class Container : IBinarySerializable, IXmlSerializable
+    public class Container : IStreamSerializable, IXmlSerializable
     {
         /* CONTAINER
          * Name hash : s32
@@ -56,7 +56,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
 
         #region Binary Serialization
 
-        public void BinarySerialize(BinaryWriter bw)
+        public void StreamSerialize(BinaryWriter bw)
         {
             bw.Write(NameHash);
             bw.Write(Version01);
@@ -64,11 +64,11 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
             bw.Write(ObjectCount);
             foreach (var property in Properties)
             {
-                property.BinarySerialize(bw);
+                property.StreamSerialize(bw);
             }
         }
 
-        public void BinaryDeserialize(BinaryReader br)
+        public void StreamDeserialize(BinaryReader br)
         {
             Offset = BinaryReaderUtils.Position(br);
             NameHash = br.ReadInt32();
@@ -95,7 +95,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
                     EVariantType.Event => new Event(prop),
                     _ => throw new InvalidEnumArgumentException($"Property type was not a valid variant - {prop.Type}")
                 };
-                Properties[i].BinaryDeserialize(br);
+                Properties[i].StreamDeserialize(br);
             }
             
             SortProperties();

@@ -19,7 +19,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
     /// <br/> Block count - <see cref="uint"/>
     /// <br/> Blocks[]
     /// </summary>
-    public class AAF_V01 : IBinaryClassIO
+    public class AAF_V01 : IStreamClassIo
     {
         public MetaInfo Minfo { get; set; } = new (){FileType = "AAF", Version = 01, Extension = ".ee"};
         public int Version { get; set; }
@@ -39,7 +39,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
         
         #region Binary Serialization
 
-        public void BinarySerialize(BinaryWriter bw)
+        public void StreamSerialize(BinaryWriter bw)
         {
             bw.Write(ByteUtils.ReverseBytes(0x41414600));  // FourCC 'AAF '
             bw.Write((uint) 1);
@@ -58,11 +58,11 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
             foreach (var block in Blocks)
             {
-                block.BinarySerialize(bw);
+                block.StreamSerialize(bw);
             }
         }
 
-        public void BinaryDeserialize(BinaryReader br)
+        public void StreamDeserialize(BinaryReader br)
         {
             var fourCc = br.ReadInt32();
             Version = br.ReadInt32();
@@ -76,7 +76,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             for (int i = 0; i < BlockCount; i++)
             {
                 Blocks[i] = new Block(BlockSize);
-                Blocks[i].BinaryDeserialize(br);
+                Blocks[i].StreamDeserialize(br);
             }
         }
 
@@ -84,21 +84,21 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         #region Converted Binary Serialization
 
-        public void BinaryConvertedSerialize(BinaryWriter bw)
+        public void StreamConvertedSerialize(BinaryWriter bw)
         {
             for (int i = 0; i < BlockCount; i++)
             {
-                Blocks[i].BinaryConvertedSerialize(bw);
+                Blocks[i].StreamConvertedSerialize(bw);
             }
         }
 
-        public void BinaryConvertedDeserialize(BinaryReader br)
+        public void StreamConvertedDeserialize(BinaryReader br)
         {
             var blockList = new List<Block>();
             while (br.BaseStream.Position < br.BaseStream.Length)
             {
                 var block = new Block();
-                block.BinaryConvertedDeserialize(br);
+                block.StreamConvertedDeserialize(br);
                 blockList.Add(block);
             }
 

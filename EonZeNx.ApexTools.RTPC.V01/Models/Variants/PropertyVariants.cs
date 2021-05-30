@@ -5,7 +5,7 @@ using EonZeNx.ApexTools.Core.Interfaces.Serializable;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 {
-    public abstract class PropertyVariants : IBinarySerializable, IXmlSerializable, IDeferredSerializable
+    public abstract class PropertyVariants : IStreamSerializable, IXmlSerializable, IDeferredSerializable
     {
         public abstract SQLiteConnection DbConnection { get; set; }
         public abstract string Name { get; set; }
@@ -19,11 +19,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public abstract void BinarySerializeData(BinaryWriter bw);
+        public abstract void StreamSerializeData(BinaryWriter bw);
 
-        public abstract void BinarySerialize(BinaryWriter bw);
+        public abstract void StreamSerialize(BinaryWriter bw);
 
-        public abstract void BinaryDeserialize(BinaryReader br);
+        public abstract void StreamDeserialize(BinaryReader br);
 
         #endregion
 

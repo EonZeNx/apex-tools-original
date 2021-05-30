@@ -23,7 +23,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
     /// <br/> Properties[]
     /// <br/> Containers[]
     /// </summary>
-    public class Container : IBinarySerializable, IXmlSerializable, IDeferredSerializable
+    public class Container : IStreamSerializable, IXmlSerializable, IDeferredSerializable
     {
         public SQLiteConnection DbConnection { get; set; }
         
@@ -110,7 +110,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                     _ => throw new InvalidEnumArgumentException("Property type was not a valid variant (Unknown type).")
                 };
 
-                Properties[i].BinaryDeserialize(br);
+                Properties[i].StreamDeserialize(br);
             }
 
             SortProperties();
@@ -124,7 +124,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             for (int i = 0; i < ContainerCount; i++)
             {
                 Containers[i] = new Container(DbConnection);
-                Containers[i].BinaryDeserialize(br);
+                Containers[i].StreamDeserialize(br);
             }
 
             SortContainers();
@@ -221,7 +221,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             
             foreach (var property in Properties)
             {
-                property.BinarySerializeData(bw);
+                property.StreamSerializeData(bw);
             }
 
             ByteUtils.Align(bw, 4);
@@ -231,7 +231,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             
             foreach (var property in Properties)
             {
-                property.BinarySerialize(bw);
+                property.StreamSerialize(bw);
             }
             
             ByteUtils.Align(bw, 4);
@@ -243,7 +243,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             
             foreach (var container in Containers)
             {
-                container.BinarySerializeData(bw);
+                container.StreamSerializeData(bw);
             }
 
             DataPos = bw.BaseStream.Position;
@@ -252,13 +252,13 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             
             foreach (var container in Containers)
             {
-                container.BinarySerialize(bw);
+                container.StreamSerialize(bw);
             }
         }
 
         #endregion
 
-        public void BinarySerializeData(BinaryWriter bw)
+        public void StreamSerializeData(BinaryWriter bw)
         {
             
             Offset = bw.BaseStream.Position;
@@ -278,7 +278,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             bw.Seek((int) DataPos, SeekOrigin.Begin);
         }
 
-        public void BinarySerialize(BinaryWriter bw)
+        public void StreamSerialize(BinaryWriter bw)
         {
             bw.Write(NameHash);
             bw.Write((uint) Offset);
@@ -287,7 +287,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         }
 
 
-        public void BinaryDeserialize(BinaryReader br)
+        public void StreamDeserialize(BinaryReader br)
         {
             // Read variables
             NameHash = br.ReadInt32();

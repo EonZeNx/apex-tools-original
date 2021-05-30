@@ -37,7 +37,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public override void BinarySerializeData(BinaryWriter bw)
+        public override void StreamSerializeData(BinaryWriter bw)
         {
             ByteUtils.Align(bw, Alignment);
             Offset = bw.BaseStream.Position;
@@ -45,14 +45,14 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
             bw.Write(Value.Item1);
         }
         
-        public override void BinarySerialize(BinaryWriter bw)
+        public override void StreamSerialize(BinaryWriter bw)
         {
             bw.Write(NameHash);
             bw.Write((uint) Offset);
             bw.Write((byte) VariantType);
         }
         
-        public override void BinaryDeserialize(BinaryReader br)
+        public override void StreamDeserialize(BinaryReader br)
         {
             var dataOffset = BitConverter.ToUInt32(RawData);
             

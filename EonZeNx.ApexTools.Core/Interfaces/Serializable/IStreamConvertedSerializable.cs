@@ -2,14 +2,14 @@
 
 namespace EonZeNx.ApexTools.Core.Interfaces.Serializable
 {
-    public interface IBinarySerializable
+    public interface IStreamConvertedSerializable
     {
         /// <summary>
         /// Mandatory step for writing the final value
         /// </summary>
         /// <param name="bw">BinaryWriter</param>
-        public void BinarySerialize(BinaryWriter bw);
+        public void StreamConvertedSerialize(BinaryWriter bw);
         
-        public void BinaryDeserialize(BinaryReader br);
+        public void StreamConvertedDeserialize(BinaryReader br);
     }
 }

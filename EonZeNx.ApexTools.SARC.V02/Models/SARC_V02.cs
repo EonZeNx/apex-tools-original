@@ -117,7 +117,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
 
         #region Binary Serialization
 
-        public void BinarySerialize(BinaryWriter bw)
+        public void StreamSerialize(BinaryWriter bw)
         {
             bw.Write((uint) 4);
             bw.Write(ByteUtils.ReverseBytes((uint) EFourCc.SARC));
@@ -130,17 +130,17 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
 
             foreach (var entry in Entries)
             {
-                entry.BinarySerializeData(bw);
+                entry.StreamSerializeData(bw);
             }
 
             bw.Seek(16, SeekOrigin.Begin);
             foreach (var entry in Entries)
             {
-                entry.BinarySerialize(bw);
+                entry.StreamSerialize(bw);
             }
         }
 
-        public void BinaryDeserialize(BinaryReader br)
+        public void StreamDeserialize(BinaryReader br)
         {
             HeaderLength = br.ReadUInt32();
             var fourCc = br.ReadUInt32();
@@ -151,7 +151,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
             while (br.BaseStream.Position < 4 + DataOffset)
             {
                 var entry = new Entry();
-                entry.BinaryDeserialize(br);
+                entry.StreamDeserialize(br);
                 entries.Add(entry);
             }
 

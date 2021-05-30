@@ -14,7 +14,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
     /// <br/> FourCC
     /// <br/> Compressed Data : ZLib uncompress Level 6
     /// </summary>
-    public class Block : IBinarySerializable, IBinaryConvertedSerializable
+    public class Block : IStreamSerializable, IStreamConvertedSerializable
     {
         // EWAM / MAWE
         public const uint FourCc = 0x4557414D;
@@ -55,7 +55,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         #region Binary Serialization
 
-        public void BinarySerialize(BinaryWriter bw)
+        public void StreamSerialize(BinaryWriter bw)
         {
             var blockStartPos = (uint) bw.BaseStream.Position;
             bw.Write(CompressedSize - 2);
@@ -66,7 +66,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
             bw.Write(CompressedData[2..]);
         }
 
-        public void BinaryDeserialize(BinaryReader br)
+        public void StreamDeserialize(BinaryReader br)
         {
             DataOffset = br.BaseStream.Position;
             CompressedSize = br.ReadUInt32();
@@ -106,12 +106,12 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         #region Converted Binary Serialiation
 
-        public void BinaryConvertedSerialize(BinaryWriter bw)
+        public void StreamConvertedSerialize(BinaryWriter bw)
         {
             bw.Write(Data);
         }
 
-        public void BinaryConvertedDeserialize(BinaryReader br)
+        public void StreamConvertedDeserialize(BinaryReader br)
         {
             Data = br.ReadBytes((int) BlockSize);
             UncompressedSize = (uint) Data.Length;

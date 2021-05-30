@@ -6,7 +6,7 @@ using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 {
-    public abstract class PropertyVariants: IBinarySerializable, IXmlSerializable
+    public abstract class PropertyVariants: IStreamSerializable, IXmlSerializable
     {
         public abstract SQLiteConnection DbConnection { get; set; }
         public abstract int NameHash { get; set; }
@@ -15,8 +15,8 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         protected abstract EVariantType VariantType { get; set; }
         
         protected abstract long Offset { get; set; }
-        public abstract void BinarySerialize(BinaryWriter bw);
-        public abstract void BinaryDeserialize(BinaryReader br);
+        public abstract void StreamSerialize(BinaryWriter bw);
+        public abstract void StreamDeserialize(BinaryReader br);
         public abstract void XmlSerialize(XmlWriter xw);
         public abstract void XmlDeserialize(XmlReader xr);
     }

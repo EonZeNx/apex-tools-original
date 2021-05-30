@@ -15,7 +15,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
     /// <br/> Size - <see cref="uint"/>
     /// <br/> Data - (Deferred)
     /// </summary>
-    public class Entry : IBinarySerializable, IFolderSerializable, IDeferredSerializable
+    public class Entry : IStreamSerializable, IFolderSerializable, IDeferredSerializable
     {
         public uint PathLength { get; set; }
         public string Path { get; set; }
@@ -57,7 +57,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
         
         #region Binary Serialization
         
-        public void BinarySerializeData(BinaryWriter bw)
+        public void StreamSerializeData(BinaryWriter bw)
         {
             if (IsReference) return;
             
@@ -67,7 +67,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
             ByteUtils.Align(bw, 4, 0x00);
         }
 
-        public void BinarySerialize(BinaryWriter bw)
+        public void StreamSerialize(BinaryWriter bw)
         {
             var pathLengthWithNulls = ByteUtils.Align(PathLength, 4);
             var nulls = new string('\0', (int) (pathLengthWithNulls - PathLength));
@@ -79,7 +79,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
             bw.Write(Size);
         }
 
-        public void BinaryDeserialize(BinaryReader br)
+        public void StreamDeserialize(BinaryReader br)
         {
             PathLength = br.ReadUInt32();
             

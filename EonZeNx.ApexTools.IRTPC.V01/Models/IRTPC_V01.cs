@@ -47,18 +47,18 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
 
         #region Binary Serialization
 
-        public void BinarySerialize(BinaryWriter bw)
+        public void StreamSerialize(BinaryWriter bw)
         {
             bw.Write(Version01);
             bw.Write(Version02);
             bw.Write(ObjectCount);
             foreach (var container in Containers)
             {
-                container.BinarySerialize(bw);
+                container.StreamSerialize(bw);
             }
         }
 
-        public void BinaryDeserialize(BinaryReader br)
+        public void StreamDeserialize(BinaryReader br)
         {
             Offset = BinaryReaderUtils.Position(br);
             Version01 = br.ReadByte();
@@ -69,7 +69,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
             for (int i = 0; i < ObjectCount; i++)
             {
                 Containers[i] = new Container(DbConnection);
-                Containers[i].BinaryDeserialize(br);
+                Containers[i].StreamDeserialize(br);
             }
 
             SortContainers();

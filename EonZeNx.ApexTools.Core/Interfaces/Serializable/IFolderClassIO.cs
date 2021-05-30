@@ -2,7 +2,7 @@
 
 namespace EonZeNx.ApexTools.Core.Interfaces.Serializable
 {
-    public interface IFolderClassIO : IBinarySerializable, IFolderSerializable
+    public interface IFolderClassIO : IStreamSerializable, IFolderSerializable
     {
         MetaInfo GetMetaInfo();
     }

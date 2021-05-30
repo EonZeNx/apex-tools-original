@@ -27,7 +27,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public override void BinarySerialize(BinaryWriter bw)
+        public override void StreamSerialize(BinaryWriter bw)
         {
             bw.Write(NameHash);
             bw.Write((byte) VariantType);
@@ -37,7 +37,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
             }
         }
     
-        public override void BinaryDeserialize(BinaryReader br)
+        public override void StreamDeserialize(BinaryReader br)
         {
             Value = new float[NUM];
             for (int i = 0; i < NUM; i++)

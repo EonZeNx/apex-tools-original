@@ -2,7 +2,7 @@
 
 namespace EonZeNx.ApexTools.Core.Interfaces.Serializable
 {
-    public interface IBinaryClassIO : IBinarySerializable, IBinaryConvertedSerializable
+    public interface IStreamClassIo : IStreamSerializable, IStreamConvertedSerializable
     {
         MetaInfo GetMetaInfo();
     }

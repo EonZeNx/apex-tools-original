@@ -5,9 +5,9 @@ namespace EonZeNx.ApexTools.Core.Interfaces.Serializable
     public interface IDeferredSerializable
     {
         /// <summary>
-        /// If used, treat BinarySerialize as writing the header and BinarySerializeData as writing the data.
+        /// If used, treat StreamSerialize as writing the header and StreamSerializeData as writing the data.
         /// </summary>
         /// <param name="bw"></param>
-        void BinarySerializeData(BinaryWriter bw);
+        void StreamSerializeData(BinaryWriter bw);
     }
 }

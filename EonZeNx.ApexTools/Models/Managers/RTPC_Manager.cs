@@ -59,7 +59,7 @@ namespace EonZeNx.ApexTools.Models.Managers
                     rtpc.DbConnection = connection;
                     using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
                     {
-                        rtpc.BinaryDeserialize(br);
+                        rtpc.StreamDeserialize(br);
                     }
                 }
 
@@ -68,7 +68,7 @@ namespace EonZeNx.ApexTools.Models.Managers
             
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
-                rtpc.BinaryDeserialize(br);
+                rtpc.StreamDeserialize(br);
             }
         }
 
@@ -120,7 +120,7 @@ namespace EonZeNx.ApexTools.Models.Managers
         {
             using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{rtpc.GetMetaInfo().Extension}", FileMode.Create)))
             {
-                rtpc.BinarySerialize(bw);
+                rtpc.StreamSerialize(bw);
             }
         }
     }

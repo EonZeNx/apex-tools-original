@@ -18,7 +18,7 @@ namespace EonZeNx.ApexTools.Models.Managers
         public override string FileType { get; protected set; }
         public override int Version { get; protected set; }
         
-        private IBinaryClassIO aaf { get; set; }
+        private IStreamClassIo aaf { get; set; }
         
         public override void GetClassIO(string path)
         {
@@ -48,7 +48,7 @@ namespace EonZeNx.ApexTools.Models.Managers
             aaf.GetMetaInfo().Extension = Extension;
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
-                aaf.BinaryDeserialize(br);
+                aaf.StreamDeserialize(br);
             }
         }
 
@@ -56,7 +56,7 @@ namespace EonZeNx.ApexTools.Models.Managers
         {
             using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}.sarc", FileMode.Create)))
             {
-                aaf.BinaryConvertedSerialize(bw);
+                aaf.StreamConvertedSerialize(bw);
             }
         }
 
@@ -64,7 +64,7 @@ namespace EonZeNx.ApexTools.Models.Managers
         {
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
             {
-                aaf.BinaryConvertedDeserialize(br);
+                aaf.StreamConvertedDeserialize(br);
             }
         }
 
@@ -72,7 +72,7 @@ namespace EonZeNx.ApexTools.Models.Managers
         {
             using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{aaf.GetMetaInfo().Extension}", FileMode.Create)))
             {
-                aaf.BinarySerialize(bw);
+                aaf.StreamSerialize(bw);
             }
         }
     }
