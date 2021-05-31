@@ -37,19 +37,19 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public override void StreamSerialize(BinaryWriter bw)
+        public override void StreamSerialize(Stream s)
         {
-            bw.Write(NameHash);
-            bw.Write(Value);
-            bw.Write((byte) VariantType);
+            s.Write(NameHash);
+            s.Write(Value);
+            s.Write((byte) VariantType);
         }
         
-        public override void StreamSerializeData(BinaryWriter bw)
+        public override void StreamSerializeData(Stream s)
         {
             return;
         }
         
-        public override void StreamDeserialize(BinaryReader br)
+        public override void StreamDeserialize(Stream s)
         {
             Value = BitConverter.ToSingle(RawData);
             

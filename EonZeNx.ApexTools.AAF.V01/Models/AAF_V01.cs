@@ -39,44 +39,44 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
         
         #region Binary Serialization
 
-        public void StreamSerialize(BinaryWriter bw)
+        public void StreamSerialize(Stream s)
         {
-            bw.Write(ByteUtils.ReverseBytes(0x41414600));  // FourCC 'AAF '
-            bw.Write((uint) 1);
-            bw.Write(Encoding.UTF8.GetBytes("AVALANCHEARCHIVEFORMATISCOOL"));
+            s.Write(ByteUtils.ReverseBytes(0x41414600));  // FourCC 'AAF '
+            s.Write((uint) 1);
+            s.Write(Encoding.UTF8.GetBytes("AVALANCHEARCHIVEFORMATISCOOL"));
 
             var uncompressedSize = (uint) Blocks.Sum(block => block.UncompressedSize);
-            bw.Write(uncompressedSize);
+            s.Write(uncompressedSize);
             
-            bw.Write(
+            s.Write(
                 Blocks.Length == 1
                     ? Blocks[0].BlockSize
                     : Math.Min(Blocks.Max(block => block.BlockSize), Block.MaxBlockSizeSize)
             );
 
-            bw.Write(BlockCount);
+            s.Write(BlockCount);
 
             foreach (var block in Blocks)
             {
-                block.StreamSerialize(bw);
+                block.StreamSerialize(s);
             }
         }
 
-        public void StreamDeserialize(BinaryReader br)
+        public void StreamDeserialize(Stream s)
         {
-            var fourCc = br.ReadInt32();
-            Version = br.ReadInt32();
-            Comment = Encoding.UTF8.GetString(br.ReadBytes(8 + 16 + 4));
+            var fourCc = s.ReadInt32();
+            Version = s.ReadInt32();
+            Comment = Encoding.UTF8.GetString(s.ReadBytes(8 + 16 + 4));
             
-            UncompressedSize = br.ReadUInt32();
-            BlockSize = br.ReadUInt32();
-            BlockCount = br.ReadUInt32();
+            UncompressedSize = s.ReadUInt32();
+            BlockSize = s.ReadUInt32();
+            BlockCount = s.ReadUInt32();
 
             Blocks = new Block[BlockCount];
             for (int i = 0; i < BlockCount; i++)
             {
                 Blocks[i] = new Block(BlockSize);
-                Blocks[i].StreamDeserialize(br);
+                Blocks[i].StreamDeserialize(s);
             }
         }
 
@@ -84,21 +84,21 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         #region Converted Binary Serialization
 
-        public void StreamConvertedSerialize(BinaryWriter bw)
+        public void StreamConvertedSerialize(Stream s)
         {
             for (int i = 0; i < BlockCount; i++)
             {
-                Blocks[i].StreamConvertedSerialize(bw);
+                Blocks[i].StreamConvertedSerialize(s);
             }
         }
 
-        public void StreamConvertedDeserialize(BinaryReader br)
+        public void StreamConvertedDeserialize(Stream s)
         {
             var blockList = new List<Block>();
-            while (br.BaseStream.Position < br.BaseStream.Length)
+            while (s.Position < s.Length)
             {
                 var block = new Block();
-                block.StreamConvertedDeserialize(br);
+                block.StreamConvertedDeserialize(s);
                 blockList.Add(block);
             }
 

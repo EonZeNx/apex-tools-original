@@ -17,11 +17,11 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
         
         public SQLiteConnection DbConnection { get; private set; }
 
-        public Property(BinaryReader br, SQLiteConnection con = null)
+        public Property(Stream s, SQLiteConnection con = null)
         {
-            Offset = BinaryReaderUtils.Position(br);
-            NameHash = br.ReadInt32();
-            Type = (EVariantType) br.ReadByte();
+            Offset = s.Position;
+            NameHash = s.ReadInt32();
+            Type = (EVariantType) s.ReadUByte();
 
             DbConnection = con;
         }

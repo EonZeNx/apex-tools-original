@@ -57,18 +57,18 @@ namespace EonZeNx.ApexTools.Models.Managers
                     connection.Open();
                     
                     irtpc.DbConnection = connection;
-                    using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+                    using (var fr = new FileStream(FullPath, FileMode.Open))
                     {
-                        irtpc.StreamDeserialize(br);
+                        irtpc.StreamDeserialize(fr);
                     }
                 }
 
                 return;
             }
             
-            using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+            using (var fr = new FileStream(FullPath, FileMode.Open))
             {
-                irtpc.StreamDeserialize(br);
+                irtpc.StreamDeserialize(fr);
             }
         }
 
@@ -110,22 +110,20 @@ namespace EonZeNx.ApexTools.Models.Managers
                 Console.WriteLine(e); throw;
             }
 
-            switch (versionInt)
+            irtpc = versionInt switch
             {
-                case 1:
-                    irtpc = new IRTPC_V01(); break;
-                default:
-                    irtpc = new IRTPC_V01(); break;
-            }
-            
+                1 => new IRTPC_V01(),
+                _ => new IRTPC_V01()
+            };
+
             irtpc.XmlDeserialize(xr);
         }
 
         public override void ExportBinary()
         {
-            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{irtpc.GetMetaInfo().Extension}", FileMode.Create)))
+            using (var fw = new FileStream(@$"{ParentPath}\{PathName}{irtpc.GetMetaInfo().Extension}", FileMode.Create))
             {
-                irtpc.StreamSerialize(bw);
+                irtpc.StreamSerialize(fw);
             }
         }
     }

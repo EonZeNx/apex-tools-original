@@ -57,18 +57,18 @@ namespace EonZeNx.ApexTools.Models.Managers
                     connection.Open();
                     
                     rtpc.DbConnection = connection;
-                    using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+                    using (var fr = new FileStream(FullPath, FileMode.Open))
                     {
-                        rtpc.StreamDeserialize(br);
+                        rtpc.StreamDeserialize(fr);
                     }
                 }
 
                 return;
             }
             
-            using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+            using (var fr = new FileStream(FullPath, FileMode.Open))
             {
-                rtpc.StreamDeserialize(br);
+                rtpc.StreamDeserialize(fr);
             }
         }
 
@@ -118,9 +118,9 @@ namespace EonZeNx.ApexTools.Models.Managers
 
         public override void ExportBinary()
         {
-            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{rtpc.GetMetaInfo().Extension}", FileMode.Create)))
+            using (var fw = new FileStream(@$"{ParentPath}\{PathName}{rtpc.GetMetaInfo().Extension}", FileMode.Create))
             {
-                rtpc.StreamSerialize(bw);
+                rtpc.StreamSerialize(fw);
             }
         }
     }

@@ -166,6 +166,22 @@ namespace EonZeNx.ApexTools.Core.Utils
             }
         }
         
+        public static void Align(Stream s, long align, bool isWriter = true, byte fill = 0x50)
+        {
+            if (!isWriter)
+            {
+                s.Seek(Align(s.Position, align), SeekOrigin.Begin);
+                return;
+            }
+            
+            var pos = s.Position;
+            var alignment = Align(pos, align);
+            for (int i = 0; i < alignment - pos; i++)
+            {
+                s.Write(fill);
+            }
+        }
+        
         public static long Align(MemoryStream ms, long offset, long align)
         {
             var preAlign = Align(offset, align);

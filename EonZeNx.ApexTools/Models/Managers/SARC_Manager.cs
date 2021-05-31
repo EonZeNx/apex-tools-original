@@ -69,9 +69,9 @@ namespace EonZeNx.ApexTools.Models.Managers
         public override void LoadBinary()
         {
             sarc.GetMetaInfo().Extension = Extension;
-            using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+            using (var fr = new FileStream(FullPath, FileMode.Open))
             {
-                sarc.StreamDeserialize(br);
+                sarc.StreamDeserialize(fr);
             }
         }
 
@@ -88,9 +88,9 @@ namespace EonZeNx.ApexTools.Models.Managers
 
         public override void ExportBinary()
         {
-            using (var bw = new BinaryWriter(new FileStream($"{ParentPath}{sarc.GetMetaInfo().Extension}", FileMode.Create)))
+            using (var fw = new FileStream($"{ParentPath}{sarc.GetMetaInfo().Extension}", FileMode.Create))
             {
-                sarc.StreamSerialize(bw);
+                sarc.StreamSerialize(fw);
             }
         }
     }

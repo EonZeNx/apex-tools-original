@@ -37,29 +37,29 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public override void StreamSerializeData(BinaryWriter bw)
+        public override void StreamSerializeData(Stream s)
         {
-            ByteUtils.Align(bw, Alignment);
-            Offset = bw.BaseStream.Position;
+            ByteUtils.Align(s, Alignment);
+            Offset = s.Position;
             
-            bw.Write(Value.Item1);
+            s.Write(Value.Item1);
         }
         
-        public override void StreamSerialize(BinaryWriter bw)
+        public override void StreamSerialize(Stream s)
         {
-            bw.Write(NameHash);
-            bw.Write((uint) Offset);
-            bw.Write((byte) VariantType);
+            s.Write(NameHash);
+            s.Write((uint) Offset);
+            s.Write((byte) VariantType);
         }
         
-        public override void StreamDeserialize(BinaryReader br)
+        public override void StreamDeserialize(Stream s)
         {
             var dataOffset = BitConverter.ToUInt32(RawData);
             
-            br.BaseStream.Seek(dataOffset, SeekOrigin.Begin);
+            s.Seek(dataOffset, SeekOrigin.Begin);
             
             // Thanks UnknownMiscreant
-            var oid = ByteUtils.ReverseBytes(br.ReadUInt64());
+            var oid = ByteUtils.ReverseBytes(s.ReadUInt64());
             var userData = (byte)(oid & byte.MaxValue);
             
             Value = (oid, userData);

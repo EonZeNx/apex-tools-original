@@ -41,7 +41,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public override void StreamSerializeData(BinaryWriter bw)
+        public override void StreamSerializeData(Stream s)
         {
             // If value already exists in file, use that offset
             if (StringMap.ContainsKey(Value))
@@ -50,31 +50,31 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
                 return;
             }
             
-            ByteUtils.Align(bw, Alignment);
-            Offset = bw.BaseStream.Position;
+            ByteUtils.Align(s, Alignment);
+            Offset = s.Position;
             StringMap[Value] = Offset;
             
-            bw.Write(Encoding.UTF8.GetBytes(Value));
-            bw.Write((byte) 0x00);
+            s.Write(Encoding.UTF8.GetBytes(Value));
+            s.Write((byte) 0x00);
         }
         
-        public override void StreamSerialize(BinaryWriter bw)
+        public override void StreamSerialize(Stream s)
         {
-            bw.Write(NameHash);
-            bw.Write((uint) Offset);
-            bw.Write((byte) VariantType);
+            s.Write(NameHash);
+            s.Write((uint) Offset);
+            s.Write((byte) VariantType);
         }
         
-        public override void StreamDeserialize(BinaryReader br)
+        public override void StreamDeserialize(Stream s)
         {
             var dataOffset = BitConverter.ToUInt32(RawData);
             
-            br.BaseStream.Seek(dataOffset, SeekOrigin.Begin);
+            s.Seek(dataOffset, SeekOrigin.Begin);
             
             List<byte> byteString = new List<byte>();
             while (true)
             {
-                var thisByte = br.ReadByte();
+                var thisByte = s.ReadUByte();
                 if (thisByte.Equals(0x00)) break;
                 
                 byteString.Add(thisByte);

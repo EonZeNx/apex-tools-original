@@ -57,47 +57,47 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
         
         #region Binary Serialization
         
-        public void StreamSerializeData(BinaryWriter bw)
+        public void StreamSerializeData(Stream s)
         {
             if (IsReference) return;
             
-            DataOffset = (uint) bw.BaseStream.Position;
-            bw.Write(Data);
+            DataOffset = (uint) s.Position;
+            s.Write(Data);
             
-            ByteUtils.Align(bw, 4, 0x00);
+            ByteUtils.Align(s, 4, fill: 0x00);
         }
 
-        public void StreamSerialize(BinaryWriter bw)
+        public void StreamSerialize(Stream s)
         {
             var pathLengthWithNulls = ByteUtils.Align(PathLength, 4);
             var nulls = new string('\0', (int) (pathLengthWithNulls - PathLength));
             
-            bw.Write(pathLengthWithNulls);
-            bw.Write(Encoding.UTF8.GetBytes(Path));
-            bw.Write(Encoding.UTF8.GetBytes(nulls));
-            bw.Write(DataOffset);
-            bw.Write(Size);
+            s.Write(pathLengthWithNulls);
+            s.Write(Encoding.UTF8.GetBytes(Path));
+            s.Write(Encoding.UTF8.GetBytes(nulls));
+            s.Write(DataOffset);
+            s.Write(Size);
         }
 
-        public void StreamDeserialize(BinaryReader br)
+        public void StreamDeserialize(Stream s)
         {
-            PathLength = br.ReadUInt32();
+            PathLength = s.ReadUInt32();
             
-            Path = Encoding.UTF8.GetString(br.ReadBytes((int) PathLength));
+            Path = Encoding.UTF8.GetString(s.ReadBytes((int) PathLength));
             Path = Path.Replace("/", @"\");
             Path = Path.Replace("\0", "");
             
-            DataOffset = br.ReadUInt32();
+            DataOffset = s.ReadUInt32();
             IsReference = DataOffset == 0;
-            Size = br.ReadUInt32();
+            Size = s.ReadUInt32();
 
             if (IsReference) return;
             
-            var originalPosition = br.BaseStream.Position;
-            br.BaseStream.Seek(DataOffset, SeekOrigin.Begin);
+            var originalPosition = s.Position;
+            s.Seek(DataOffset, SeekOrigin.Begin);
 
-            Data = br.ReadBytes((int) Size);
-            br.BaseStream.Seek(originalPosition, SeekOrigin.Begin);
+            Data = s.ReadBytes((int) Size);
+            s.Seek(originalPosition, SeekOrigin.Begin);
         }
 
         #endregion

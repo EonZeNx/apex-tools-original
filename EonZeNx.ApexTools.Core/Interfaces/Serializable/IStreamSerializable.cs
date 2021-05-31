@@ -7,9 +7,9 @@ namespace EonZeNx.ApexTools.Core.Interfaces.Serializable
         /// <summary>
         /// Mandatory step for writing the final value
         /// </summary>
-        /// <param name="bw">BinaryWriter</param>
-        public void StreamSerialize(BinaryWriter bw);
+        /// <param name="s"></param>
+        public void StreamSerialize(Stream s);
         
-        public void StreamDeserialize(BinaryReader br);
+        public void StreamDeserialize(Stream s);
     }
 }

@@ -19,11 +19,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public abstract void StreamSerializeData(BinaryWriter bw);
+        public abstract void StreamSerializeData(Stream s);
 
-        public abstract void StreamSerialize(BinaryWriter bw);
+        public abstract void StreamSerialize(Stream s);
 
-        public abstract void StreamDeserialize(BinaryReader br);
+        public abstract void StreamDeserialize(Stream s);
 
         #endregion
 

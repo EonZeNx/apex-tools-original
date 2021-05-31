@@ -15,8 +15,8 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
         protected abstract EVariantType VariantType { get; set; }
         
         protected abstract long Offset { get; set; }
-        public abstract void StreamSerialize(BinaryWriter bw);
-        public abstract void StreamDeserialize(BinaryReader br);
+        public abstract void StreamSerialize(Stream s);
+        public abstract void StreamDeserialize(Stream s);
         public abstract void XmlSerialize(XmlWriter xw);
         public abstract void XmlDeserialize(XmlReader xr);
     }

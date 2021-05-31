@@ -56,25 +56,25 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
 
         #region Binary Serialization
 
-        public void StreamSerialize(BinaryWriter bw)
+        public void StreamSerialize(Stream s)
         {
-            bw.Write(NameHash);
-            bw.Write(Version01);
-            bw.Write(Version02);
-            bw.Write(ObjectCount);
+            s.Write(NameHash);
+            s.Write(Version01);
+            s.Write(Version02);
+            s.Write(ObjectCount);
             foreach (var property in Properties)
             {
-                property.StreamSerialize(bw);
+                property.StreamSerialize(s);
             }
         }
 
-        public void StreamDeserialize(BinaryReader br)
+        public void StreamDeserialize(Stream s)
         {
-            Offset = BinaryReaderUtils.Position(br);
-            NameHash = br.ReadInt32();
-            Version01 = br.ReadByte();
-            Version02 = br.ReadUInt16();
-            ObjectCount = br.ReadUInt16();
+            Offset = s.Position;
+            NameHash = s.ReadInt32();
+            Version01 = s.ReadUByte();
+            Version02 = s.ReadUInt16();
+            ObjectCount = s.ReadUInt16();
             
             // If valid connection, attempt to dehash
             if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
@@ -82,7 +82,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
             Properties = new PropertyVariants[ObjectCount];
             for (int i = 0; i < ObjectCount; i++)
             {
-                var prop = new Property(br, DbConnection);
+                var prop = new Property(s, DbConnection);
                 Properties[i] = prop.Type switch
                 {
                     EVariantType.UInteger32 => new UInt32(prop),
@@ -95,7 +95,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
                     EVariantType.Event => new Event(prop),
                     _ => throw new InvalidEnumArgumentException($"Property type was not a valid variant - {prop.Type}")
                 };
-                Properties[i].StreamDeserialize(br);
+                Properties[i].StreamDeserialize(s);
             }
             
             SortProperties();

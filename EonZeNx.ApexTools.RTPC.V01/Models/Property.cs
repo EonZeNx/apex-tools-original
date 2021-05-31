@@ -20,12 +20,12 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         
         public SQLiteConnection DbConnection { get; private set; }
 
-        public Property(BinaryReader br, SQLiteConnection con = null)
+        public Property(Stream s, SQLiteConnection con = null)
         {
-            Offset = (uint) BinaryReaderUtils.Position(br);
-            NameHash = br.ReadInt32();
-            RawData = br.ReadBytes(4);
-            Type = (EVariantType) br.ReadByte();
+            Offset = (uint) s.Position;
+            NameHash = s.ReadInt32();
+            RawData = s.ReadBytes(4);
+            Type = (EVariantType) s.ReadSByte();
 
             DbConnection = con;
         }

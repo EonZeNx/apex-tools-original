@@ -117,41 +117,41 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
 
         #region Binary Serialization
 
-        public void StreamSerialize(BinaryWriter bw)
+        public void StreamSerialize(Stream s)
         {
-            bw.Write((uint) 4);
-            bw.Write(ByteUtils.ReverseBytes((uint) EFourCc.SARC));
-            bw.Write((uint) Minfo.Version);
+            s.Write((uint) 4);
+            s.Write(ByteUtils.ReverseBytes((uint) EFourCc.SARC));
+            s.Write((uint) Minfo.Version);
 
             DataOffset = (uint) Entries.Sum(item => item.HeaderSize);
-            bw.Write(DataOffset);
+            s.Write(DataOffset);
             
-            bw.Seek((int) DataOffset, SeekOrigin.Current);
+            s.Seek((int) DataOffset, SeekOrigin.Current);
 
             foreach (var entry in Entries)
             {
-                entry.StreamSerializeData(bw);
+                entry.StreamSerializeData(s);
             }
 
-            bw.Seek(16, SeekOrigin.Begin);
+            s.Seek(16, SeekOrigin.Begin);
             foreach (var entry in Entries)
             {
-                entry.StreamSerialize(bw);
+                entry.StreamSerialize(s);
             }
         }
 
-        public void StreamDeserialize(BinaryReader br)
+        public void StreamDeserialize(Stream s)
         {
-            HeaderLength = br.ReadUInt32();
-            var fourCc = br.ReadUInt32();
-            Version = br.ReadUInt32();
-            DataOffset = br.ReadUInt32();
+            HeaderLength = s.ReadUInt32();
+            var fourCc = s.ReadUInt32();
+            Version = s.ReadUInt32();
+            DataOffset = s.ReadUInt32();
 
             var entries = new List<Entry>();
-            while (br.BaseStream.Position < 4 + DataOffset)
+            while (s.Position < 4 + DataOffset)
             {
                 var entry = new Entry();
-                entry.StreamDeserialize(br);
+                entry.StreamDeserialize(s);
                 entries.Add(entry);
             }
 

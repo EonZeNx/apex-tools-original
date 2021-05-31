@@ -46,33 +46,33 @@ namespace EonZeNx.ApexTools.Models.Managers
         public override void LoadBinary()
         {
             aaf.GetMetaInfo().Extension = Extension;
-            using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+            using (var fr = new FileStream(FullPath, FileMode.Open))
             {
-                aaf.StreamDeserialize(br);
+                aaf.StreamDeserialize(fr);
             }
         }
 
         public override void ExportConverted()
         {
-            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}.sarc", FileMode.Create)))
+            using (var fw = new FileStream(@$"{ParentPath}\{PathName}.sarc", FileMode.Create))
             {
-                aaf.StreamConvertedSerialize(bw);
+                aaf.StreamConvertedSerialize(fw);
             }
         }
 
         public override void LoadConverted()
         {
-            using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
+            using (var fr = new FileStream(FullPath, FileMode.Open))
             {
-                aaf.StreamConvertedDeserialize(br);
+                aaf.StreamConvertedDeserialize(fr);
             }
         }
 
         public override void ExportBinary()
         {
-            using (var bw = new BinaryWriter(new FileStream(@$"{ParentPath}\{PathName}{aaf.GetMetaInfo().Extension}", FileMode.Create)))
+            using (var fw = new FileStream(@$"{ParentPath}\{PathName}{aaf.GetMetaInfo().Extension}", FileMode.Create))
             {
-                aaf.StreamSerialize(bw);
+                aaf.StreamSerialize(fw);
             }
         }
     }

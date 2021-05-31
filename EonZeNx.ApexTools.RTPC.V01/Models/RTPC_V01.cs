@@ -32,26 +32,26 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         #region Binary Serialization
 
-        public void StreamSerialize(BinaryWriter bw)
+        public void StreamSerialize(Stream s)
         {
-            bw.Write(Encoding.UTF8.GetBytes(Minfo.FileType));
-            bw.Write(Version);
+            s.Write(Encoding.UTF8.GetBytes(Minfo.FileType));
+            s.Write(Version);
 
-            var originalOffset = bw.BaseStream.Position;
-            bw.Seek(Container.ContainerHeaderSize, SeekOrigin.Current);
-            Root.StreamSerializeData(bw);
+            var originalOffset = s.Position;
+            s.Seek(Container.ContainerHeaderSize, SeekOrigin.Current);
+            Root.StreamSerializeData(s);
             
-            bw.Seek((int) originalOffset, SeekOrigin.Begin);
-            Root.StreamSerialize(bw);
+            s.Seek((int) originalOffset, SeekOrigin.Begin);
+            Root.StreamSerialize(s);
         }
 
-        public void StreamDeserialize(BinaryReader br)
+        public void StreamDeserialize(Stream s)
         {
-            Offset = BinaryReaderUtils.Position(br);
-            var fourCc = br.ReadInt32();
-            Version = br.ReadInt32();
+            Offset = s.Position;
+            var fourCc = s.ReadInt32();
+            Version = s.ReadInt32();
             Root = new Container(DbConnection);
-            Root.StreamDeserialize(br);
+            Root.StreamDeserialize(s);
         }
 
         #endregion

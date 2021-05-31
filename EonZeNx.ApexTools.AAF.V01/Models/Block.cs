@@ -55,32 +55,32 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         #region Binary Serialization
 
-        public void StreamSerialize(BinaryWriter bw)
+        public void StreamSerialize(Stream s)
         {
-            var blockStartPos = (uint) bw.BaseStream.Position;
-            bw.Write(CompressedSize - 2);
-            bw.Write(UncompressedSize);
+            var blockStartPos = (uint) s.Position;
+            s.Write(CompressedSize - 2);
+            s.Write(UncompressedSize);
             
-            bw.Write(4 + 4 + 4 + 4 + CompressedSize - 2);
-            bw.Write(ByteUtils.ReverseBytes(FourCc));
-            bw.Write(CompressedData[2..]);
+            s.Write(4 + 4 + 4 + 4 + CompressedSize - 2);
+            s.Write(ByteUtils.ReverseBytes(FourCc));
+            s.Write(CompressedData[2..]);
         }
 
-        public void StreamDeserialize(BinaryReader br)
+        public void StreamDeserialize(Stream s)
         {
-            DataOffset = br.BaseStream.Position;
-            CompressedSize = br.ReadUInt32();
-            UncompressedSize = br.ReadUInt32();
+            DataOffset = s.Position;
+            CompressedSize = s.ReadUInt32();
+            UncompressedSize = s.ReadUInt32();
 
-            var nextBlock = br.ReadUInt32() + DataOffset;
-            var fourCc = ByteUtils.ReverseBytes(br.ReadUInt32());
+            var nextBlock = s.ReadUInt32() + DataOffset;
+            var fourCc = ByteUtils.ReverseBytes(s.ReadUInt32());
             
             if (fourCc != FourCc)
             {
-                throw new IOException($"Block four cc was not valid (Pos: {br.BaseStream.Position})");
+                throw new IOException($"Block four cc was not valid (Pos: {s.Position})");
             }
             
-            var compressedBlock = br.ReadBytes((int) CompressedSize);
+            var compressedBlock = s.ReadBytes((int) CompressedSize);
             
             using (var ms = new MemoryStream())
             {
@@ -99,21 +99,21 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
                     "Error in decompression, uncompressed size does not equal uncompressed data length");
             }
 
-            br.BaseStream.Seek(nextBlock, SeekOrigin.Begin);
+            s.Seek(nextBlock, SeekOrigin.Begin);
         }
 
         #endregion
 
         #region Converted Binary Serialiation
 
-        public void StreamConvertedSerialize(BinaryWriter bw)
+        public void StreamConvertedSerialize(Stream s)
         {
-            bw.Write(Data);
+            s.Write(Data);
         }
 
-        public void StreamConvertedDeserialize(BinaryReader br)
+        public void StreamConvertedDeserialize(Stream s)
         {
-            Data = br.ReadBytes((int) BlockSize);
+            Data = s.ReadBytes((int) BlockSize);
             UncompressedSize = (uint) Data.Length;
             BlockSize = UncompressedSize;
             CompressedSize = (uint) CompressedData.Length;

@@ -74,16 +74,16 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         
         #region Binary Load Helpers
 
-        private void BinaryLoadProperties(BinaryReader br)
+        private void BinaryLoadProperties(Stream s)
         {
-            br.BaseStream.Position = Offset;
+            s.Position = Offset;
             PropertyHeaders = new Property[PropertyCount];
             for (int i = 0; i < PropertyCount; i++)
             {
-                PropertyHeaders[i] = new Property(br, DbConnection);
+                PropertyHeaders[i] = new Property(s, DbConnection);
             }
 
-            ContainerHeaderOffset = br.BaseStream.Position;
+            ContainerHeaderOffset = s.Position;
 
             Properties = new PropertyVariants[PropertyCount];
             for (int i = 0; i < PropertyHeaders.Length; i++)
@@ -110,21 +110,21 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                     _ => throw new InvalidEnumArgumentException("Property type was not a valid variant (Unknown type).")
                 };
 
-                Properties[i].StreamDeserialize(br);
+                Properties[i].StreamDeserialize(s);
             }
 
             SortProperties();
         }
 
-        private void BinaryLoadContainers(BinaryReader br)
+        private void BinaryLoadContainers(Stream s)
         {
-            br.BaseStream.Seek(ContainerHeaderOffset, SeekOrigin.Begin);
-            ByteUtils.Align(br, 4);
+            s.Seek(ContainerHeaderOffset, SeekOrigin.Begin);
+            ByteUtils.Align(s, 4);
             Containers = new Container[ContainerCount];
             for (int i = 0; i < ContainerCount; i++)
             {
                 Containers[i] = new Container(DbConnection);
-                Containers[i].StreamDeserialize(br);
+                Containers[i].StreamDeserialize(s);
             }
 
             SortContainers();
@@ -215,95 +215,95 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         #region BinarySerializable Helpers
 
-        private void BinarySerializeProperties(BinaryWriter bw)
+        private void BinarySerializeProperties(Stream s)
         {
-            bw.Seek((int) DataPos, SeekOrigin.Begin);
+            s.Seek((int) DataPos, SeekOrigin.Begin);
             
             foreach (var property in Properties)
             {
-                property.StreamSerializeData(bw);
+                property.StreamSerializeData(s);
             }
 
-            ByteUtils.Align(bw, 4);
-            DataPos = bw.BaseStream.Position;
+            ByteUtils.Align(s, 4);
+            DataPos = s.Position;
 
-            bw.Seek((int) Offset, SeekOrigin.Begin);
+            s.Seek((int) Offset, SeekOrigin.Begin);
             
             foreach (var property in Properties)
             {
-                property.StreamSerialize(bw);
+                property.StreamSerialize(s);
             }
             
             // TODO: On final property in file, fix this to not align
-            ByteUtils.Align(bw, 4);
+            ByteUtils.Align(s, 4);
         }
         
-        private void BinarySerializeContainers(BinaryWriter bw)
+        private void BinarySerializeContainers(Stream s)
         {
-            bw.Seek((int) DataPos, SeekOrigin.Begin);
+            s.Seek((int) DataPos, SeekOrigin.Begin);
             
             foreach (var container in Containers)
             {
-                container.StreamSerializeData(bw);
+                container.StreamSerializeData(s);
             }
 
-            DataPos = bw.BaseStream.Position;
-            bw.Seek((int) ContainerHeaderStart, SeekOrigin.Begin);
-            ByteUtils.Align(bw, 4);
+            DataPos = s.Position;
+            s.Seek((int) ContainerHeaderStart, SeekOrigin.Begin);
+            ByteUtils.Align(s, 4);
             
             foreach (var container in Containers)
             {
-                container.StreamSerialize(bw);
+                container.StreamSerialize(s);
             }
         }
 
         #endregion
 
-        public void StreamSerializeData(BinaryWriter bw)
+        public void StreamSerializeData(Stream s)
         {
             
-            Offset = bw.BaseStream.Position;
+            Offset = s.Position;
             ContainerHeaderStart = ByteUtils.Align(Offset + PropertyCount * PropertyHeaderSize, 4);
             DataPos = ContainerHeaderStart + ContainerCount * ContainerHeaderSize;
 
             if (Properties.Length > 0)
             {
-                BinarySerializeProperties(bw);
+                BinarySerializeProperties(s);
             }
 
             if (Containers.Length > 0)
             {
-                BinarySerializeContainers(bw);
+                BinarySerializeContainers(s);
             }
 
-            bw.Seek((int) DataPos, SeekOrigin.Begin);
+            s.Seek((int) DataPos, SeekOrigin.Begin);
         }
 
-        public void StreamSerialize(BinaryWriter bw)
+        public void StreamSerialize(Stream s)
         {
-            bw.Write(NameHash);
-            bw.Write((uint) Offset);
-            bw.Write(PropertyCount);
-            bw.Write(ContainerCount);
+            s.Write(NameHash);
+            s.Write((uint) Offset);
+            s.Write(PropertyCount);
+            s.Write(ContainerCount);
         }
 
 
-        public void StreamDeserialize(BinaryReader br)
+        public void StreamDeserialize(Stream s)
         {
             // Read variables
-            NameHash = br.ReadInt32();
-            Offset = br.ReadUInt32();
-            PropertyCount = br.ReadUInt16();
-            ContainerCount = br.ReadUInt16();
+            NameHash = s.ReadInt32();
+            Offset = s.ReadUInt32();
+            PropertyCount = s.ReadUInt16();
+            ContainerCount = s.ReadUInt16();
             
             // If valid connection, attempt to dehash
             if (DbConnection != null) Name = HashUtils.Lookup(DbConnection, NameHash);
 
             // Read properties and sub-containers
-            var originalPosition = br.BaseStream.Position;
-            BinaryLoadProperties(br);
-            BinaryLoadContainers(br);
-            br.BaseStream.Seek(originalPosition, SeekOrigin.Begin);
+            var originalPosition = s.Position;
+            BinaryLoadProperties(s);
+            BinaryLoadContainers(s);
+            s.Seek(originalPosition, SeekOrigin.Begin);
         }
 
         #endregion

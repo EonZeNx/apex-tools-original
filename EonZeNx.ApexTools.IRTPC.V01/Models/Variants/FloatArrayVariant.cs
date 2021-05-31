@@ -27,22 +27,22 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public override void StreamSerialize(BinaryWriter bw)
+        public override void StreamSerialize(Stream s)
         {
-            bw.Write(NameHash);
-            bw.Write((byte) VariantType);
+            s.Write(NameHash);
+            s.Write((byte) VariantType);
             foreach (var val in Value)
             {
-                bw.Write(val);
+                s.Write(val);
             }
         }
     
-        public override void StreamDeserialize(BinaryReader br)
+        public override void StreamDeserialize(Stream s)
         {
             Value = new float[NUM];
             for (int i = 0; i < NUM; i++)
             {
-                Value[i] = br.ReadSingle();
+                Value[i] = s.ReadSingle();
             }
             
             // If valid connection, attempt to dehash

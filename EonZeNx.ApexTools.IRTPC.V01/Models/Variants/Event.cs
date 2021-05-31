@@ -26,26 +26,26 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models.Variants
 
         #region Binary Serialization
 
-        public override void StreamSerialize(BinaryWriter bw)
+        public override void StreamSerialize(Stream s)
         {
-            bw.Write(NameHash);
-            bw.Write((byte) VariantType);
-            bw.Write((uint) Value.Length);
+            s.Write(NameHash);
+            s.Write((byte) VariantType);
+            s.Write((uint) Value.Length);
             for (int i = 0; i < Value.Length; i++)
             {
-                bw.Write(Value[i].Item1);
-                bw.Write(Value[i].Item2);
+                s.Write(Value[i].Item1);
+                s.Write(Value[i].Item2);
             }
         }
         
-        public override void StreamDeserialize(BinaryReader br)
+        public override void StreamDeserialize(Stream s)
         {
-            var length = br.ReadUInt32();
+            var length = s.ReadUInt32();
             Value = new (uint, uint)[length];
             for (int i = 0; i < length; i++)
             {
-                var firstEventHalf = br.ReadUInt32();
-                var secondEventHalf = br.ReadUInt32();
+                var firstEventHalf = s.ReadUInt32();
+                var secondEventHalf = s.ReadUInt32();
                 Value[i] = (firstEventHalf, secondEventHalf);
             }
             
