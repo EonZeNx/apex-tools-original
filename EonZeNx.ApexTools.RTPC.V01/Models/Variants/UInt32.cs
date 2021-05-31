@@ -92,16 +92,18 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models.Variants
         public override void XmlDeserialize(XmlReader xr)
         {
             NameHash = XmlUtils.ReadNameIfValid(xr);
-            var rawValue = xr.ReadString();
+            var valueHash = XmlUtils.GetAttribute(xr, "Hash");
+            var rawValue = xr.ReadElementContentAsString();
             
-            if (XmlUtils.GetAttribute(xr, "Hash").Length > 0)
+            if (string.IsNullOrEmpty(valueHash))
             {
-                LookupValue = rawValue;
-                Value = (uint) HashUtils.HashJenkinsL3(LookupValue);
+                Value = uint.Parse(rawValue);
             }
             else
             {
-                Value = uint.Parse(rawValue);
+                // Do this instead of error catching and throwing, it's much faster
+                LookupValue = rawValue;
+                Value = (uint) HashUtils.HashJenkinsL3(LookupValue);
             }
         }
 

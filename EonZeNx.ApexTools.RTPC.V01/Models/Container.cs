@@ -234,6 +234,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                 property.StreamSerialize(bw);
             }
             
+            // TODO: On final property in file, fix this to not align
             ByteUtils.Align(bw, 4);
         }
         
@@ -335,8 +336,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
         public void XmlDeserialize(XmlReader xr)
         {
-            var nameHash = XmlUtils.GetAttribute(xr, "NameHash");
-            NameHash = ByteUtils.HexToInt(nameHash);
+            NameHash = XmlUtils.ReadNameIfValid(xr);
 
             XmlLoadProperties(xr);
             XmlLoadContainers(xr);

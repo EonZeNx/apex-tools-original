@@ -16,10 +16,8 @@ namespace EonZeNx.ApexTools.Core.Utils
         public static string GetAttribute(XmlReader xr, string attribute)
         {
             if (!xr.HasAttributes) throw new XmlException("Missing attributes");
-            
-            var attributeValue = xr.GetAttribute(attribute);
 
-            return attributeValue;
+            return xr.GetAttribute(attribute) ?? "";
         }
 
         public static void WriteNameOrNameHash(XmlWriter xw, int nameHash, string name = "")
@@ -37,12 +35,9 @@ namespace EonZeNx.ApexTools.Core.Utils
         public static int ReadNameIfValid(XmlReader xr)
         {
             var name = GetAttribute(xr, "Name");
-            if (name == null)
-            {
-                return ByteUtils.HexToInt(GetAttribute(xr, "NameHash"));
-            }
-            
-            return HashUtils.HashJenkinsL3(Encoding.UTF8.GetBytes(name));
+            return name == ""
+                ? ByteUtils.HexToInt(GetAttribute(xr, "NameHash"))
+                : HashUtils.HashJenkinsL3(Encoding.UTF8.GetBytes(name));
         }
     }
 }
