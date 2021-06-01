@@ -25,7 +25,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             Offset = (uint) s.Position;
             NameHash = s.ReadInt32();
             RawData = s.ReadBytes(4);
-            Type = (EVariantType) s.ReadSByte();
+            Type = (EVariantType) s.ReadUByte();
 
             DbConnection = con;
         }

@@ -119,7 +119,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         private void BinaryLoadContainers(Stream s)
         {
             s.Seek(ContainerHeaderOffset, SeekOrigin.Begin);
-            ByteUtils.Align(s, 4);
+            ByteUtils.Align(s, 4, isWriter: false);
             Containers = new Container[ContainerCount];
             for (int i = 0; i < ContainerCount; i++)
             {
