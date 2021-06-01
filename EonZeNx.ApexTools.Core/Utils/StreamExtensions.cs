@@ -41,6 +41,7 @@ namespace EonZeNx.ApexTools.Core.Utils
         
         public static void Write(this Stream s, sbyte value)
         {
+            // TODO: Write(Stream, sbyte) probably wrong? Look into this if needed in the future
             s.Write(BitConverter.GetBytes(value));
         }
 
@@ -65,7 +66,7 @@ namespace EonZeNx.ApexTools.Core.Utils
 
         public static void Write(this Stream s, byte value)
         {
-            s.Write(BitConverter.GetBytes(value));
+            s.WriteByte(value);
         }
 
         #endregion
