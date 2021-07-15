@@ -58,7 +58,8 @@ namespace EonZeNx.ApexTools
         {
             var filepaths = args
                 .Where(path => File.Exists(path) || Directory.Exists(path))
-                .Where(path => !path.Contains(".exe")).ToArray();
+                // .Where(path => !path.Contains(".exe"))
+                .ToArray();
 
             return filepaths;
         }

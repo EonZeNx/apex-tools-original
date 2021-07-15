@@ -241,7 +241,7 @@ namespace EonZeNx.ApexTools.Core.Refresh
         {
             var targetIsValid = File.Exists(Target);
 
-            if (targetIsValid) return false;
+            if (targetIsValid) return true;
             
             Result = new StepResult(EStepResult.Error, $"Path not found. '{Target}'");
             return false;
@@ -250,7 +250,7 @@ namespace EonZeNx.ApexTools.Core.Refresh
 
         public override StepResult Execute()
         {
-            Result = new StepResult();
+            Result = new StepResult(EStepResult.Success, "OK");
 
             if (!IsValid()) return Result;
 

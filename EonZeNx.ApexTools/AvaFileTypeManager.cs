@@ -37,7 +37,7 @@ namespace EonZeNx.ApexTools
                 var ext = Path.GetExtension(path) ?? path;
                 
                 Console.WriteLine($"[{i}/{Paths.Length}] Processing '{path}'");
-                var step = new MoveStep(path, Path.Combine(dir, $"{fnWoExt}_test{ext}"));
+                var step = new LaunchStep(path, "");
 
                 var result = step.Execute();
                 Console.Write($"{result.Result.ToString()}: {result.Message}");
