@@ -28,7 +28,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
         public string FileListName { get; set; } = "@files";
         public string[] Ignore { get; set; }
 
-        public MetaInfo Minfo = new() {FileType = "SARC", Version = 2};
+        public MetaInfo Minfo = new() {FileType = "Sarc", Version = 2};
         
         
         public MetaInfo GetMetaInfo()
@@ -120,7 +120,7 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
         public void BinarySerialize(BinaryWriter bw)
         {
             bw.Write((uint) 4);
-            bw.Write(ByteUtils.ReverseBytes((uint) EFourCc.SARC));
+            bw.Write(ByteUtils.ReverseBytes((uint) EFourCc.Sarc));
             bw.Write((uint) Minfo.Version);
 
             DataOffset = (uint) Entries.Sum(item => item.HeaderSize);

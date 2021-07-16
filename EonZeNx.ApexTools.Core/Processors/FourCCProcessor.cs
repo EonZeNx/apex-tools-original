@@ -8,25 +8,25 @@ namespace EonZeNx.ApexTools.Core.Processors
 {
     public enum EFourCc
     {
-        RTPC = 0x52545043,
-        IRTPC = 0x0,
-        AAF = 0x41414600,
-        SARC = 0x53415243,
-        ADF = 0x20464441,
-        TAB = 0x54414200,
-        XML = 0x3F786D6C
+        Rtpc = 0x52545043,
+        Irtpc = 0x0,
+        Aaf = 0x41414600,
+        Sarc = 0x53415243,
+        Adf = 0x20464441,
+        Tab = 0x54414200,
+        Xml = 0x3F786D6C
     }
     
     public static class FourCCProcessor
     {
         public static readonly Dictionary<int, EFourCc> CharacterCodes = new()
         {
-            {0x52545043, EFourCc.RTPC},
-            {0x20464441, EFourCc.ADF},
-            {0x53415243, EFourCc.SARC},
-            {0x41414600, EFourCc.AAF},
-            {0x54414200, EFourCc.TAB},
-            {0x3F786D6C, EFourCc.XML},
+            {0x52545043, EFourCc.Rtpc},
+            {0x20464441, EFourCc.Adf},
+            {0x53415243, EFourCc.Sarc},
+            {0x41414600, EFourCc.Aaf},
+            {0x54414200, EFourCc.Tab},
+            {0x3F786D6C, EFourCc.Xml},
         };
         
         public static bool IsSupportedCharacterCode(int input)
@@ -52,7 +52,7 @@ namespace EonZeNx.ApexTools.Core.Processors
                 }
             }
 
-            return EFourCc.IRTPC;
+            return EFourCc.Irtpc;
         }
 
         public static byte[] GetFirst16Bytes(string filepath)

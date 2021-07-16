@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Transactions;
 
 namespace EonZeNx.ApexTools.Core.Refresh
 {
@@ -33,7 +34,7 @@ namespace EonZeNx.ApexTools.Core.Refresh
     /// <summary>
     /// Represents the result of a step execution.
     /// </summary>
-    public struct StepResult
+    public record StepResult
     {
         public EStepResult Result { get; set; }
         public string Message { get; set; }
@@ -98,7 +99,7 @@ namespace EonZeNx.ApexTools.Core.Refresh
         
         public override StepResult Execute()
         {
-            Result = new StepResult(EStepResult.Success, "OK");
+            Result = new StepResult();
             
             if (!IsValid()) return Result;
 
@@ -175,7 +176,7 @@ namespace EonZeNx.ApexTools.Core.Refresh
         
         public override StepResult Execute()
         {
-            Result = new StepResult(EStepResult.Success, "OK");
+            Result = new StepResult();
             
             if (!IsValid()) return Result;
             
@@ -243,20 +244,59 @@ namespace EonZeNx.ApexTools.Core.Refresh
 
             if (targetIsValid) return true;
             
-            Result = new StepResult(EStepResult.Error, $"Path not found. '{Target}'");
+            Result = new StepResult(EStepResult.Error, $"Path not found '{Target}'");
             return false;
 
         }
 
         public override StepResult Execute()
         {
-            Result = new StepResult(EStepResult.Success, "OK");
+            Result = new StepResult();
 
             if (!IsValid()) return Result;
 
             Process.Start(Target, Additional);
 
             return Result;
+        }
+    }
+
+    public class ProcessStep : Step, ISubStep
+    {
+        public bool DstIsDirectory;
+        
+        public ProcessStep(string target, string additional) : base(target, additional) { }
+
+        public override bool IsValid()
+        {
+            var targetIsValid = File.Exists(Target) || Directory.Exists(Target);
+
+            if (targetIsValid) return true;
+            
+            Result = new StepResult(EStepResult.Error, $"Path not found '{Target}'");
+            return false;
+        }
+        
+        public override StepResult Execute()
+        {
+            Result = new StepResult();
+            
+            if (!IsValid()) return Result;
+            DstIsDirectory = !Path.HasExtension(Additional) && !File.Exists(Additional);
+            if (DstIsDirectory)
+            {
+                // Is a directory
+                Directory.CreateDirectory(Additional);
+            }
+            
+            // TODO: Begin refining file types and versions here
+
+            return Result;
+        }
+        
+        public StepResult SubStep(string[] paths)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

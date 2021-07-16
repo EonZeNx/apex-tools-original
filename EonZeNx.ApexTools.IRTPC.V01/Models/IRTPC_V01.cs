@@ -18,7 +18,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Models
          * Object count : u16
          */
 
-        public MetaInfo Minfo { get; set; } = new (){FileType = "IRTPC", Version = 01};
+        public MetaInfo Minfo { get; set; } = new (){FileType = "Irtpc", Version = 01};
         public SQLiteConnection DbConnection { get; set; }
         
         protected long Offset { get; private set; }
