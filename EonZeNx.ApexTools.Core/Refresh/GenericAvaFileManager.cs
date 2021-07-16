@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using EonZeNx.ApexTools.Core.Processors;
+using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 
 namespace EonZeNx.ApexTools.Core.Refresh
 {
@@ -37,9 +38,9 @@ namespace EonZeNx.ApexTools.Core.Refresh
             return GetManagerInfo(priorInfo);
         }
 
-        protected abstract StepResult ImportBinary();
-        protected abstract StepResult ExportConverted();
-        protected abstract StepResult ImportConverted();
-        protected abstract StepResult ExportBinary();
+        protected abstract StepResult BinaryDeserialize();
+        protected abstract StepResult ConvertedSerialize();
+        protected abstract StepResult ConvertedDeserialize();
+        protected abstract StepResult BinarySerialize();
     }
 }

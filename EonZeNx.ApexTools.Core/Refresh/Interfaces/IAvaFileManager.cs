@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using EonZeNx.ApexTools.Core.Processors;
 
-namespace EonZeNx.ApexTools.Core.Refresh
+namespace EonZeNx.ApexTools.Core.Refresh.Interfaces
 {
     public interface IAvaFileManager
     {
