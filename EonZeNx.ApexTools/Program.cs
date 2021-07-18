@@ -80,7 +80,7 @@ namespace EonZeNx.ApexTools
             var filepaths = FilterFilepaths(args);
             if (filepaths.Length == 0) Close("No valid paths detected. Double check the paths used.");
             
-            var manager = new AvaFileTypeManager(filepaths);
+            var manager = new AvaMultiFileProcessor(filepaths);
             manager.ProcessPaths();
             Close();
         }

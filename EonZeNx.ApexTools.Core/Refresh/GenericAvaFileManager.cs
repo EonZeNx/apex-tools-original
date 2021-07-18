@@ -1,46 +1,43 @@
-using System;
-using System.Collections.Generic;
+using System.IO;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 
 namespace EonZeNx.ApexTools.Core.Refresh
 {
-    public abstract class GenericAvaFileManager : IAvaFileManager, IAvaFileManagerStackable
+    public record HistoryInstance
     {
-        public EFourCc FourCc { get; }
-        public int Version { get; }
-        public string Path { get; set; }
-        public IAvaFileManagerStackable ParentManager { get; set; }
+        public EFourCc FourCc;
+        public int Version;
 
-
-        public GenericAvaFileManager(EFourCc fourCc, int version, string path = "", IAvaFileManagerStackable parentManager = null)
+        public HistoryInstance(EFourCc fourCc, int version)
         {
             FourCc = fourCc;
             Version = version;
-            Path = path;
-            ParentManager = parentManager;
         }
+    }
+    
+    public abstract class GenericAvaFileManager : IAvaFileManager
+    {
+        #region Interface Functions
 
-
-        public abstract StepResult Process();
+        public abstract void Deserialize(string path);
         
-        public Stack<Tuple<EFourCc, int>> GetManagerInfo(Stack<Tuple<EFourCc, int>> priorInfo)
-        {
-            priorInfo.Push(new Tuple<EFourCc, int>(FourCc, Version));
-
-            return ParentManager == null ? priorInfo : ParentManager.GetManagerInfo(priorInfo);
-        }
+        public abstract void Deserialize(byte[] contents);
         
-        public Stack<Tuple<EFourCc, int>> GetManagerInfo()
-        {
-            var priorInfo = new Stack<Tuple<EFourCc, int>>();
+        public abstract void Export(string path, HistoryInstance[] history);
+        
+        public abstract byte[] Export();
 
-            return GetManagerInfo(priorInfo);
-        }
+        #endregion
+        
+        #region Abstract Functions
 
-        protected abstract StepResult BinaryDeserialize();
-        protected abstract StepResult ConvertedSerialize();
-        protected abstract StepResult ConvertedDeserialize();
-        protected abstract StepResult BinarySerialize();
+        protected abstract void DeserializeBinary();
+        protected abstract void DeserializeConverted();
+        
+        protected abstract void ExportBinary();
+        protected abstract void ExportConverted();
+
+        #endregion
     }
 }

@@ -261,15 +261,17 @@ namespace EonZeNx.ApexTools.Core.Refresh
         }
     }
 
-    public class ProcessStep : Step, ISubStep
+    public class ProcessInfo : Step, ISubStep
     {
         public bool DstIsDirectory;
+        public string SafeDst;
         
-        public ProcessStep(string target, string additional) : base(target, additional) { }
+        public ProcessInfo(string target, string additional) : base(target, additional) { }
 
         public override bool IsValid()
         {
             var targetIsValid = File.Exists(Target) || Directory.Exists(Target);
+            DstIsDirectory = !Path.HasExtension(Additional);
 
             if (targetIsValid) return true;
             
@@ -280,16 +282,13 @@ namespace EonZeNx.ApexTools.Core.Refresh
         public override StepResult Execute()
         {
             Result = new StepResult();
-            
+
             if (!IsValid()) return Result;
-            DstIsDirectory = !Path.HasExtension(Additional) && !File.Exists(Additional);
-            if (DstIsDirectory)
-            {
-                // Is a directory
-                Directory.CreateDirectory(Additional);
-            }
             
-            // TODO: Begin refining file types and versions here
+            var dstDirectory = DstIsDirectory ? Additional : Path.GetDirectoryName(Additional);
+            if (!Directory.Exists(dstDirectory)) Directory.CreateDirectory(Additional);
+
+            SafeDst = DstIsDirectory ? Path.Combine(Additional, Path.GetFileName(Target)) : Additional;
 
             return Result;
         }

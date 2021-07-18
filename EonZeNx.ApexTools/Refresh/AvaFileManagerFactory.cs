@@ -10,39 +10,38 @@ namespace EonZeNx.ApexTools.Refresh
     public class AvaFileManagerFactory
     {
         private string Path { get; }
+        private EFourCc FourCc { get; set; }
+        private int Version { get; set; }
         
         
         public AvaFileManagerFactory(string path)
         {
             Path = path;
         }
-
-
-        private IAvaFileManager RtpcFileManager()
+        
+        public AvaFileManagerFactory(EFourCc fourCc, int version)
         {
-            int version;
-            using (var br = new BinaryReader(new FileStream(Path, FileMode.Open)))
-            {
-                version = br.ReadByte();
-            }
+            FourCc = fourCc;
+            Version = version;
+        }
 
-            return version switch
+
+        private IAvaFileManager BuildRtpcFileManager()
+        {
+            return Version switch
             {
-                1 => new AvaRtpcV1Manager(),
-                _ => throw new NotImplementedException($"Version not supported: '{version}'")
+                1 => new RtpcV1Manager(),
+                _ => throw new NotImplementedException($"Version not supported: '{Version}'")
             };
         }
-        
-        
-        public IAvaFileManager GetAvaFileManager()
+
+        public IAvaFileManager Build()
         {
-            var fourCc = FourCCProcessor.GetCharacterCode(Path);
-            
             // Factory for AvaFileManager
-            switch (fourCc)
+            switch (FourCc)
             {
                 case EFourCc.Rtpc:
-                    return RtpcFileManager();
+                    return BuildRtpcFileManager();
                 case EFourCc.Irtpc:
                 case EFourCc.Aaf:
                 case EFourCc.Sarc:
@@ -50,8 +49,16 @@ namespace EonZeNx.ApexTools.Refresh
                 case EFourCc.Tab:
                 case EFourCc.Xml:
                 default:
-                    throw new NotImplementedException($"EFourCc not supported: '{fourCc}'");
+                    throw new NotImplementedException($"EFourCc not supported: '{FourCc}'");
             }
+        }
+        
+        public IAvaFileManager BuildFromPath()
+        {
+            FourCc = FilePreProcessor.GetCharacterCode(Path);
+            Version = FilePreProcessor.GetVersion(Path, FourCc);
+
+            return Build();
         }
     }
 }

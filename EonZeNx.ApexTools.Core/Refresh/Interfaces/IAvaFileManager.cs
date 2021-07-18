@@ -1,15 +1,13 @@
-using System;
-using System.Collections.Generic;
-using EonZeNx.ApexTools.Core.Processors;
+using System.IO;
 
 namespace EonZeNx.ApexTools.Core.Refresh.Interfaces
 {
     public interface IAvaFileManager
     {
-        EFourCc FourCc { get; }
-        int Version { get; }
-        
-        StepResult Process();
-        Stack<Tuple<EFourCc, int>> GetManagerInfo();
+        void Deserialize(string path);
+        void Deserialize(byte[] contents);
+
+        void Export(string path, HistoryInstance[] history);
+        byte[] Export();
     }
 }

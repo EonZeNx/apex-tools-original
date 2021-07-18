@@ -17,7 +17,7 @@ namespace EonZeNx.ApexTools.Core.Processors
         Xml = 0x3F786D6C
     }
     
-    public static class FourCCProcessor
+    public static class FilePreProcessor
     {
         public static readonly Dictionary<int, EFourCc> CharacterCodes = new()
         {
@@ -67,6 +67,19 @@ namespace EonZeNx.ApexTools.Core.Processors
         {
             var bytes = GetFirst16Bytes(filepath);
             return ValidCharacterCode(bytes);
+        }
+
+
+        public static int GetVersion(string path, EFourCc fourCc)
+        {
+            // TODO: Get version from file
+            return 0;
+        }
+        
+        public static int GetVersion(byte[] block, EFourCc fourCc)
+        {
+            // TODO: Get version from block
+            return 0;
         }
     }
 }
