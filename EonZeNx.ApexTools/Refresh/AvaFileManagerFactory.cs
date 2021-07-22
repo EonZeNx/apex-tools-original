@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Xml;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
@@ -26,7 +27,17 @@ namespace EonZeNx.ApexTools.Refresh
         }
 
 
-        private IAvaFileManager BuildRtpcFileManager()
+        public GenericAvaFileManager XmlLoad(string path)
+        {
+            // TODO: Fix this
+            var xr = XmlReader.Create(new FileStream(path, FileMode.Open));
+            xr.ReadStartElement("AvaFile");
+            xr.ReadStartElement("History");
+
+            return BuildRtpcFileManager();
+        }
+        
+        private GenericAvaFileManager BuildRtpcFileManager()
         {
             return Version switch
             {
@@ -35,8 +46,14 @@ namespace EonZeNx.ApexTools.Refresh
             };
         }
 
-        public IAvaFileManager Build()
+        public GenericAvaFileManager Build()
         {
+            if (!string.IsNullOrEmpty(Path))
+            {
+                FourCc = FilePreProcessor.GetCharacterCode(Path);
+                Version = FilePreProcessor.GetVersion(Path, FourCc);
+            }
+            
             // Factory for AvaFileManager
             switch (FourCc)
             {
@@ -48,17 +65,10 @@ namespace EonZeNx.ApexTools.Refresh
                 case EFourCc.Adf:
                 case EFourCc.Tab:
                 case EFourCc.Xml:
+                    return XmlLoad(Path);
                 default:
                     throw new NotImplementedException($"EFourCc not supported: '{FourCc}'");
             }
-        }
-        
-        public IAvaFileManager BuildFromPath()
-        {
-            FourCc = FilePreProcessor.GetCharacterCode(Path);
-            Version = FilePreProcessor.GetVersion(Path, FourCc);
-
-            return Build();
         }
     }
 }

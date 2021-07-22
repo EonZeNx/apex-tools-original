@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.Core.Processors
 {
@@ -17,17 +16,16 @@ namespace EonZeNx.ApexTools.Core.Processors
         Xml = 0x3F786D6C
     }
     
+    
     public static class FilePreProcessor
     {
-        public static readonly Dictionary<int, EFourCc> CharacterCodes = new()
-        {
-            {0x52545043, EFourCc.Rtpc},
-            {0x20464441, EFourCc.Adf},
-            {0x53415243, EFourCc.Sarc},
-            {0x41414600, EFourCc.Aaf},
-            {0x54414200, EFourCc.Tab},
-            {0x3F786D6C, EFourCc.Xml},
-        };
+        public static readonly Dictionary<int, EFourCc> CharacterCodes = Enum.GetValues<EFourCc>()
+            .ToArray()
+            .ToDictionary(val => (int) val, val => val);
+
+        public static readonly Dictionary<string, EFourCc> StrToFourCc = Enum.GetValues<EFourCc>()
+            .ToArray()
+            .ToDictionary(val => val.ToString(), val => val);
         
         public static bool IsSupportedCharacterCode(int input)
         {
@@ -37,7 +35,7 @@ namespace EonZeNx.ApexTools.Core.Processors
 
         public static EFourCc ValidCharacterCode(byte[] input)
         {
-            for (var i = 4; i <= input.Length; i += 4)
+            for (var i = 4; i <= input.Length; i += 1)
             {
                 var lastI = i - 4;
                 var bytes = input[lastI..i];
@@ -72,14 +70,51 @@ namespace EonZeNx.ApexTools.Core.Processors
 
         public static int GetVersion(string path, EFourCc fourCc)
         {
-            // TODO: Get version from file
-            return 0;
+            return GetVersion(GetFirst16Bytes(path), fourCc);
         }
         
         public static int GetVersion(byte[] block, EFourCc fourCc)
         {
-            // TODO: Get version from block
-            return 0;
+            return fourCc switch
+            {
+                EFourCc.Rtpc => GetRtpcVersion(block),
+                EFourCc.Irtpc => GetIrtpcVersion(block),
+                EFourCc.Aaf => GetAafVersion(block),
+                EFourCc.Sarc => GetSarcVersion(block),
+                EFourCc.Adf => throw new ArgumentOutOfRangeException(nameof(fourCc), fourCc, null),
+                EFourCc.Tab => throw new ArgumentOutOfRangeException(nameof(fourCc), fourCc, null),
+                _ => throw new ArgumentOutOfRangeException(nameof(fourCc), fourCc, null)
+            };
         }
+
+        #region Version Getters
+
+        private static int GetRtpcVersion(byte[] block)
+        {
+            using var ms = new MemoryStream(block);
+            ms.Seek(4, SeekOrigin.Begin);
+            return ms.ReadByte();
+        }
+
+        private static int GetIrtpcVersion(byte[] block)
+        {
+            using var ms = new MemoryStream(block);
+            return ms.ReadByte();
+        }
+
+        private static int GetAafVersion(byte[] block)
+        {
+            using var ms = new MemoryStream(block);
+            ms.Seek(4, SeekOrigin.Begin);
+            return ms.ReadByte();
+        }
+        
+        private static int GetSarcVersion(byte[] block)
+        {
+            using var ms = new MemoryStream(block);
+            return ms.ReadByte();
+        }
+
+        #endregion
     }
 }

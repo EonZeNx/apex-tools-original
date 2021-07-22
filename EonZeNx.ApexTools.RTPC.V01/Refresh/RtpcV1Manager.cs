@@ -1,5 +1,9 @@
+using System;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.IO;
+using System.Xml;
+using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 using EonZeNx.ApexTools.RTPC.V01.Models;
@@ -9,7 +13,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
     /// <summary>
     /// An <see cref="RTPC_V01"/> file
     /// <br/> Structure:
-    /// <br/> FourCC - <see cref="EFourCC"/>
+    /// <br/> FourCc - <see cref="T:EFourCC"/>
     /// <br/> Version - <see cref="uint"/>
     /// <br/> Root container - <see cref="Container"/>
     /// </summary>
@@ -17,6 +21,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
     {
         #region Variables
 
+        public override EFourCc FourCc { get; } = EFourCc.Rtpc;
+        public override int Version { get; } = 1;
         public SQLiteConnection DbConnection { get; set; }
         private Container Root { get; set; }
 
@@ -27,46 +33,64 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
 
         public override void Deserialize(string path)
         {
-            throw new System.NotImplementedException();
+            Deserialize(new FileStream(path, FileMode.Open));
         }
 
-        public override void Deserialize(byte[] contents)
+        public override void Deserialize(Stream contents)
         {
-            throw new System.NotImplementedException();
+            // Pre-process file
+            contents.Seek(0, SeekOrigin.Begin);
+            using var br = new BinaryReader(contents);
+            
+            var firstBlock = br.ReadBytes(16);
+            var fourCc = FilePreProcessor.ValidCharacterCode(firstBlock);
+            Root = new Container(DbConnection);
+
+            if (fourCc == EFourCc.Rtpc)
+            {
+                br.BaseStream.Seek(4 + 4, SeekOrigin.Begin);
+                Root.BinaryDeserialize(br);
+            }
+            else if (fourCc == EFourCc.Xml)
+            {
+                contents.Seek(0, SeekOrigin.Begin);
+                Root.XmlDeserialize(XmlReader.Create(contents));
+            }
+            else
+                throw new NotSupportedException();
         }
 
-        public override void Export(string path, HistoryInstance[] history)
+        public override Stream Export(HistoryInstance[] history = null)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public override BinaryReader Export()
+        public override Stream ExportBinary()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        #endregion
-
-        #region Internal Functions
-
-        protected override void DeserializeBinary()
+        public override Stream ExportConverted(HistoryInstance[] history)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        protected override void DeserializeConverted()
+        public override void Export(string path, HistoryInstance[] history = null)
         {
-            throw new System.NotImplementedException();
+            var settings = new XmlWriterSettings{ Indent = true, IndentChars = "\t" };
+            using var xw = XmlWriter.Create(path, settings);
+            // TODO: Write history here
+            Root.XmlSerialize(xw);
         }
 
-        protected override void ExportBinary()
+        public override void ExportBinary(string path)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        protected override void ExportConverted()
+        public override void ExportConverted(string path, HistoryInstance[] history)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         #endregion

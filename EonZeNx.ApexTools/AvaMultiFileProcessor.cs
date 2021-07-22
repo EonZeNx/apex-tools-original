@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
-using EonZeNx.ApexTools.Refresh;
 
 namespace EonZeNx.ApexTools
 {

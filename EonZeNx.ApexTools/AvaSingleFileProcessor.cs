@@ -27,9 +27,9 @@ namespace EonZeNx.ApexTools
         public void ProcessFile(string path)
         {
             // Pre-process file
-            var fourCc = FilePreProcessor.GetCharacterCode(path);
-            var version = FilePreProcessor.GetVersion(path, fourCc);
-            var fileManager = new AvaFileManagerFactory(fourCc, version).Build();
+            var fileManager = new AvaFileManagerFactory(path).Build();
+            var fourCc = fileManager.FourCc;
+            var version = fileManager.Version;
             
             History.Add(new HistoryInstance(fourCc, version));
             
@@ -41,16 +41,18 @@ namespace EonZeNx.ApexTools
             {
                 ProcessFile(fileManager.Export());
             }
-            
-            fileManager.Export("final path", History.ToArray());
+
+            var fnWoExt = Path.GetFileNameWithoutExtension(path);
+            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}.xml");
+            fileManager.Export(finalPath, History.ToArray());
         }
 
-        private void ProcessFile(byte[] contents)
+        private void ProcessFile(Stream contents)
         {
             while (true)
             {
                 // Pre-process file
-                using var br = new BinaryReader(new MemoryStream(contents));
+                using var br = new BinaryReader(contents);
                 
                 var firstBlock = br.ReadBytes(16);
                 var fourCc = FilePreProcessor.ValidCharacterCode(firstBlock);
