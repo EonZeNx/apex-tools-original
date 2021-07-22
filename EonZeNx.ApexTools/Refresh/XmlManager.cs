@@ -4,35 +4,44 @@ using System.IO;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
+using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 using EonZeNx.ApexTools.Core.Utils;
 
 namespace EonZeNx.ApexTools.Refresh
 {
-    public class XmlManager : GenericAvaFileManager
+    public class XmlManager : GenericAvaFileBare
     {
         #region Variables
 
         public override EFourCc FourCc { get; } = EFourCc.Xml;
         public override int Version { get; } = 0;
         
-        public Stream CurrentContents;
+        public byte[] CurrentContents;
         public HistoryInstance[] History;
 
         #endregion
-        
-        
-        #region Abstract Functions
 
-        public override void Deserialize(string path)
+
+        #region Helpers
+
+        public static HistoryInstance ReadHistoryFromXmlNode(XmlReader xr)
         {
-            Deserialize(new FileStream(path, FileMode.Open));
+            var versionStr = XmlUtils.GetAttribute(xr, "Version");
+            var tryVersionParse = int.TryParse(versionStr, out var version);
+            if (!tryVersionParse) throw new ArgumentOutOfRangeException(versionStr);
+
+            var avaFileTypeStr = xr.ReadString();
+            var tryParse = FilePreProcessor.StrToFourCc.ContainsKey(avaFileTypeStr);
+            if (!tryParse) throw new ArgumentOutOfRangeException(avaFileTypeStr);
+
+            return new HistoryInstance(FilePreProcessor.StrToFourCc[avaFileTypeStr], version);
         }
-
-        public override void Deserialize(Stream contents)
+        
+        public static HistoryInstance[] GetHistoryFromXml(Stream contents)
         {
-            contents.Seek(0, SeekOrigin.Begin);
             var history = new List<HistoryInstance>();
             
+            contents.Seek(0, SeekOrigin.Begin);
             var xr = XmlReader.Create(contents);
             xr.ReadStartElement("AvaFile");
             xr.ReadStartElement("History");
@@ -43,66 +52,46 @@ namespace EonZeNx.ApexTools.Refresh
                 if (nodeType == XmlNodeType.EndElement && xr.Name == "History") break;
                 if (nodeType != XmlNodeType.Element) continue;
                 
-                var versionStr = XmlUtils.GetAttribute(xr, "Version");
-                var tryVersionParse = int.TryParse(versionStr, out var version);
-                if (!tryVersionParse) throw new ArgumentOutOfRangeException(versionStr);
-
-                var avaFileTypeStr = xr.ReadString();
-                var tryParse = FilePreProcessor.StrToFourCc.ContainsKey(avaFileTypeStr);
-                if (!tryParse) throw new ArgumentOutOfRangeException(avaFileTypeStr);
-                
-                history.Add(new HistoryInstance(FilePreProcessor.StrToFourCc[avaFileTypeStr], version));
+                history.Add(ReadHistoryFromXmlNode(xr));
             }
 
             var historyArray = history.ToArray();
             Array.Reverse(historyArray);
 
-            CurrentContents = contents;
-            CurrentContents.Seek(0, SeekOrigin.Begin);
-            foreach (var hInstance in historyArray)
-            {
-                var manager = new AvaFileManagerFactory(hInstance.FourCc, hInstance.Version).Build();
-                manager.Deserialize(CurrentContents);
-                CurrentContents = manager.Export();
-                CurrentContents.Seek(0, SeekOrigin.Begin);
-            }
-        }
-
-        #region Unused
-        // TODO: Check and make XML loader its own class
-
-        public override void Export(string path, HistoryInstance[] history = null)
-        {
-            throw new NotImplementedException();
-        }
-        
-        public override void ExportBinary(string path)
-        {
-            throw new NotImplementedException();
-        }
-        
-        public override void ExportConverted(string path, HistoryInstance[] history)
-        {
-            throw new NotImplementedException();
+            return history.ToArray();
         }
 
         #endregion
+        
+        
+        #region Abstract Functions
 
-        public override Stream Export(HistoryInstance[] history = null)
+        public override void Deserialize(string path)
+        {
+            using var fs = new FileStream(path, FileMode.Open);
+            Deserialize(BinaryReaderUtils.StreamToBytes(fs));
+        }
+
+        public override void Deserialize(byte[] contents)
+        {
+            using var ms = new MemoryStream(contents);
+            ms.Seek(0, SeekOrigin.Begin);
+            History = GetHistoryFromXml(ms);
+            
+            CurrentContents = ms.ToArray();
+            foreach (var hInstance in History)
+            {
+                var manager = new AvaFileManagerFactory(hInstance.FourCc, hInstance.Version).Build();
+                manager.Deserialize(CurrentContents);
+                CurrentContents = manager.ExportBinary();
+            }
+        }
+
+        public override byte[] Export()
         {
             return CurrentContents;
         }
-
-        public override Stream ExportBinary()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Stream ExportConverted(HistoryInstance[] history)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         #endregion
     }
 }

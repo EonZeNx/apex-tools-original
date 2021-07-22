@@ -1,11 +1,12 @@
 using System;
 using System.Data.SQLite;
-using System.Diagnostics;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
+using EonZeNx.ApexTools.Core.Utils;
 using EonZeNx.ApexTools.RTPC.V01.Models;
 
 namespace EonZeNx.ApexTools.RTPC.V01.Refresh
@@ -33,17 +34,27 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
 
         public override void Deserialize(string path)
         {
-            Deserialize(new FileStream(path, FileMode.Open));
+            using var fs = new FileStream(path, FileMode.Open);
+            Deserialize(BinaryReaderUtils.StreamToBytes(fs));
         }
 
-        public override void Deserialize(Stream contents)
+        public override void Deserialize(byte[] contents)
         {
             // Pre-process file
-            contents.Seek(0, SeekOrigin.Begin);
-            using var br = new BinaryReader(contents);
+            using var ms = new MemoryStream(contents);
+            ms.Seek(0, SeekOrigin.Begin);
+            using var br = new BinaryReader(ms);
             
             var firstBlock = br.ReadBytes(16);
             var fourCc = FilePreProcessor.ValidCharacterCode(firstBlock);
+            
+            if (File.Exists($"{ConfigData.AbsolutePathToDatabase}"))
+            {
+                var dataSource = @$"Data Source={ConfigData.AbsolutePathToDatabase}";
+                DbConnection = new SQLiteConnection(dataSource);
+                DbConnection.Open();
+            }
+            
             Root = new Container(DbConnection);
 
             if (fourCc == EFourCc.Rtpc)
@@ -53,24 +64,35 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
             }
             else if (fourCc == EFourCc.Xml)
             {
-                contents.Seek(0, SeekOrigin.Begin);
-                Root.XmlDeserialize(XmlReader.Create(contents));
+                ms.Seek(0, SeekOrigin.Begin);
+                
+                var xr = XmlReader.Create(ms);
+                xr.ReadToDescendant($"{Root.GetType().Name}");
+                Root.XmlDeserialize(xr);
             }
             else
+            {
                 throw new NotSupportedException();
+            }
+            
+            DbConnection.Close();
         }
 
-        public override Stream Export(HistoryInstance[] history = null)
+        public override byte[] Export(HistoryInstance[] history = null)
         {
             throw new NotImplementedException();
         }
 
-        public override Stream ExportBinary()
+        public override byte[] ExportBinary()
         {
-            throw new NotImplementedException();
+            using var ms = new MemoryStream();
+            using var bw = new BinaryWriter(ms);
+            Root.BinarySerialize(bw);
+
+            return ms.ToArray();
         }
 
-        public override Stream ExportConverted(HistoryInstance[] history)
+        public override byte[] ExportConverted(HistoryInstance[] history)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,4 @@
 using System.IO;
-using System.Text.RegularExpressions;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 
@@ -31,15 +30,15 @@ namespace EonZeNx.ApexTools.Core.Refresh
 
         public abstract void Deserialize(string path);
         
-        public abstract void Deserialize(Stream contents);
+        public abstract void Deserialize(byte[] contents);
 
         public abstract void Export(string path, HistoryInstance[] history = null);
         public abstract void ExportBinary(string path);
         public abstract void ExportConverted(string path, HistoryInstance[] history);
 
-        public abstract Stream Export(HistoryInstance[] history = null);
-        public abstract Stream ExportBinary();
-        public abstract Stream ExportConverted(HistoryInstance[] history);
+        public abstract byte[] Export(HistoryInstance[] history = null);
+        public abstract byte[] ExportBinary();
+        public abstract byte[] ExportConverted(HistoryInstance[] history);
 
         #endregion
     }

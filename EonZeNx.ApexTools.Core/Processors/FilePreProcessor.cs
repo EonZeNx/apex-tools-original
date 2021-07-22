@@ -83,6 +83,7 @@ namespace EonZeNx.ApexTools.Core.Processors
                 EFourCc.Sarc => GetSarcVersion(block),
                 EFourCc.Adf => throw new ArgumentOutOfRangeException(nameof(fourCc), fourCc, null),
                 EFourCc.Tab => throw new ArgumentOutOfRangeException(nameof(fourCc), fourCc, null),
+                EFourCc.Xml => 0,
                 _ => throw new ArgumentOutOfRangeException(nameof(fourCc), fourCc, null)
             };
         }
