@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Xml;
 using EonZeNx.ApexTools.Configuration;
+using EonZeNx.ApexTools.Core.Refresh;
 
 namespace EonZeNx.ApexTools.Core.Utils
 {
@@ -38,6 +39,23 @@ namespace EonZeNx.ApexTools.Core.Utils
             return name == ""
                 ? ByteUtils.HexToInt(GetAttribute(xr, "NameHash"))
                 : HashUtils.HashJenkinsL3(Encoding.UTF8.GetBytes(name));
+        }
+
+        public static void WriteHistory(XmlWriter xw, HistoryInstance[] history)
+        {
+            xw.WriteStartElement("History");
+
+            foreach (var hInstance in history)
+            {
+                xw.WriteStartElement("HistoryInstance");
+                
+                xw.WriteAttributeString("Version", hInstance.Version.ToString());
+                xw.WriteValue($"{hInstance.FourCc}");
+                
+                xw.WriteEndElement();
+            }
+            
+            xw.WriteEndElement();
         }
     }
 }

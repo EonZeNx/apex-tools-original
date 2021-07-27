@@ -49,7 +49,8 @@ namespace EonZeNx.ApexTools
             manager.Deserialize(path);
             
             var fnWoExt = Path.GetFileNameWithoutExtension(path);
-            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}.xml");
+            // TODO: Change this hardcoded crap
+            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}.rtpc");
 
             using var bw = new BinaryWriter(new FileStream(finalPath, FileMode.Create));
             bw.Write(manager.Export());

@@ -1,6 +1,7 @@
 using System;
 using System.Data.SQLite;
 using System.IO;
+using System.Text;
 using System.Xml;
 using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Processors;
@@ -87,6 +88,15 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
         {
             using var ms = new MemoryStream();
             using var bw = new BinaryWriter(ms);
+            
+            bw.Write(ByteUtils.ReverseBytes((uint) FourCc));
+            bw.Write(Version);
+
+            var originalOffset = bw.BaseStream.Position;
+            bw.Seek(Container.ContainerHeaderSize, SeekOrigin.Current);
+            Root.BinarySerializeData(bw);
+            
+            bw.Seek((int) originalOffset, SeekOrigin.Begin);
             Root.BinarySerialize(bw);
 
             return ms.ToArray();
@@ -101,8 +111,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
         {
             var settings = new XmlWriterSettings{ Indent = true, IndentChars = "\t" };
             using var xw = XmlWriter.Create(path, settings);
-            // TODO: Write history here
+            
+            xw.WriteStartElement("AvaFile");
+            XmlUtils.WriteHistory(xw, history);
             Root.XmlSerialize(xw);
+            xw.WriteEndElement();
         }
 
         public override void ExportBinary(string path)
