@@ -267,15 +267,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             ContainerHeaderStart = ByteUtils.Align(Offset + PropertyCount * PropertyHeaderSize, 4);
             DataPos = ContainerHeaderStart + ContainerCount * ContainerHeaderSize;
 
-            if (Properties.Length > 0)
-            {
-                BinarySerializeProperties(bw);
-            }
-
-            if (Containers.Length > 0)
-            {
-                BinarySerializeContainers(bw);
-            }
+            if (Properties.Length > 0) BinarySerializeProperties(bw);
+            if (Containers.Length > 0) BinarySerializeContainers(bw);
 
             bw.Seek((int) DataPos, SeekOrigin.Begin);
         }
@@ -324,14 +317,9 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                 xw.WriteAttributeString("Name", Name);
             }
             
-            foreach (var property in Properties)
-            {
-                property.XmlSerialize(xw);
-            }
-            foreach (var container in Containers)
-            {
-                container.XmlSerialize(xw);
-            }
+            foreach (var property in Properties) property.XmlSerialize(xw);
+            foreach (var container in Containers) container.XmlSerialize(xw);
+            
             xw.WriteEndElement();
         }
 
@@ -340,10 +328,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             NameHash = XmlUtils.ReadNameIfValid(xr);
 
             while (xr.Read())
-            {
-                if (xr.NodeType != XmlNodeType.Whitespace) break;
-            }
-            
+            { if (xr.NodeType != XmlNodeType.Whitespace) break; }
             
             if (xr.Name != "Container") XmlLoadProperties(xr);
             

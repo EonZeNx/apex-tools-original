@@ -4,6 +4,7 @@ using System.Xml;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
+using EonZeNx.ApexTools.IRTPC.V01.Refresh;
 using EonZeNx.ApexTools.RTPC.V01.Refresh;
 
 namespace EonZeNx.ApexTools.Refresh
@@ -45,6 +46,15 @@ namespace EonZeNx.ApexTools.Refresh
                 _ => throw new NotImplementedException($"Version not supported: '{Version}'")
             };
         }
+        
+        private GenericAvaFileManager BuildIrtpcFileManager()
+        {
+            return Version switch
+            {
+                1 => new IrtpcV1Manager(),
+                _ => throw new NotImplementedException($"Version not supported: '{Version}'")
+            };
+        }
 
         public GenericAvaFileManager Build()
         {
@@ -60,6 +70,7 @@ namespace EonZeNx.ApexTools.Refresh
                 case EFourCc.Rtpc:
                     return BuildRtpcFileManager();
                 case EFourCc.Irtpc:
+                    return BuildIrtpcFileManager();
                 case EFourCc.Aaf:
                 case EFourCc.Sarc:
                 case EFourCc.Adf:
