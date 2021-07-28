@@ -113,6 +113,7 @@ namespace EonZeNx.ApexTools.Core.Processors
         private static int GetSarcVersion(byte[] block)
         {
             using var ms = new MemoryStream(block);
+            ms.Seek(8, SeekOrigin.Begin);
             return ms.ReadByte();
         }
 
