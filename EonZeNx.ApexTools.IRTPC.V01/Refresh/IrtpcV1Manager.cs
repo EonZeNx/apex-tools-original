@@ -26,6 +26,8 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Refresh
 
         public override EFourCc FourCc { get; } = EFourCc.Irtpc;
         public override int Version { get; } = 1;
+        public override string Extension { get; set; }
+        public override string DefaultExtension { get; set; } = ".irtpc";
         public ushort Version02 { get; } = 4;
         public ushort ObjectCount { get; set; }
         public SQLiteConnection DbConnection { get; set; }
@@ -98,6 +100,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Refresh
 
         public override void Deserialize(string path)
         {
+            Extension = Path.GetExtension(path);
             using var fs = new FileStream(path, FileMode.Open);
             Deserialize(BinaryReaderUtils.StreamToBytes(fs));
         }
@@ -166,7 +169,7 @@ namespace EonZeNx.ApexTools.IRTPC.V01.Refresh
             using var xw = XmlWriter.Create(path, settings);
             
             xw.WriteStartElement("AvaFile");
-            XmlUtils.WriteHistory(xw, history);
+            XmlUtils.WriteHistory(xw, history, Extension);
             
             foreach (var container in Containers)
             {

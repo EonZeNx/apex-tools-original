@@ -22,6 +22,8 @@ namespace EonZeNx.ApexTools.Core.Refresh
 
         public abstract EFourCc FourCc { get; }
         public abstract int Version { get; }
+        public abstract string Extension { get; set; }
+        public abstract string DefaultExtension { get; set; }
 
         #endregion
         

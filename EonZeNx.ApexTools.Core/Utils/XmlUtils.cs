@@ -41,9 +41,10 @@ namespace EonZeNx.ApexTools.Core.Utils
                 : HashUtils.HashJenkinsL3(Encoding.UTF8.GetBytes(name));
         }
 
-        public static void WriteHistory(XmlWriter xw, HistoryInstance[] history)
+        public static void WriteHistory(XmlWriter xw, HistoryInstance[] history, string extension = null)
         {
             xw.WriteStartElement("History");
+            if (!string.IsNullOrEmpty(extension)) xw.WriteAttributeString("Extension", extension);
 
             foreach (var hInstance in history)
             {

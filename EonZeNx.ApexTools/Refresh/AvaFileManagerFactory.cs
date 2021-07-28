@@ -30,7 +30,7 @@ namespace EonZeNx.ApexTools.Refresh
 
         public GenericAvaFileManager XmlLoad(string path)
         {
-            // TODO: Fix this
+            // TODO: Does not load the properties from the XML file
             var xr = XmlReader.Create(new FileStream(path, FileMode.Open));
             xr.ReadStartElement("AvaFile");
             xr.ReadStartElement("History");

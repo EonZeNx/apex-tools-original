@@ -17,7 +17,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
     /// <br/> Structure:
     /// <br/> FourCc - <see cref="T:EFourCC"/>
     /// <br/> Version - <see cref="uint"/>
-    /// <br/> Root container - <see cref="Container"/>
+    /// <br/> Root container - <see cref="RTPC.V01.Models.Container"/>
     /// </summary>
     public class RtpcV1Manager : GenericAvaFileManager, IDatabaseConnection
     {
@@ -25,16 +25,50 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
 
         public override EFourCc FourCc { get; } = EFourCc.Rtpc;
         public override int Version { get; } = 1;
+        public override string Extension { get; set; }
+        public override string DefaultExtension { get; set; } = ".rtpc";
         public SQLiteConnection DbConnection { get; set; }
         private Container Root { get; set; }
 
         #endregion
 
+
+        #region Helpers
+
+        private void OpenDatabaseConnection()
+        {
+            if (!File.Exists($"{ConfigData.AbsolutePathToDatabase}")) return;
+            
+            var dataSource = @$"Data Source={ConfigData.AbsolutePathToDatabase}";
+            DbConnection = new SQLiteConnection(dataSource);
+            DbConnection.Open();
+        }
+
+        private void BinaryDeserialize(BinaryReader br)
+        {
+            br.BaseStream.Seek(0, SeekOrigin.Begin);
+            var block = br.ReadBytes(16);
+            br.BaseStream.Seek(4 + 4, SeekOrigin.Begin);
+            
+            if (FilePreProcessor.ValidCharacterCode(block) != FourCc) throw new InvalidFileVersion();
+            if (FilePreProcessor.GetVersion(block, FourCc) != Version) throw new InvalidFileVersion();
+            
+            Root.BinaryDeserialize(br);
+        }
+
+        private void XmlDeserialize(XmlReader xr)
+        {
+            xr.ReadToDescendant(Root.GetType().Name);
+            Root.XmlDeserialize(xr);
+        }
+
+        #endregion
         
         #region Public Functions
 
         public override void Deserialize(string path)
         {
+            Extension = Path.GetExtension(path);
             using var fs = new FileStream(path, FileMode.Open);
             Deserialize(BinaryReaderUtils.StreamToBytes(fs));
         }
@@ -48,28 +82,21 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
             
             var firstBlock = br.ReadBytes(16);
             var fourCc = FilePreProcessor.ValidCharacterCode(firstBlock);
-            
-            if (File.Exists($"{ConfigData.AbsolutePathToDatabase}"))
-            {
-                var dataSource = @$"Data Source={ConfigData.AbsolutePathToDatabase}";
-                DbConnection = new SQLiteConnection(dataSource);
-                DbConnection.Open();
-            }
+
+            OpenDatabaseConnection();
             
             Root = new Container(DbConnection);
 
             if (fourCc == EFourCc.Rtpc)
             {
-                br.BaseStream.Seek(4 + 4, SeekOrigin.Begin);
-                Root.BinaryDeserialize(br);
+                BinaryDeserialize(br);
             }
             else if (fourCc == EFourCc.Xml)
             {
                 ms.Seek(0, SeekOrigin.Begin);
                 
                 var xr = XmlReader.Create(ms);
-                xr.ReadToDescendant($"{Root.GetType().Name}");
-                Root.XmlDeserialize(xr);
+                XmlDeserialize(xr);
             }
             else
             {
@@ -113,7 +140,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Refresh
             using var xw = XmlWriter.Create(path, settings);
             
             xw.WriteStartElement("AvaFile");
-            XmlUtils.WriteHistory(xw, history);
+            XmlUtils.WriteHistory(xw, history, Extension);
             Root.XmlSerialize(xw);
             xw.WriteEndElement();
         }

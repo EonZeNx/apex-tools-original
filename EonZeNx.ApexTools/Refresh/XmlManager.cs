@@ -15,6 +15,7 @@ namespace EonZeNx.ApexTools.Refresh
 
         public override EFourCc FourCc { get; } = EFourCc.Xml;
         public override int Version { get; } = 0;
+        public override string Extension { get; set; }
         
         public byte[] CurrentContents;
         public HistoryInstance[] History;
@@ -24,7 +25,7 @@ namespace EonZeNx.ApexTools.Refresh
 
         #region Helpers
 
-        public static HistoryInstance ReadHistoryFromXmlNode(XmlReader xr)
+        public HistoryInstance ReadHistoryFromXmlNode(XmlReader xr)
         {
             var versionStr = XmlUtils.GetAttribute(xr, "Version");
             var tryVersionParse = int.TryParse(versionStr, out var version);
@@ -37,14 +38,15 @@ namespace EonZeNx.ApexTools.Refresh
             return new HistoryInstance(FilePreProcessor.StrToFourCc[avaFileTypeStr], version);
         }
         
-        public static HistoryInstance[] GetHistoryFromXml(Stream contents)
+        public HistoryInstance[] GetHistoryFromXml(Stream contents)
         {
             var history = new List<HistoryInstance>();
             
             contents.Seek(0, SeekOrigin.Begin);
             var xr = XmlReader.Create(contents);
-            xr.ReadStartElement("AvaFile");
-            xr.ReadStartElement("History");
+            xr.ReadToDescendant("History");
+
+            Extension = XmlUtils.GetAttribute(xr, "Extension");
 
             while (xr.Read())
             {

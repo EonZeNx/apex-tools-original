@@ -50,7 +50,7 @@ namespace EonZeNx.ApexTools
             
             var fnWoExt = Path.GetFileNameWithoutExtension(path);
             // TODO: Change this hardcoded crap
-            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}.rtpc");
+            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}{manager.Extension}");
 
             using var bw = new BinaryWriter(new FileStream(finalPath, FileMode.Create));
             bw.Write(manager.Export());
