@@ -52,6 +52,16 @@ namespace EonZeNx.ApexTools.SARC.V02.Models
             Path = xr.ReadString().Replace("\\", "/");
             PathLength = (uint) Path.Length;
         }
+        
+        public void XmlLoadReference(XmlReader xr)
+        {
+            DataOffset = 0;
+            IsReference = bool.Parse(XmlUtils.GetAttribute(xr, "IsRef"));
+            Size = uint.Parse(XmlUtils.GetAttribute(xr, "Size"));
+            
+            Path = xr.ReadString().Replace("\\", "/");
+            PathLength = (uint) Path.Length;
+        }
 
         #endregion
         

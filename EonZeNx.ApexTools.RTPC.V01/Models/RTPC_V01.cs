@@ -17,7 +17,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
     /// </summary>
     public class RTPC_V01 : IXmlClassIO
     {
-        public MetaInfo Minfo { get; set; } = new (){FileType = "RTPC", Version = 01};
+        public MetaInfo Minfo { get; set; } = new (){FileType = "Rtpc", Version = 01};
         public SQLiteConnection DbConnection { get; set; }
         
         protected long Offset { get; private set; }

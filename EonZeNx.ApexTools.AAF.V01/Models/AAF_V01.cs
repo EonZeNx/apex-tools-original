@@ -21,7 +21,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
     /// </summary>
     public class AAF_V01 : IBinaryClassIO
     {
-        public MetaInfo Minfo { get; set; } = new (){FileType = "AAF", Version = 01, Extension = ".ee"};
+        public MetaInfo Minfo { get; set; } = new (){FileType = "Aaf", Version = 01, Extension = ".ee"};
         public int Version { get; set; }
         public string Comment { get; set; }
         
@@ -41,7 +41,7 @@ namespace EonZeNx.ApexTools.AAF.V01.Models
 
         public void BinarySerialize(BinaryWriter bw)
         {
-            bw.Write(ByteUtils.ReverseBytes(0x41414600));  // FourCC 'AAF '
+            bw.Write(ByteUtils.ReverseBytes(0x41414600));  // FourCC 'Aaf '
             bw.Write((uint) 1);
             bw.Write(Encoding.UTF8.GetBytes("AVALANCHEARCHIVEFORMATISCOOL"));
 

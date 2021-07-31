@@ -33,8 +33,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         public long Offset { get; set; }
         public ushort PropertyCount { get; set; }
         public ushort ContainerCount { get; set; }
-        public PropertyVariants[] Properties { get; set; }
-        public Container[] Containers { get; set; }
+        public PropertyVariants[] Properties { get; set; } = Array.Empty<PropertyVariants>();
+        public Container[] Containers { get; set; } = Array.Empty<Container>();
 
         public const int ContainerHeaderSize = 4 + 4 + 2 + 2;
         public const int PropertyHeaderSize = 4 + 4 + 1;
@@ -137,22 +137,22 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         private void XmlLoadProperties(XmlReader xr)
         {
             var properties = new List<PropertyVariants>();
-            xr.Read();
 
-            while (xr.Read())
+            do
             {
                 var tag = xr.Name;
                 var nodeType = xr.NodeType;
-                
+
                 if (tag == "Container") break;
                 if (nodeType != XmlNodeType.Element) continue;
-                
+
                 if (!xr.HasAttributes) throw new XmlException("Property missing attributes");
-                
+
                 var propertyType = xr.Name;
                 PropertyVariants property = propertyType switch
                 {
-                    "Unassigned" => throw new InvalidEnumArgumentException("Property type was not a valid variant (Unassigned)."),
+                    "Unassigned" => throw new InvalidEnumArgumentException(
+                        "Property type was not a valid variant (Unassigned)."),
                     "UInt32" => new UInt32(),
                     "F32" => new F32(),
                     "String" => new String(),
@@ -164,7 +164,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                     "UIntArray" => new UIntArray(),
                     "F32Array" => new F32Array(),
                     "ByteArray" => new ByteArray(),
-                    "Deprecated" => throw new InvalidEnumArgumentException("Property type was not a valid variant (Deprecated)."),
+                    "Deprecated" => throw new InvalidEnumArgumentException(
+                        "Property type was not a valid variant (Deprecated)."),
                     "OID" => new OID(),
                     "Event" => new Event(),
                     "Total" => throw new InvalidEnumArgumentException("Property type was not a valid variant (Total)."),
@@ -173,7 +174,7 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
 
                 property.XmlDeserialize(xr);
                 properties.Add(property);
-            }
+            } while (xr.Read());
 
             Properties = properties.ToArray();
             PropertyCount = (ushort) Properties.Length;
@@ -266,15 +267,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
             ContainerHeaderStart = ByteUtils.Align(Offset + PropertyCount * PropertyHeaderSize, 4);
             DataPos = ContainerHeaderStart + ContainerCount * ContainerHeaderSize;
 
-            if (Properties.Length > 0)
-            {
-                BinarySerializeProperties(bw);
-            }
-
-            if (Containers.Length > 0)
-            {
-                BinarySerializeContainers(bw);
-            }
+            if (Properties.Length > 0) BinarySerializeProperties(bw);
+            if (Containers.Length > 0) BinarySerializeContainers(bw);
 
             bw.Seek((int) DataPos, SeekOrigin.Begin);
         }
@@ -323,14 +317,9 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
                 xw.WriteAttributeString("Name", Name);
             }
             
-            foreach (var property in Properties)
-            {
-                property.XmlSerialize(xw);
-            }
-            foreach (var container in Containers)
-            {
-                container.XmlSerialize(xw);
-            }
+            foreach (var property in Properties) property.XmlSerialize(xw);
+            foreach (var container in Containers) container.XmlSerialize(xw);
+            
             xw.WriteEndElement();
         }
 
@@ -338,7 +327,11 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
         {
             NameHash = XmlUtils.ReadNameIfValid(xr);
 
-            XmlLoadProperties(xr);
+            while (xr.Read())
+            { if (xr.NodeType != XmlNodeType.Whitespace) break; }
+            
+            if (xr.Name != "Container") XmlLoadProperties(xr);
+            
             XmlLoadContainers(xr);
         }
 

@@ -57,13 +57,7 @@ namespace EonZeNx.ApexTools.Models.Managers
                     connection.Open();
                     
                     rtpc.DbConnection = connection;
-                    using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
-                    {
-                        rtpc.BinaryDeserialize(br);
-                    }
                 }
-
-                return;
             }
             
             using (var br = new BinaryReader(new FileStream(FullPath, FileMode.Open)))
