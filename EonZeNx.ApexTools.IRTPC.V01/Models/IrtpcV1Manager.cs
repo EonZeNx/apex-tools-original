@@ -8,9 +8,8 @@ using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 using EonZeNx.ApexTools.Core.Utils;
-using EonZeNx.ApexTools.IRTPC.V01.Models;
 
-namespace EonZeNx.ApexTools.IRTPC.V01.Refresh
+namespace EonZeNx.ApexTools.IRTPC.V01.Models
 {
     /// <summary>
     /// An <see cref="IrtpcV1Manager"/> file

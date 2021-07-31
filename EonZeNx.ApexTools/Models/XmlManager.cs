@@ -6,9 +6,9 @@ using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 using EonZeNx.ApexTools.Core.Utils;
-using EonZeNx.ApexTools.SARC.V02.Refresh;
+using EonZeNx.ApexTools.SARC.V02.Models;
 
-namespace EonZeNx.ApexTools.Refresh
+namespace EonZeNx.ApexTools.Models
 {
     public class XmlManager : GenericAvaFileBare
     {

@@ -1,16 +1,14 @@
 using System;
 using System.Data.SQLite;
 using System.IO;
-using System.Text;
 using System.Xml;
 using EonZeNx.ApexTools.Configuration;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 using EonZeNx.ApexTools.Core.Utils;
-using EonZeNx.ApexTools.RTPC.V01.Models;
 
-namespace EonZeNx.ApexTools.RTPC.V01.Refresh
+namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
     /// <summary>
     /// An <see cref="RTPC_V01"/> file

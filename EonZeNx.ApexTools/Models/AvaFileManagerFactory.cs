@@ -1,15 +1,14 @@
 using System;
 using System.IO;
 using System.Xml;
-using EonZeNx.ApexTools.AAF.V01.Refresh;
+using EonZeNx.ApexTools.AAF.V01.Models;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
-using EonZeNx.ApexTools.Core.Refresh.Interfaces;
-using EonZeNx.ApexTools.IRTPC.V01.Refresh;
-using EonZeNx.ApexTools.RTPC.V01.Refresh;
-using EonZeNx.ApexTools.SARC.V02.Refresh;
+using EonZeNx.ApexTools.IRTPC.V01.Models;
+using EonZeNx.ApexTools.RTPC.V01.Models;
+using EonZeNx.ApexTools.SARC.V02.Models;
 
-namespace EonZeNx.ApexTools.Refresh
+namespace EonZeNx.ApexTools.Models
 {
     public class AvaFileManagerFactory
     {
