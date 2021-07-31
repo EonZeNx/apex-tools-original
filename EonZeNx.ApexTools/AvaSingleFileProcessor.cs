@@ -4,7 +4,7 @@ using System.IO;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
-using EonZeNx.ApexTools.Refresh;
+using EonZeNx.ApexTools.Models;
 
 namespace EonZeNx.ApexTools
 {
@@ -76,7 +76,16 @@ namespace EonZeNx.ApexTools
             History.Add(new HistoryInstance(fourCc, version));
             
             // Deserialize file
-            fileManager.Deserialize(path);
+            try
+            {
+                fileManager.Deserialize(path);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return;
+            }
+            
             
             // If result FourCC is AvaFile, repeat
             if (fourCc == EFourCc.Aaf)

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace EonZeNx.ApexTools.Configuration
@@ -18,6 +19,7 @@ namespace EonZeNx.ApexTools.Configuration
     public static class ConfigData
     {
         private static ConfigFile Data { get; set; } = new ();
+        private static string ExeFilepath { get; set; }
         
         public static bool AutoClose => Data.AutoClose;
         public static string AbsolutePathToDatabase => Data.AbsolutePathToDatabase;
@@ -30,13 +32,14 @@ namespace EonZeNx.ApexTools.Configuration
 
         public static void Load()
         {
-            if (!File.Exists(@"config.xml")) Save();
+            var exeDirectory = AppContext.BaseDirectory;
+            ExeFilepath = Path.Combine(exeDirectory, "config.xml");
+            
+            if (!File.Exists(ExeFilepath)) Save();
             
             var xs = new XmlSerializer(typeof(ConfigFile));
-            using (var fs = new FileStream(@".\config.xml", FileMode.Open))
-            {
-                Data = (ConfigFile) xs.Deserialize(fs);
-            }
+            using var fs = new FileStream(ExeFilepath, FileMode.Open);
+            Data = (ConfigFile) xs.Deserialize(fs);
         }
 
         private static void Save()
@@ -45,10 +48,8 @@ namespace EonZeNx.ApexTools.Configuration
             ns.Add(string.Empty, string.Empty);
             
             var xs = new XmlSerializer(typeof(ConfigFile));
-            using (var fs = new FileStream(@".\config.xml", FileMode.Create))
-            {
-                xs.Serialize(fs, Data, ns);
-            }
+            using var fs = new FileStream(ExeFilepath, FileMode.Create);
+            xs.Serialize(fs, Data, ns);
         }
     }
 }

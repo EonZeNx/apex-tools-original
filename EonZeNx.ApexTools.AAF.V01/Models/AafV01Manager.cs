@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml;
-using EonZeNx.ApexTools.AAF.V01.Models;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Utils;
 
-namespace EonZeNx.ApexTools.AAF.V01.Refresh
+namespace EonZeNx.ApexTools.AAF.V01.Models
 {
     /// <summary>
     /// An <see cref="AafV01Manager"/> file.

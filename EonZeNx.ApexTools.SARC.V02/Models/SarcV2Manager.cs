@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Utils;
-using EonZeNx.ApexTools.SARC.V02.Models;
 
-namespace EonZeNx.ApexTools.SARC.V02.Refresh
+namespace EonZeNx.ApexTools.SARC.V02.Models
 {
     /// <summary>
     /// A <see cref="SarcV2Manager"/> file.
