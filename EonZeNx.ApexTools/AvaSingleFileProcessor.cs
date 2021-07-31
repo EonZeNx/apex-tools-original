@@ -79,7 +79,12 @@ namespace EonZeNx.ApexTools
             fileManager.Deserialize(path);
             
             // If result FourCC is AvaFile, repeat
-            if (fourCc == EFourCc.Aaf) fileManager = ProcessFile(fileManager.ExportConverted());
+            if (fourCc == EFourCc.Aaf)
+            {
+                var newFm = ProcessFile(fileManager.ExportConverted());
+                newFm.Extension = fileManager.Extension;
+                fileManager = newFm;
+            }
 
             var fnWoExt = Path.GetFileNameWithoutExtension(path);
             var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}{fileManager.Extension}");

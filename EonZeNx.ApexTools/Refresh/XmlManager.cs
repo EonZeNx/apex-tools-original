@@ -62,7 +62,7 @@ namespace EonZeNx.ApexTools.Refresh
             var historyArray = history.ToArray();
             Array.Reverse(historyArray);
 
-            return history.ToArray();
+            return historyArray;
         }
 
         #endregion

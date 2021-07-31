@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -69,7 +70,16 @@ namespace EonZeNx.ApexTools.AAF.V01.Refresh
 
         private void SarcDeserialize(BinaryReader br)
         {
-            
+            var blockList = new List<Block>();
+            while (br.BaseStream.Position < br.BaseStream.Length)
+            {
+                var block = new Block();
+                block.BinaryConvertedDeserialize(br);
+                blockList.Add(block);
+            }
+
+            Blocks = blockList.ToArray();
+            BlockCount = (uint) Blocks.Length;
         }
 
         #endregion
