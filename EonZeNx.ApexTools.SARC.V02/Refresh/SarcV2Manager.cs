@@ -82,10 +82,11 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
         private void XmlWriteEntry(XmlWriter xw, Entry entry)
         {
             // Only write references, can just gather contents of folder for internal files
-            if (!entry.IsReference) return;
+            // if (!entry.IsReference) return;
             
             xw.WriteStartElement("Entry");
             xw.WriteAttributeString("Size", $"{entry.Size}");
+            xw.WriteAttributeString("IsRef", $"{entry.IsReference}");
             xw.WriteValue(entry.Path);
             xw.WriteEndElement();
         }
@@ -99,8 +100,11 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
             xw.WriteEndElement();
         }
 
-        private void XmlLoadExternalReferences(XmlReader xr)
+        private void XmlLoadReferences(XmlReader xr)
         {
+            var basePath = FilePath;
+            if (Path.HasExtension(FilePath)) basePath = Path.GetDirectoryName(FilePath) ?? FilePath;
+            
             var entries = new List<Entry>();
             xr.ReadToDescendant("References");
             xr.ReadToDescendant("Entry");
@@ -111,7 +115,8 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
                 if (xr.Name != "Entry") break;
 
                 var entry = new Entry();
-                entry.XmlLoadExternalReference(xr);
+                entry.XmlLoadReference(xr);
+                FolderLoadV2(entry, basePath);
                 entries.Add(entry);
             } while (xr.ReadToNextSibling("Entry"));
             xr.ReadEndElement();
@@ -171,12 +176,17 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
             
             Entries = newEntries.ToArray();
         }
+
+        private void FolderLoadV2(Entry entry, string basePath)
+        {
+            entry.FolderDeserialize(Path.Combine(basePath, entry.Path));
+        }
         
         private void XmlDeserialize(XmlReader xr)
         {
-            XmlLoadExternalReferences(xr);
-            XmlLoadIgnore(xr);
-            FolderLoad();
+            XmlLoadReferences(xr);
+            // XmlLoadIgnore(xr);
+            // FolderLoad();
         }
 
         #endregion
