@@ -23,6 +23,7 @@ namespace EonZeNx.ApexTools
     /// </summary>
     public class AvaSingleFileProcessor
     {
+        private static string FilelistName { get; } = "@files.xml";
         private List<HistoryInstance> History { get; } = new();
 
         #region Helpers
@@ -33,8 +34,8 @@ namespace EonZeNx.ApexTools
             
             if (!Directory.Exists(path)) throw new FileNotFoundException($"Neither file nor directory found: '{path}'");
 
-            var atFiles = Path.Combine(path, "@files.xml");
-            if (!File.Exists(atFiles)) throw new FileNotFoundException("Directory missing '@files.xml'");
+            var atFiles = Path.Combine(path, FilelistName);
+            if (!File.Exists(atFiles)) throw new FileNotFoundException($"Directory missing '{FilelistName}'");
 
             return atFiles;
         }
@@ -43,13 +44,13 @@ namespace EonZeNx.ApexTools
 
         public void ProcessXml(string path)
         {
-            // TODO: Change this to a factory at some point
             GenericAvaFileBare manager = new XmlManager();
             
             manager.Deserialize(path);
             
+            if (path.Contains(FilelistName)) path = Path.GetDirectoryName(path);
+            
             var fnWoExt = Path.GetFileNameWithoutExtension(path);
-            // TODO: Change this hardcoded crap
             var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}{manager.Extension}");
 
             using var bw = new BinaryWriter(new FileStream(finalPath, FileMode.Create));

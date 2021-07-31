@@ -6,6 +6,7 @@ using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
 using EonZeNx.ApexTools.Core.Utils;
+using EonZeNx.ApexTools.SARC.V02.Refresh;
 
 namespace EonZeNx.ApexTools.Refresh
 {
@@ -16,6 +17,7 @@ namespace EonZeNx.ApexTools.Refresh
         public override EFourCc FourCc { get; } = EFourCc.Xml;
         public override int Version { get; } = 0;
         public override string Extension { get; set; }
+        public string FilePath { get; set; }
         
         public byte[] CurrentContents;
         public HistoryInstance[] History;
@@ -70,6 +72,8 @@ namespace EonZeNx.ApexTools.Refresh
 
         public override void Deserialize(string path)
         {
+            FilePath = path;
+            
             using var fs = new FileStream(path, FileMode.Open);
             Deserialize(BinaryReaderUtils.StreamToBytes(fs));
         }
@@ -84,6 +88,10 @@ namespace EonZeNx.ApexTools.Refresh
             foreach (var hInstance in History)
             {
                 var manager = new AvaFileManagerFactory(hInstance.FourCc, hInstance.Version).Build();
+                if (manager is SarcV2Manager v2Manager)
+                {
+                    v2Manager.FilePath = FilePath;
+                }
                 manager.Deserialize(CurrentContents);
                 CurrentContents = manager.ExportBinary();
             }

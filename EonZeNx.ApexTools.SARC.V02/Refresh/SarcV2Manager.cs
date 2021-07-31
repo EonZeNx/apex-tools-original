@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Xml;
 using EonZeNx.ApexTools.Core.Processors;
@@ -23,15 +24,17 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
     {
         #region Variables
 
-        public override EFourCc FourCc { get; } = EFourCc.Sarc;
-        public override int Version { get; } = 2;
+        public override EFourCc FourCc => EFourCc.Sarc;
+        public override int Version => 2;
         public override string Extension { get; set; }
         public override string DefaultExtension { get; set; } = ".sarc";
-        
-        public string FileListName { get; } = "@files";
-        public uint HeaderLength { get; } = 4;
-        
+
+        private static string FileListName => "@files";
+        private static uint HeaderLength => 4;
+        public string FilePath { get; set; }
+
         private Entry[] Entries { get; set; }
+        private string[] Ignore { get; set; }
 
         #endregion
 
@@ -62,10 +65,118 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
 
             Entries = entries.ToArray();
         }
+
+        private void XmlWriteEntries(XmlWriter xw, string directoryPath)
+        {
+            xw.WriteStartElement("References");
+            
+            foreach (var entry in Entries)
+            {
+                XmlWriteEntry(xw, entry);
+                entry.FolderSerialize(directoryPath);
+            }
+            
+            xw.WriteEndElement();
+        }
+        
+        private void XmlWriteEntry(XmlWriter xw, Entry entry)
+        {
+            // Only write references, can just gather contents of folder for internal files
+            if (!entry.IsReference) return;
+            
+            xw.WriteStartElement("Entry");
+            xw.WriteAttributeString("Size", $"{entry.Size}");
+            xw.WriteValue(entry.Path);
+            xw.WriteEndElement();
+        }
+        
+        private void XmlWriteIgnores(XmlWriter xw)
+        {
+            // Ignore these extensions when deserializing the folder
+            xw.WriteStartElement("Ignore");
+            xw.WriteElementString("Extension", ".xml");
+            xw.WriteElementString("Extension", ".bak");
+            xw.WriteEndElement();
+        }
+
+        private void XmlLoadExternalReferences(XmlReader xr)
+        {
+            var entries = new List<Entry>();
+            xr.ReadToDescendant("References");
+            xr.ReadToDescendant("Entry");
+
+            do
+            {
+                if (xr.NodeType != XmlNodeType.Element) continue;
+                if (xr.Name != "Entry") break;
+
+                var entry = new Entry();
+                entry.XmlLoadExternalReference(xr);
+                entries.Add(entry);
+            } while (xr.ReadToNextSibling("Entry"));
+            xr.ReadEndElement();
+            
+            Entries = entries.ToArray();
+        }
+        
+        private void XmlLoadIgnore(XmlReader xr)
+        {
+            var ignore = new List<string>();
+            xr.Read();
+
+            do
+            {
+                var tag = xr.Name;
+                var nodeType = xr.NodeType;
+
+                if (nodeType == XmlNodeType.Whitespace) continue;
+                if (tag == "Ignore" && nodeType == XmlNodeType.EndElement) break;
+
+                ignore.Add(xr.ReadString());
+            } while (xr.Read());
+
+            Ignore = ignore.ToArray();
+        }
+        
+        /// <summary>
+        /// Loads the internal files
+        /// </summary>
+        private void FolderLoad()
+        {
+            var basePath = FilePath;
+            if (Path.HasExtension(FilePath)) basePath = Path.GetDirectoryName(FilePath) ?? FilePath;
+            
+            var files = Directory.GetFiles(basePath, "", SearchOption.AllDirectories);
+
+            // For each filepath in files...
+            // Where !(Filepath contains any in Ignore)...
+            // Keep filepath...
+            files = (
+                from filepath in files 
+                where !Ignore.Any(filepath.Contains)
+                select filepath
+            ).ToArray();
+            
+            var newEntries = new List<Entry>();
+            newEntries.AddRange(Entries);
+            
+            foreach (var filepath in files)
+            {
+                var localFilePath = filepath.Replace(@$"{basePath}\", "");
+                var entry = new Entry(localFilePath);
+                entry.FolderDeserialize(filepath);
+                
+                newEntries.Add(entry);
+            }
+            
+            Entries = newEntries.ToArray();
+        }
         
         private void XmlDeserialize(XmlReader xr)
         {
-            
+            XmlLoadExternalReferences(xr);
+            XmlLoadIgnore(xr);
+            FolderLoad();
         }
 
         #endregion
@@ -74,6 +185,9 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
 
         public override void Deserialize(string path)
         {
+            if (Directory.Exists(path)) path = Path.Combine(path, $"{FileListName}.xml");
+            FilePath = path;
+            
             Extension = Path.GetExtension(path);
             using var fs = new FileStream(path, FileMode.Open);
             Deserialize(BinaryReaderUtils.StreamToBytes(fs));
@@ -114,7 +228,30 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
 
         public override byte[] ExportBinary()
         {
-            throw new NotImplementedException();
+            using var ms = new MemoryStream();
+            using var bw = new BinaryWriter(ms);
+            
+            bw.Write((uint) 4);
+            bw.Write(ByteUtils.ReverseBytes((uint) EFourCc.Sarc));
+            bw.Write((uint) Version);
+
+            var dataOffset = (uint) Entries.Sum(item => item.HeaderSize);
+            bw.Write(dataOffset);
+            
+            bw.Seek((int) dataOffset, SeekOrigin.Current);
+
+            foreach (var entry in Entries)
+            {
+                entry.BinarySerializeData(bw);
+            }
+
+            bw.Seek(16, SeekOrigin.Begin);
+            foreach (var entry in Entries)
+            {
+                entry.BinarySerialize(bw);
+            }
+
+            return ms.ToArray();
         }
 
         public override byte[] ExportConverted(HistoryInstance[] history)
@@ -132,26 +269,9 @@ namespace EonZeNx.ApexTools.SARC.V02.Refresh
             
             xw.WriteStartElement("AvaFile");
             XmlUtils.WriteHistory(xw, history, Extension);
-        
-            foreach (var entry in Entries)
-            {
-                // Only write references, can just gather contents of folder for internal files
-                if (entry.IsReference)
-                {
-                    xw.WriteStartElement("Entry");
-                    xw.WriteAttributeString("Size", $"{entry.Size}");
-                    xw.WriteValue(entry.Path);
-                    xw.WriteEndElement();
-                }
-            
-                entry.FolderSerialize(directoryPath);
-            }
-        
-            // Ignore these extensions when deserializing the folder
-            xw.WriteStartElement("Ignore");
-            xw.WriteElementString("Extension", ".xml");
-            xw.WriteElementString("Extension", ".bak");
-            xw.WriteEndElement();
+
+            XmlWriteEntries(xw, directoryPath);
+            XmlWriteIgnores(xw);
             
             xw.Close();
         }
