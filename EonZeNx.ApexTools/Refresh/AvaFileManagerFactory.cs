@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Xml;
+using EonZeNx.ApexTools.AAF.V01.Refresh;
 using EonZeNx.ApexTools.Core.Processors;
 using EonZeNx.ApexTools.Core.Refresh;
 using EonZeNx.ApexTools.Core.Refresh.Interfaces;
@@ -57,6 +58,15 @@ namespace EonZeNx.ApexTools.Refresh
             };
         }
         
+        private GenericAvaFileManager BuildAafFileManager()
+        {
+            return Version switch
+            {
+                1 => new AafV01Manager(),
+                _ => throw new NotImplementedException($"Version not supported: '{Version}'")
+            };
+        }
+        
         private GenericAvaFileManager BuildSarcFileManager()
         {
             return Version switch
@@ -82,6 +92,7 @@ namespace EonZeNx.ApexTools.Refresh
                 case EFourCc.Irtpc:
                     return BuildIrtpcFileManager();
                 case EFourCc.Aaf:
+                    return BuildAafFileManager();
                 case EFourCc.Sarc:
                     return BuildSarcFileManager();
                 case EFourCc.Adf:

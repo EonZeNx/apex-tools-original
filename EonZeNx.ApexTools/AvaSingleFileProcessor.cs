@@ -79,14 +79,14 @@ namespace EonZeNx.ApexTools
             fileManager.Deserialize(path);
             
             // If result FourCC is AvaFile, repeat
-            if (fourCc == EFourCc.Aaf) ProcessFile(fileManager.Export());
+            if (fourCc == EFourCc.Aaf) fileManager = ProcessFile(fileManager.ExportConverted());
 
             var fnWoExt = Path.GetFileNameWithoutExtension(path);
-            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}.xml");
+            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}{fileManager.Extension}");
             fileManager.Export(finalPath, History.ToArray());
         }
 
-        private void ProcessFile(byte[] contents)
+        private GenericAvaFileManager ProcessFile(byte[] contents)
         {
             while (true)
             {
@@ -113,7 +113,7 @@ namespace EonZeNx.ApexTools
                     continue;
                 }
 
-                break;
+                return fileManager;
             }
         }
     }

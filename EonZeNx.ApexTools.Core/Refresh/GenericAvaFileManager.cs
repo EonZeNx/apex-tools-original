@@ -40,7 +40,7 @@ namespace EonZeNx.ApexTools.Core.Refresh
 
         public abstract byte[] Export(HistoryInstance[] history = null);
         public abstract byte[] ExportBinary();
-        public abstract byte[] ExportConverted(HistoryInstance[] history);
+        public abstract byte[] ExportConverted(HistoryInstance[] history = null);
 
         #endregion
     }
