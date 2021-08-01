@@ -23,11 +23,18 @@ namespace EonZeNx.ApexTools
     /// </summary>
     public class AvaSingleFileProcessor
     {
+        // TODO: Make this a global setting. Maybe a config setting?
         private static string FilelistName { get; } = "@files.xml";
         private List<HistoryInstance> History { get; } = new();
 
         #region Helpers
 
+        /// <summary>
+        /// Checks if the path exists. If directory, checks the corresponding file list exists.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
         private static string SetValidPath(string path)
         {
             if (File.Exists(path)) return path;
@@ -57,12 +64,16 @@ namespace EonZeNx.ApexTools
             bw.Write(manager.Export());
         }
         
+        /// <summary>
+        /// Process a single path.
+        /// </summary>
+        /// <param name="path"></param>
         public void ProcessFile(string path)
         {
             // File or directory?
             path = SetValidPath(path);
             
-            // Pre-process file
+            // Gather file information
             var fourCc = FilePreProcessor.GetCharacterCode(path);
             if (fourCc == EFourCc.Xml)
             {
@@ -70,16 +81,16 @@ namespace EonZeNx.ApexTools
                 return;
             }
             
+            // Get file manager and version
             var fileManager = new AvaFileManagerFactory(path).Build();
             var version = fileManager.Version;
             
+            // Track history
             History.Add(new HistoryInstance(fourCc, version));
             
             // Deserialize file
             try
-            {
-                fileManager.Deserialize(path);
-            }
+            { fileManager.Deserialize(path); }
             catch (Exception e)
             {
                 Console.WriteLine(e);
@@ -95,11 +106,17 @@ namespace EonZeNx.ApexTools
                 fileManager = newFm;
             }
 
+            // Output processed file
             var fnWoExt = Path.GetFileNameWithoutExtension(path);
             var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}{fileManager.Extension}");
             fileManager.Export(finalPath, History.ToArray());
         }
 
+        /// <summary>
+        /// Byte array version of <see cref="ProcessFile"/> for recursive use.
+        /// </summary>
+        /// <param name="contents"></param>
+        /// <returns></returns>
         private GenericAvaFileManager ProcessFile(byte[] contents)
         {
             while (true)
@@ -107,27 +124,31 @@ namespace EonZeNx.ApexTools
                 using var ms = new MemoryStream(contents);
                 ms.Seek(0, SeekOrigin.Begin);
                 
-                // Pre-process file
+                // Gather file information
                 using var br = new BinaryReader(ms);
                 
+                // Gather file information
                 var firstBlock = br.ReadBytes(16);
                 var fourCc = FilePreProcessor.ValidCharacterCode(firstBlock);
                 var version = FilePreProcessor.GetVersion(firstBlock, fourCc);
                 var fileManager = new AvaFileManagerFactory(fourCc, version).Build();
 
+                // Track history
                 History.Add(new HistoryInstance(fourCc, version));
 
                 // Deserialize file
-                fileManager.Deserialize(ms.ToArray());
-
-                // If FourCC is File-in-a-File, repeat
-                if (fourCc == EFourCc.Aaf)
+                try
+                { fileManager.Deserialize(ms.ToArray()); }
+                catch (Exception e)
                 {
-                    contents = fileManager.Export();
-                    continue;
+                    Console.WriteLine(e);
+                    return fileManager;
                 }
 
-                return fileManager;
+                // If FourCC is File-in-a-File, repeat
+                if (fourCc != EFourCc.Aaf) return fileManager;
+                
+                contents = fileManager.Export();
             }
         }
     }

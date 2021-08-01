@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Xml;
 using EonZeNx.ApexTools.AAF.V01.Models;
 using EonZeNx.ApexTools.Core.Processors;
@@ -38,7 +39,10 @@ namespace EonZeNx.ApexTools.Models
 
             return BuildRtpcFileManager();
         }
+
         
+        #region Specific File managers
+
         private GenericAvaFileManager BuildRtpcFileManager()
         {
             return Version switch
@@ -75,6 +79,14 @@ namespace EonZeNx.ApexTools.Models
             };
         }
 
+        #endregion
+
+        
+        /// <summary>
+        /// Factory for getting the correct GenericAvaFileManager.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="SwitchExpressionException">Forgot to add a new FourCC here. All should be supported.</exception>
         public GenericAvaFileManager Build()
         {
             if (!string.IsNullOrEmpty(Path))
@@ -99,7 +111,7 @@ namespace EonZeNx.ApexTools.Models
                 case EFourCc.Xml:
                     return XmlLoad(Path);
                 default:
-                    throw new NotImplementedException($"EFourCc not supported: '{FourCc}'");
+                    throw new SwitchExpressionException($"EFourCc not supported: '{FourCc}'");
             }
         }
     }

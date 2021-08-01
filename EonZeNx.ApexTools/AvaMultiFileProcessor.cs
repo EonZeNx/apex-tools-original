@@ -27,6 +27,9 @@ namespace EonZeNx.ApexTools
             Paths = paths;
         }
         
+        /// <summary>
+        /// Process multi-paths.
+        /// </summary>
         public void ProcessPaths()
         {
             for (var i = 0; i < Paths.Length; i++)

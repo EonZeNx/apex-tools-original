@@ -70,6 +70,10 @@ namespace EonZeNx.ApexTools.Models
         
         #region Abstract Functions
 
+        /// <summary>
+        /// Deserialize from a filepath.
+        /// </summary>
+        /// <param name="path"></param>
         public override void Deserialize(string path)
         {
             FilePath = path;

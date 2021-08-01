@@ -2,11 +2,8 @@ using System.IO;
 
 namespace EonZeNx.ApexTools.Core.Refresh.Interfaces
 {
-    public interface IAvaFileBare
+    public interface IAvaFileBare : IAvaFileSimple
     {
         void Deserialize(string path);
-        void Deserialize(byte[] contents);
-
-        byte[] Export();
     }
 }

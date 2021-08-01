@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 
 namespace EonZeNx.ApexTools.Core.Utils
 {
@@ -16,6 +17,29 @@ namespace EonZeNx.ApexTools.Core.Utils
             s.Read(contents, 0, (int) s.Length);
 
             return contents;
+        }
+
+        public static string ReadStringZ(this BinaryReader br)
+        {
+            var fullString = "";
+            var character = "";
+            
+            while (character != "\0")
+            {
+                fullString += character;
+                character = Encoding.UTF8.GetString(br.ReadBytes(1));
+            }
+
+            return fullString;
+        }
+        
+        public static void WriteStringZ(this BinaryWriter bw, string value)
+        {
+            foreach (var character in value) { bw.Write(character); }
+
+            if (value.EndsWith("\0")) return;
+            
+            bw.Write("\0");
         }
     }
 }

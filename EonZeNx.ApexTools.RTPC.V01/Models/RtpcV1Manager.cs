@@ -11,7 +11,7 @@ using EonZeNx.ApexTools.Core.Utils;
 namespace EonZeNx.ApexTools.RTPC.V01.Models
 {
     /// <summary>
-    /// An <see cref="RTPC_V01"/> file
+    /// An <see cref="RtpcV1Manager"/> file
     /// <br/> Structure:
     /// <br/> FourCc - <see cref="T:EFourCC"/>
     /// <br/> Version - <see cref="uint"/>
@@ -21,8 +21,8 @@ namespace EonZeNx.ApexTools.RTPC.V01.Models
     {
         #region Variables
 
-        public override EFourCc FourCc { get; } = EFourCc.Rtpc;
-        public override int Version { get; } = 1;
+        public override EFourCc FourCc => EFourCc.Rtpc;
+        public override int Version => 1;
         public override string Extension { get; set; }
         public override string DefaultExtension { get; set; } = ".rtpc";
         public SQLiteConnection DbConnection { get; set; }
