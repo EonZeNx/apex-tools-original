@@ -108,7 +108,8 @@ namespace EonZeNx.ApexTools
 
             // Output processed file
             var fnWoExt = Path.GetFileNameWithoutExtension(path);
-            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}{fileManager.Extension}");
+            // TODO: Extension should be grabbed from file manager
+            var finalPath = Path.Combine(Path.GetDirectoryName(path) ?? "./", $"{fnWoExt}.xml");
             fileManager.Export(finalPath, History.ToArray());
         }
 
