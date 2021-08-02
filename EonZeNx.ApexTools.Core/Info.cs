@@ -2,10 +2,10 @@
 {
     public struct Info
     {
-        private static string ProgramName { get; }  = "Apex Engine Tools";
-        private static int MajorVersion { get; }  = 0;
-        private static int MinorVersion { get; }  = 5;
-        private static int BugfixVersion { get; }  = 0;
+        private static string ProgramName => "Apex Engine Tools";
+        private static int MajorVersion => 0;
+        private static int MinorVersion => 5;
+        private static int BugfixVersion => 1;
 
         public static string Get()
         {
